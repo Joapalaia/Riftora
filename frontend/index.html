@@ -3,1214 +3,565 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>LoL Stats</title>
+<title>Riftora — LoL Stats</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-
 <style>
-/* ── Reset ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg:        #080a0f;
-  --panel:     #0d1018;
-  --card:      #111520;
-  --border:    #1c2233;
-  --border2:   #242d42;
-  --gold:      #c8973a;
-  --gold2:     #e8b86d;
-  --gold-glow: rgba(200,151,58,.15);
-  --blue:      #3d9de8;
-  --blue-dim:  #2a6fa8;
-  --win:       #3ecf7a;
-  --win-dim:   rgba(62,207,122,.12);
-  --loss:      #e05252;
-  --loss-dim:  rgba(224,82,82,.12);
-  --text:      #d4c9b0;
-  --text2:     #8892a4;
-  --text3:     #4a5468;
-  --head:      'Barlow Condensed', sans-serif;
-  --body:      'Barlow', sans-serif;
-}
-
-/* ─── noise grain overlay ─── */
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--body);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-body::after {
-  content: '';
-  position: fixed; inset: 0; pointer-events: none; z-index: 9999;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-  opacity: .5;
-}
-
-/* ─── SEARCH PAGE ─── */
-.search-wrap {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem 1rem;
-  position: relative;
-}
-
-/* big decorative hex behind logo */
-.search-wrap::before {
-  content: '⬡';
-  position: absolute;
-  font-size: 42vw;
-  color: rgba(200,151,58,.025);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%,-50%);
-  pointer-events: none;
-  line-height: 1;
-  user-select: none;
-}
-
-.logo-mark {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 3rem;
-  animation: riseIn .7s cubic-bezier(.2,.8,.3,1) both;
-}
-
-.logo-hex {
-  width: 64px; height: 64px;
-  background: linear-gradient(135deg, var(--gold), var(--gold2));
-  clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--head);
-  font-size: 1.6rem; font-weight: 900;
-  color: #060810;
-  margin-bottom: 1rem;
-  box-shadow: 0 0 40px rgba(200,151,58,.35);
-}
-
-.logo-text {
-  font-family: var(--head);
-  font-size: clamp(2.8rem, 7vw, 5rem);
-  font-weight: 900;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  line-height: 1;
-  color: var(--text);
-}
-
-.logo-text span { color: var(--gold); }
-
-.logo-sub {
-  font-family: var(--body);
-  font-size: .75rem;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--text3);
-  margin-top: .4rem;
-}
-
-/* search card */
-.s-card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 2.5rem 2rem;
-  width: 100%; max-width: 540px;
-  box-shadow: 0 40px 100px rgba(0,0,0,.6);
-  animation: riseIn .7s .1s cubic-bezier(.2,.8,.3,1) both;
-  position: relative;
-}
-
-.s-card::before {
-  content: '';
-  position: absolute; top: 0; left: 10%; right: 10%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  opacity: .5;
-}
-
-.field-row { display: flex; gap: .75rem; align-items: stretch; }
-
-.field-label {
-  font-family: var(--head);
-  font-size: .72rem;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: .55rem;
-  display: flex; align-items: center; gap: .4rem;
-}
-
-.field-label::before {
-  content: '';
-  display: inline-block;
-  width: 10px; height: 1px;
-  background: var(--gold);
-}
-
-.input-box {
-  flex: 1;
-  display: flex;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-  transition: border-color .2s, box-shadow .2s;
-}
-.input-box:focus-within {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px var(--gold-glow);
-}
-
-.input-box input {
-  background: transparent; border: none; outline: none;
-  color: var(--text);
-  font-family: var(--body); font-size: .95rem;
-  padding: .85rem 1rem; flex: 1; min-width: 0;
-}
-.input-box input::placeholder { color: var(--text3); }
-
-.tag-sep {
-  padding: 0 .75rem;
-  display: flex; align-items: center;
-  color: var(--text3);
-  font-size: 1.2rem;
-  border-left: 1px solid var(--border);
-  font-weight: 300;
-}
-
-.tag-inp { width: 80px; border-left: none; }
-
-.btn-main {
-  background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
-  border: none; border-radius: 10px;
-  color: #070910;
-  font-family: var(--head); font-weight: 800;
-  font-size: 1rem; letter-spacing: .08em; text-transform: uppercase;
-  padding: 0 1.6rem; cursor: pointer;
-  transition: opacity .15s, transform .1s;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.btn-main:hover { opacity: .88; }
-.btn-main:active { transform: scale(.97); }
-.btn-main:disabled { opacity: .35; cursor: not-allowed; }
-
-/* options row */
-.opts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-top: 1.2rem;
-}
-
-.opt-group label { display: block; }
-
-.pill-row {
-  display: flex;
-  gap: .4rem;
-  flex-wrap: wrap;
-  margin-top: .4rem;
-}
-
-.pill {
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--text2);
-  font-family: var(--body); font-size: .75rem;
-  padding: .3rem .65rem; cursor: pointer;
-  transition: all .15s;
-}
-.pill:hover { border-color: var(--border2); color: var(--text); }
-.pill.active { border-color: var(--gold); color: var(--gold); background: var(--gold-glow); }
-
-/* count slider */
-.count-row {
-  display: flex; align-items: center; gap: .75rem;
-  margin-top: .4rem;
-}
-
-.count-val {
-  font-family: var(--head); font-size: 1.3rem; font-weight: 700;
-  color: var(--gold); min-width: 2rem;
-}
-
-input[type=range] {
-  flex: 1; -webkit-appearance: none;
-  height: 4px; background: var(--border); border-radius: 2px; outline: none;
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 16px; height: 16px; border-radius: 50%;
-  background: var(--gold); cursor: pointer;
-  box-shadow: 0 0 8px var(--gold-glow);
-}
-
-/* region grid */
-.region-grid {
-  display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .4rem;
-}
-
-.error-bar {
-  margin-top: 1rem;
-  padding: .7rem 1rem;
-  border-radius: 8px;
-  background: var(--loss-dim);
-  border: 1px solid rgba(224,82,82,.3);
-  color: var(--loss);
-  font-size: .82rem; text-align: center;
-}
-
-/* ─── LOADER ─── */
-.loader-wrap {
-  min-height: 100vh; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 1.5rem;
-}
-
-.hex-loader {
-  width: 52px; height: 52px;
-  background: linear-gradient(135deg, var(--gold), var(--gold2));
-  clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-  animation: hexPulse 1.2s ease-in-out infinite;
-}
-
-@keyframes hexPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: .4; transform: scale(.85); }
-}
-
-.loader-text {
-  font-family: var(--head); font-size: 1rem; letter-spacing: .18em;
-  text-transform: uppercase; color: var(--text2);
-}
-
-/* ─── PROFILE PAGE ─── */
-.profile-wrap {
-  max-width: 960px; margin: 0 auto;
-  padding: 2rem 1.5rem 5rem;
-  animation: riseIn .5s cubic-bezier(.2,.8,.3,1) both;
-}
-
-/* top nav */
-.nav-bar {
-  display: flex; align-items: center; gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.back-btn {
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text2);
-  font-family: var(--head); font-size: .8rem;
-  letter-spacing: .1em; text-transform: uppercase;
-  padding: .45rem .9rem; cursor: pointer;
-  transition: all .15s; display: flex; align-items: center; gap: .4rem;
-}
-.back-btn:hover { border-color: var(--gold); color: var(--gold); }
-
-.nav-crumb {
-  font-family: var(--head); font-size: .75rem;
-  letter-spacing: .12em; text-transform: uppercase;
-  color: var(--text3);
-}
-.nav-crumb span { color: var(--gold); }
-
-/* hero header */
-.hero {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 2rem;
-  margin-bottom: 1.25rem;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 1.5rem;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero::after {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent 0%, var(--gold) 40%, var(--gold2) 60%, transparent 100%);
-}
-
-/* decorative background pattern */
-.hero::before {
-  content: '';
-  position: absolute; right: -30px; top: -30px;
-  width: 200px; height: 200px;
-  background: radial-gradient(circle, var(--gold-glow) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.icon-wrap { position: relative; }
-
-.icon-img {
-  width: 86px; height: 86px;
-  border-radius: 12px;
-  border: 2px solid var(--border2);
-  object-fit: cover;
-  display: block;
-  background: var(--border);
-}
-
-.icon-lv {
-  position: absolute; bottom: -9px; left: 50%;
-  transform: translateX(-50%);
-  background: var(--gold);
-  color: #060810;
-  font-family: var(--head); font-size: .65rem; font-weight: 800;
-  padding: 2px 8px; border-radius: 20px; white-space: nowrap;
-  letter-spacing: .04em;
-}
-
-.hero-name {
-  font-family: var(--head);
-  font-size: clamp(1.6rem, 4vw, 2.4rem);
-  font-weight: 900; letter-spacing: .02em;
-  text-transform: uppercase; line-height: 1;
-  margin-bottom: .3rem;
-}
-
-.hero-tag {
-  font-family: var(--body); font-size: .8rem; color: var(--text2);
-}
-.hero-tag b { color: var(--gold); font-weight: 600; }
-
-.rank-block { text-align: right; }
-
-.rank-tier {
-  font-family: var(--head);
-  font-size: 1.8rem; font-weight: 900;
-  letter-spacing: .04em; text-transform: uppercase;
-  line-height: 1;
-  background: linear-gradient(135deg, var(--gold), var(--gold2));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.rank-lp {
-  font-size: .78rem; color: var(--text2); margin-top: .2rem;
-}
-
-.rank-record {
-  font-size: .75rem; color: var(--text3); margin-top: .15rem;
-}
-
-/* streak badge */
-.streak-badge {
-  display: inline-flex; align-items: center; gap: .3rem;
-  padding: .2rem .6rem; border-radius: 6px;
-  font-family: var(--head); font-size: .72rem; font-weight: 700;
-  letter-spacing: .06em; text-transform: uppercase; margin-top: .3rem;
-}
-.streak-badge.win { background: var(--win-dim); color: var(--win); border: 1px solid rgba(62,207,122,.2); }
-.streak-badge.loss { background: var(--loss-dim); color: var(--loss); border: 1px solid rgba(224,82,82,.2); }
-
-/* ── stat cards row ── */
-.stat-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
-  gap: 1rem; margin-bottom: 1.25rem;
-}
-
-.stat-card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.15rem 1.1rem;
-}
-
-.sc-label {
-  font-family: var(--head); font-size: .65rem;
-  letter-spacing: .14em; text-transform: uppercase;
-  color: var(--text3); margin-bottom: .3rem;
-}
-
-.sc-val {
-  font-family: var(--head); font-size: 1.8rem; font-weight: 800;
-  letter-spacing: -.01em; line-height: 1;
-}
-
-.sc-sub { font-size: .72rem; color: var(--text3); margin-top: .2rem; }
-
-.c-gold { color: var(--gold); }
-.c-blue { color: var(--blue); }
-.c-win  { color: var(--win); }
-.c-loss { color: var(--loss); }
-.c-text { color: var(--text); }
-
-/* winrate bar */
-.wr-bar {
-  height: 3px; background: var(--border);
-  border-radius: 99px; margin-top: .5rem; overflow: hidden;
-}
-.wr-fill {
-  height: 100%; border-radius: 99px;
-  background: linear-gradient(90deg, var(--win), #6de8a4);
-  transition: width 1s cubic-bezier(.4,0,.2,1);
-}
-
-/* ── section header ── */
-.sec-head {
-  display: flex; align-items: center; gap: .6rem;
-  margin-bottom: .9rem;
-}
-.sec-title {
-  font-family: var(--head); font-size: .7rem;
-  letter-spacing: .18em; text-transform: uppercase; color: var(--gold);
-}
-.sec-line {
-  flex: 1; height: 1px;
-  background: linear-gradient(90deg, var(--border), transparent);
-}
-
-/* ── champion cards ── */
-.champ-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: .85rem; margin-bottom: 1.25rem;
-}
-
-.champ-card {
-  background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
-  padding: .9rem 1rem;
-  display: flex; align-items: center; gap: .9rem;
-  transition: border-color .2s, background .2s;
-  cursor: default;
-}
-.champ-card:hover { border-color: var(--border2); background: var(--card); }
-
-.champ-img {
-  width: 50px; height: 50px; border-radius: 8px;
-  object-fit: cover; background: var(--border);
-  border: 1px solid var(--border2); flex-shrink: 0;
-}
-
-.champ-info { flex: 1; min-width: 0; }
-
-.champ-name {
-  font-family: var(--head); font-size: 1rem; font-weight: 700;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  margin-bottom: .15rem; letter-spacing: .02em;
-}
-
-.champ-meta {
-  font-size: .7rem; color: var(--text2);
-  display: flex; gap: .6rem;
-}
-
-.champ-kda { color: var(--blue); font-weight: 600; }
-
-.champ-wr-num {
-  font-family: var(--head); font-size: 1.05rem; font-weight: 800;
-  flex-shrink: 0;
-}
-
-/* ── match list ── */
-.match-list { display: flex; flex-direction: column; gap: .6rem; }
-
-.match-card {
-  background: var(--panel); border: 1px solid var(--border);
-  border-left: 3px solid transparent;
-  border-radius: 12px; padding: .9rem 1.1rem;
-  display: grid;
-  grid-template-columns: 52px 1fr auto auto;
-  align-items: center; gap: 1rem;
-  transition: background .15s;
-}
-.match-card:hover { background: var(--card); }
-.match-card.win  { border-left-color: var(--win); }
-.match-card.loss { border-left-color: var(--loss); }
-
-.match-icon {
-  width: 52px; height: 52px; border-radius: 8px;
-  object-fit: cover; background: var(--border);
-  border: 1px solid var(--border2);
-}
-
-.match-main {}
-.match-champ {
-  font-family: var(--head); font-size: .95rem; font-weight: 700;
-  letter-spacing: .02em; margin-bottom: .1rem;
-}
-.match-info { font-size: .7rem; color: var(--text2); }
-
-.match-kda {
-  text-align: center;
-}
-.match-kda-score {
-  font-family: var(--head); font-size: .9rem; font-weight: 700;
-}
-.match-kda-ratio {
-  font-size: .68rem; color: var(--blue); margin-top: .1rem;
-}
-
-.match-result {
-  font-family: var(--head); font-size: .72rem; font-weight: 700;
-  letter-spacing: .08em; text-transform: uppercase; text-align: right;
-  min-width: 50px;
-}
-.match-result.win  { color: var(--win); }
-.match-result.loss { color: var(--loss); }
-
-/* ── rune icons ── */
-.rune-row {
-  display: flex; gap: .35rem; align-items: center; flex-wrap: wrap;
-  margin-top: .3rem;
-}
-.rune-icon {
-  width: 20px; height: 20px; border-radius: 50%;
-  object-fit: cover; background: var(--border);
-  border: 1px solid var(--border2);
-  flex-shrink: 0;
-}
-
-/* ── item icons ── */
-.item-row {
-  display: flex; gap: .3rem; align-items: center; flex-wrap: wrap;
-}
-.item-icon {
-  width: 28px; height: 28px; border-radius: 6px;
-  object-fit: cover; background: var(--border);
-  border: 1px solid var(--border2);
-}
-.item-empty {
-  width: 28px; height: 28px; border-radius: 6px;
-  background: var(--border); border: 1px solid var(--border);
-  opacity: .4;
-}
-
-/* ── role badge ── */
-.role-badge {
-  display: inline-block;
-  padding: .15rem .5rem; border-radius: 4px;
-  font-family: var(--head); font-size: .62rem; font-weight: 700;
-  letter-spacing: .06em; text-transform: uppercase;
-  background: rgba(61,157,232,.12); color: var(--blue);
-  border: 1px solid rgba(61,157,232,.2);
-}
-
-/* ── by_role section ── */
-.role-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: .85rem; margin-bottom: 1.25rem;
-}
-
-.role-card {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 12px; padding: 1rem;
-}
-
-.role-name {
-  font-family: var(--head); font-size: 1.1rem; font-weight: 800;
-  letter-spacing: .04em; text-transform: uppercase;
-  margin-bottom: .4rem;
-}
-
-.role-stats {
-  display: flex; flex-direction: column; gap: .15rem;
-  font-size: .75rem; color: var(--text2);
-}
-
-/* ── evolution blocks ── */
-.evo-blocks {
-  display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.25rem;
-}
-.evo-block {
-  flex: 1; min-width: 100px;
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 10px; padding: .8rem;
-  text-align: center;
-}
-.evo-range {
-  font-size: .62rem; color: var(--text3); margin-bottom: .3rem;
-  font-family: var(--head); letter-spacing: .08em; text-transform: uppercase;
-}
-.evo-wr {
-  font-family: var(--head); font-size: 1.3rem; font-weight: 800;
-}
-.evo-sub { font-size: .65rem; color: var(--text3); margin-top: .15rem; }
-
-/* trend pill */
-.trend-pill {
-  display: inline-flex; align-items: center; gap: .35rem;
-  padding: .25rem .8rem; border-radius: 99px;
-  font-family: var(--head); font-size: .72rem; font-weight: 700;
-  letter-spacing: .06em; text-transform: uppercase;
-}
-.trend-pill.improving { background: var(--win-dim); color: var(--win); }
-.trend-pill.declining { background: var(--loss-dim); color: var(--loss); }
-.trend-pill.stable    { background: rgba(61,157,232,.1); color: var(--blue); }
-
-/* ── by_hour chart ── */
-.hour-chart {
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 12px; padding: 1.25rem 1rem 1rem;
-  margin-bottom: 1.25rem; overflow-x: auto;
-}
-
-.hour-bars {
-  display: flex; align-items: flex-end; gap: 3px;
-  height: 80px; min-width: 500px;
-}
-
-.hour-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-
-.hour-bar {
-  width: 100%; border-radius: 3px 3px 0 0;
-  transition: opacity .2s;
-  min-height: 3px;
-}
-.hour-bar:hover { opacity: .75; }
-
-.hour-lbl {
-  font-family: var(--head); font-size: .55rem;
-  color: var(--text3); white-space: nowrap; transform: rotate(-45deg);
-}
-
-/* ─── ANIMATIONS ─── */
-@keyframes riseIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ─── RESPONSIVE ─── */
-@media (max-width: 640px) {
-  .hero { grid-template-columns: auto 1fr; }
-  .rank-block { grid-column: span 2; text-align: left; }
-  .opts-grid { grid-template-columns: 1fr; }
-  .match-card { grid-template-columns: 44px 1fr auto; }
-  .match-kda { display: none; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070910;--panel:#0c0f1a;--card:#101422;--border:#1a2030;--border2:#222d42;
+  --gold:#c8973a;--gold2:#e8b86d;--gold-glow:rgba(200,151,58,.15);
+  --blue:#3d9de8;--win:#3ecf7a;--win-dim:rgba(62,207,122,.1);
+  --loss:#e05252;--loss-dim:rgba(224,82,82,.1);
+  --text:#d4c9b0;--text2:#7a8494;--text3:#3a4458;
+  --head:'Barlow Condensed',sans-serif;--body:'Barlow',sans-serif;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;overflow-x:hidden;cursor:none;}
+
+/* cursor */
+#cdot{position:fixed;width:7px;height:7px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);mix-blend-mode:screen;}
+#cglow{position:fixed;width:320px;height:320px;border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(200,151,58,.055) 0%,rgba(61,157,232,.025) 40%,transparent 70%);transition:transform .18s cubic-bezier(.2,.8,.3,1);}
+
+/* grain */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");opacity:.5;}
+
+/* ── SEARCH ── */
+.sw{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;position:relative;overflow:hidden;}
+.sw::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:60px 60px;opacity:.25;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%);}
+.sw::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(200,151,58,.04) 0%,transparent 70%);}
+
+.logo-mark{display:flex;flex-direction:column;align-items:center;margin-bottom:3rem;animation:riseIn .8s cubic-bezier(.2,.8,.3,1) both;position:relative;z-index:1;}
+.logo-hex{width:72px;height:72px;background:linear-gradient(135deg,var(--gold),var(--gold2));clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:1.9rem;font-weight:900;color:#060810;margin-bottom:1.2rem;box-shadow:0 0 60px rgba(200,151,58,.4),0 0 120px rgba(200,151,58,.12);animation:hexFloat 4s ease-in-out infinite;}
+@keyframes hexFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+.logo-name{font-family:var(--head);font-size:clamp(3rem,8vw,5.5rem);font-weight:900;letter-spacing:.08em;text-transform:uppercase;line-height:1;background:linear-gradient(135deg,var(--text) 0%,var(--gold2) 50%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.logo-sub{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--text3);margin-top:.5rem;}
+
+.sc{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:2.5rem 2rem;width:100%;max-width:560px;box-shadow:0 40px 120px rgba(0,0,0,.7);position:relative;z-index:1;animation:riseIn .8s .1s cubic-bezier(.2,.8,.3,1) both;}
+.sc::before{content:'';position:absolute;top:0;left:8%;right:8%;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4;}
+
+.flbl{font-family:var(--head);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem;}
+.flbl::before{content:'';display:inline-block;width:12px;height:1px;background:var(--gold);}
+.frow{display:flex;gap:.75rem;align-items:stretch;}
+.ibox{flex:1;display:flex;background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s,box-shadow .2s;}
+.ibox:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-glow);}
+.ibox input{background:transparent;border:none;outline:none;color:var(--text);font-family:var(--body);font-size:.95rem;padding:.85rem 1rem;flex:1;min-width:0;}
+.ibox input::placeholder{color:var(--text3);}
+.tsep{padding:0 .75rem;display:flex;align-items:center;color:var(--text3);font-size:1.1rem;border-left:1px solid var(--border);}
+.tinp{width:80px;}
+.bsearch{background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:10px;color:#060810;font-family:var(--head);font-weight:800;font-size:1rem;letter-spacing:.1em;text-transform:uppercase;padding:0 1.6rem;cursor:none;transition:opacity .15s,transform .1s;white-space:nowrap;flex-shrink:0;}
+.bsearch:hover{opacity:.85;}.bsearch:active{transform:scale(.97);}.bsearch:disabled{opacity:.3;}
+
+.ogrid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1.2rem;}
+.pill{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text2);font-family:var(--body);font-size:.73rem;padding:.28rem .65rem;cursor:none;transition:all .15s;}
+.pill:hover{border-color:var(--border2);color:var(--text);}.pill.on{border-color:var(--gold);color:var(--gold);background:var(--gold-glow);}
+.pwrap{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.45rem;}
+.crow{display:flex;align-items:center;gap:.75rem;margin-top:.45rem;}
+.cnum{font-family:var(--head);font-size:1.4rem;font-weight:700;color:var(--gold);min-width:2.5rem;}
+input[type=range]{flex:1;-webkit-appearance:none;height:3px;background:var(--border);border-radius:2px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--gold);cursor:none;box-shadow:0 0 8px rgba(200,151,58,.5);}
+.ebar{margin-top:1rem;padding:.7rem 1rem;border-radius:8px;background:var(--loss-dim);border:1px solid rgba(224,82,82,.25);color:var(--loss);font-size:.82rem;text-align:center;}
+
+/* loader */
+.lw{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;}
+.hpulse{width:56px;height:56px;background:linear-gradient(135deg,var(--gold),var(--gold2));clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);animation:pulse 1.3s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(.8);}}
+.ltxt{font-family:var(--head);font-size:.95rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text2);}
+
+/* ── PROFILE LAYOUT ── */
+.proot{display:flex;min-height:100vh;}
+
+/* sidebar */
+.sbar{width:270px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;padding:1.5rem .9rem;display:flex;flex-direction:column;gap:.35rem;}
+.sbar::-webkit-scrollbar{width:3px;}.sbar::-webkit-scrollbar-track{background:transparent;}.sbar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.stitle{font-family:var(--head);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);padding:.4rem .4rem .9rem;border-bottom:1px solid var(--border);margin-bottom:.4rem;text-align:center;}
+.mi{display:flex;align-items:center;gap:.6rem;padding:.5rem .55rem;border-radius:8px;border:1px solid transparent;transition:all .2s;position:relative;overflow:hidden;}
+.mi:hover{background:var(--card);border-color:var(--border);}
+.mrank{font-family:var(--head);font-size:.6rem;font-weight:700;color:var(--text3);min-width:14px;text-align:center;}
+.mimg{width:34px;height:34px;border-radius:6px;object-fit:cover;border:1px solid var(--border2);background:var(--border);flex-shrink:0;}
+.minfo{flex:1;min-width:0;}
+.mname{font-family:var(--head);font-size:.82rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em;}
+.mpts{font-size:.62rem;color:var(--text2);margin-top:.08rem;}
+.mlv{font-family:var(--head);font-size:.7rem;font-weight:800;color:var(--gold);flex-shrink:0;}
+.mbar{position:absolute;bottom:0;left:0;height:1px;background:linear-gradient(90deg,var(--gold),transparent);}
+
+/* main */
+.mcont{flex:1;min-width:0;padding:2rem 2rem 5rem;max-width:880px;}
+
+.nbar{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;}
+.bbtn{background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text2);font-family:var(--head);font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;padding:.42rem .9rem;cursor:none;transition:all .15s;}
+.bbtn:hover{border-color:var(--gold);color:var(--gold);}
+.ncrumb{font-family:var(--head);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);}
+.ncrumb b{color:var(--gold);}
+
+/* hero */
+.hero{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:1.75rem 2rem;margin-bottom:1.25rem;display:grid;grid-template-columns:auto 1fr auto;gap:1.5rem;align-items:center;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold) 40%,var(--gold2) 60%,transparent);}
+.hero::before{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(200,151,58,.06) 0%,transparent 70%);pointer-events:none;}
+.icw{position:relative;}
+.icimg{width:80px;height:80px;border-radius:12px;border:2px solid var(--border2);object-fit:cover;display:block;background:var(--border);}
+.iclv{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);background:var(--gold);color:#060810;font-family:var(--head);font-size:.6rem;font-weight:800;padding:2px 8px;border-radius:20px;white-space:nowrap;letter-spacing:.04em;}
+.hname{font-family:var(--head);font-size:clamp(1.4rem,3.5vw,2.1rem);font-weight:900;letter-spacing:.02em;text-transform:uppercase;line-height:1;margin-bottom:.3rem;}
+.htag{font-size:.76rem;color:var(--text2);}.htag b{color:var(--gold);}
+.stk{display:inline-flex;align-items:center;gap:.3rem;padding:.18rem .6rem;border-radius:6px;font-family:var(--head);font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-top:.3rem;}
+.stk.win{background:var(--win-dim);color:var(--win);border:1px solid rgba(62,207,122,.2);}
+.stk.loss{background:var(--loss-dim);color:var(--loss);border:1px solid rgba(224,82,82,.2);}
+.rblock{text-align:right;}
+.rtier{font-family:var(--head);font-size:1.65rem;font-weight:900;letter-spacing:.04em;text-transform:uppercase;line-height:1;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.rlp{font-size:.73rem;color:var(--text2);margin-top:.2rem;}
+.rrec{font-size:.68rem;color:var(--text3);margin-top:.12rem;}
+.tpill{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .7rem;border-radius:99px;font-family:var(--head);font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-top:.35rem;}
+.tpill.improving{background:var(--win-dim);color:var(--win);}.tpill.declining{background:var(--loss-dim);color:var(--loss);}.tpill.stable{background:rgba(61,157,232,.1);color:var(--blue);}
+
+/* season bar */
+.sznbar{display:flex;align-items:center;gap:.75rem;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:.85rem 1.2rem;margin-bottom:1.25rem;flex-wrap:wrap;}
+.sznlbl{font-family:var(--head);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);}
+.szpills{display:flex;gap:.4rem;flex-wrap:wrap;}
+.szp{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text2);font-family:var(--head);font-size:.7rem;font-weight:700;letter-spacing:.06em;padding:.22rem .7rem;cursor:none;transition:all .15s;}
+.szp:hover{border-color:var(--border2);color:var(--text);}.szp.on{border-color:var(--gold);color:var(--gold);background:var(--gold-glow);}.szp.all.on{border-color:var(--blue);color:var(--blue);background:rgba(61,157,232,.1);}
+
+/* stats */
+.srow{display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));gap:.8rem;margin-bottom:1.25rem;}
+.scard{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.05rem .95rem;}
+.slbl{font-family:var(--head);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:.28rem;}
+.sval{font-family:var(--head);font-size:1.65rem;font-weight:800;letter-spacing:-.01em;line-height:1;}
+.ssub{font-size:.66rem;color:var(--text3);margin-top:.18rem;}
+.c-gold{color:var(--gold);}.c-blue{color:var(--blue);}.c-win{color:var(--win);}.c-loss{color:var(--loss);}.c-txt{color:var(--text);}
+.wrbar{height:3px;background:var(--border);border-radius:99px;margin-top:.45rem;overflow:hidden;}
+.wrfill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--win),#6de8a4);transition:width 1s cubic-bezier(.4,0,.2,1);}
+
+/* section */
+.sec{display:flex;align-items:center;gap:.6rem;margin-bottom:.85rem;}
+.sttl{font-family:var(--head);font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);}
+.sline{flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+
+/* champ grid */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:.75rem;margin-bottom:1.25rem;}
+.ccard{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:.82rem .95rem;display:flex;align-items:center;gap:.8rem;transition:border-color .2s,background .2s;}
+.ccard:hover{border-color:var(--border2);background:var(--card);}
+.cimg{width:46px;height:46px;border-radius:7px;object-fit:cover;border:1px solid var(--border2);background:var(--border);flex-shrink:0;}
+.cinfo{flex:1;min-width:0;}
+.cname{font-family:var(--head);font-size:.92rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:.14rem;letter-spacing:.02em;}
+.cmeta{font-size:.66rem;color:var(--text2);display:flex;gap:.6rem;}
+.ckda{color:var(--blue);font-weight:600;}
+.cwr{font-family:var(--head);font-size:.98rem;font-weight:800;flex-shrink:0;}
+
+/* role */
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:.75rem;margin-bottom:1.25rem;}
+.rcard{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:.95rem;}
+.rname{font-family:var(--head);font-size:.95rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-bottom:.38rem;}
+.rstats{display:flex;flex-direction:column;gap:.14rem;font-size:.7rem;color:var(--text2);}
+
+/* evo */
+.erow{display:flex;gap:.42rem;flex-wrap:wrap;margin-bottom:1.25rem;}
+.eblk{flex:1;min-width:88px;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.72rem;text-align:center;}
+.erng{font-size:.56rem;color:var(--text3);margin-bottom:.28rem;font-family:var(--head);letter-spacing:.08em;text-transform:uppercase;}
+.ewr{font-family:var(--head);font-size:1.15rem;font-weight:800;}
+.esub{font-size:.58rem;color:var(--text3);margin-top:.1rem;}
+
+/* hour */
+.hchart{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.1rem .9rem .9rem;margin-bottom:1.25rem;overflow-x:auto;}
+.hbars{display:flex;align-items:flex-end;gap:3px;height:76px;min-width:480px;}
+.hbw{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.hbar{width:100%;border-radius:3px 3px 0 0;transition:opacity .2s;min-height:3px;}.hbar:hover{opacity:.7;}
+.hlbl{font-family:var(--head);font-size:.5rem;color:var(--text3);white-space:nowrap;transform:rotate(-45deg);}
+
+/* matches */
+.mlist{display:flex;flex-direction:column;gap:.52rem;}
+.mcard{background:var(--panel);border:1px solid var(--border);border-left:3px solid transparent;border-radius:12px;padding:.82rem 1.05rem;display:grid;grid-template-columns:48px 1fr auto auto;align-items:center;gap:.85rem;transition:background .15s;}
+.mcard:hover{background:var(--card);}.mcard.win{border-left-color:var(--win);}.mcard.loss{border-left-color:var(--loss);}
+.mic{width:48px;height:48px;border-radius:7px;object-fit:cover;border:1px solid var(--border2);background:var(--border);}
+.mch{font-family:var(--head);font-size:.88rem;font-weight:700;letter-spacing:.02em;margin-bottom:.09rem;}
+.minf{font-size:.66rem;color:var(--text2);}
+.mitems{display:flex;gap:.22rem;flex-wrap:wrap;margin-top:.32rem;}
+.iic{width:24px;height:24px;border-radius:5px;object-fit:cover;border:1px solid var(--border2);background:var(--border);}
+.iemp{width:24px;height:24px;border-radius:5px;background:var(--border);opacity:.3;}
+.rrow{display:flex;gap:.28rem;align-items:center;flex-wrap:wrap;margin-top:.22rem;}
+.ric{width:17px;height:17px;border-radius:50%;object-fit:cover;background:var(--border);border:1px solid var(--border2);}
+.kdab{text-align:center;}
+.kdas{font-family:var(--head);font-size:.86rem;font-weight:700;}
+.kdar{font-size:.62rem;color:var(--blue);margin-top:.09rem;}
+.mres{font-family:var(--head);font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-align:right;min-width:46px;}
+.mres.win{color:var(--win);}.mres.loss{color:var(--loss);}
+.rbadge{display:inline-block;padding:.1rem .42rem;border-radius:4px;font-family:var(--head);font-size:.56rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:rgba(61,157,232,.1);color:var(--blue);border:1px solid rgba(61,157,232,.2);margin-left:.38rem;}
+
+/* reveal */
+.rev{opacity:0;transform:translateY(18px);transition:opacity .5s cubic-bezier(.2,.8,.3,1),transform .5s cubic-bezier(.2,.8,.3,1);}
+.rev.vis{opacity:1;transform:translateY(0);}
+
+@keyframes riseIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+
+@media(max-width:900px){
+  .proot{flex-direction:column;}
+  .sbar{width:100%;height:auto;position:relative;overflow-x:auto;overflow-y:visible;flex-direction:row;padding:.9rem;border-right:none;border-bottom:1px solid var(--border);}
+  .stitle{display:none;}.mi{min-width:130px;flex-shrink:0;}.mbar{display:none;}
+  .mcont{padding:1.4rem 1rem 4rem;}
+}
+@media(max-width:640px){
+  .hero{grid-template-columns:auto 1fr;}.rblock{grid-column:span 2;text-align:left;}
+  .ogrid{grid-template-columns:1fr;}
+  .mcard{grid-template-columns:42px 1fr auto;}.kdab{display:none;}
 }
 </style>
 </head>
 <body>
+<div id="cdot"></div>
+<div id="cglow"></div>
 <div id="root"></div>
 
+<script>
+const dot=document.getElementById('cdot'),glow=document.getElementById('cglow');
+let mx=0,my=0,gx=0,gy=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+(function tick(){gx+=(mx-gx)*.08;gy+=(my-gy)*.08;glow.style.left=gx+'px';glow.style.top=gy+'px';requestAnimationFrame(tick);})();
+</script>
+
 <script type="text/babel">
-const { useState, useEffect, useCallback } = React;
+const {useState,useEffect,useRef}=React;
 
-// ══════════════════════════════════════════════════════
-// CONFIG — mude só isso
-// ══════════════════════════════════════════════════════
-const API_BASE = "https://riftora-backend.onrender.com";; // ← URL do Railway depois do deploy
-//const API_BASE = "http://localhost:8000";           // ← descomente pra testar local
+const API_BASE="https://riftora-backend.onrender.com";
 
-const REGIONS = [
-  { id: "br1",   label: "BR"   },
-  { id: "na1",   label: "NA"   },
-  { id: "euw1",  label: "EUW"  },
-  { id: "eune1", label: "EUNE" },
-  { id: "kr",    label: "KR"   },
-  { id: "lan1",  label: "LAN"  },
-  { id: "las1",  label: "LAS"  },
-  { id: "oc1",   label: "OCE"  },
+const REGIONS=[{id:"br1",label:"BR"},{id:"na1",label:"NA"},{id:"euw1",label:"EUW"},{id:"eune1",label:"EUNE"},{id:"kr",label:"KR"},{id:"lan1",label:"LAN"},{id:"las1",label:"LAS"},{id:"oc1",label:"OCE"}];
+const MODES=[{id:"ranked_solo",label:"Ranked Solo"},{id:"ranked_flex",label:"Ranked Flex"},{id:"normal",label:"Normal"},{id:"aram",label:"ARAM"},{id:"all",label:"Todos"}];
+const SEASONS=[
+  {id:"all",label:"Todos"},
+  {id:"2025",label:"2025",start:new Date("2025-01-09T00:00:00Z").getTime()},
+  {id:"2024",label:"2024",start:new Date("2024-01-10T00:00:00Z").getTime(),end:new Date("2025-01-09T00:00:00Z").getTime()},
+  {id:"2023",label:"2023",start:new Date("2023-01-11T00:00:00Z").getTime(),end:new Date("2024-01-10T00:00:00Z").getTime()},
 ];
 
-const MODES = [
-  { id: "ranked_solo", label: "Ranked Solo" },
-  { id: "ranked_flex", label: "Ranked Flex" },
-  { id: "normal",      label: "Normal"      },
-  { id: "aram",        label: "ARAM"        },
-  { id: "all",         label: "Todos"       },
-];
-
-// Caminho dos assets locais (relativo ao index.html)
-// Estrutura esperada: assets/champion/Jinx.png, assets/items/1001.png, assets/runes/Electrocute.png
-const A = {
-  champ: name => `assets/champion/${name}.png`,
-  item:  id   => `assets/items/${id}.png`,
-  rune:  name => `assets/runes/${name}.png`,
-  icon:  id   => `assets/profileicons/${id}.png`,
+const DDV="14.9.1";
+const A={
+  champ:n=>`assets/champions/${n}.png`,
+  item:id=>`assets/items/${id}.png`,
+  rune:n=>`assets/runes/${n}.png`,
+  icon:id=>`https://ddragon.leagueoflegends.com/cdn/${DDV}/img/profileicon/${id}.png`,
+};
+const DD={
+  champ:n=>`https://ddragon.leagueoflegends.com/cdn/${DDV}/img/champion/${n}.png`,
+  item:id=>`https://ddragon.leagueoflegends.com/cdn/${DDV}/img/item/${id}.png`,
 };
 
-// Fallback: se asset local falhar, usa Data Dragon
-const DDV = "14.9.1";
-const DD = {
-  champ: name => `https://ddragon.leagueoflegends.com/cdn/${DDV}/img/champion/${name}.png`,
-  item:  id   => `https://ddragon.leagueoflegends.com/cdn/${DDV}/img/item/${id}.png`,
-  icon:  id   => `https://ddragon.leagueoflegends.com/cdn/${DDV}/img/profileicon/${id}.png`,
-};
+function Img({src,fallback,...p}){return <img src={src} onError={e=>{if(fallback&&e.target.src!==fallback)e.target.src=fallback;}} {...p}/>;}
 
-function imgSrc(local, fallback) {
-  // tenta local primeiro; se quebrar, usa fallback DDragon
-  return local;
+function useReveal(){
+  const ref=useRef(null);
+  useEffect(()=>{
+    if(!ref.current)return;
+    const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}});},{threshold:0.08});
+    ref.current.querySelectorAll('.rev').forEach(el=>obs.observe(el));
+    return()=>obs.disconnect();
+  },[]);
+  return ref;
 }
 
-function ImgWithFallback({ src, fallback, ...props }) {
-  return (
-    <img
-      src={src}
-      onError={e => { if (fallback && e.target.src !== fallback) e.target.src = fallback; }}
-      {...props}
-    />
-  );
+function filterBySeason(matches,sid){
+  if(sid==="all"||!matches)return matches||[];
+  const s=SEASONS.find(x=>x.id===sid);
+  if(!s||!s.start)return matches;
+  return matches.filter(m=>{const ts=m.game_start;if(!ts)return false;return s.end?ts>=s.start&&ts<s.end:ts>=s.start;});
 }
 
-// ══════════════════════════════════════════════════════
-// SEARCH PAGE
-// ══════════════════════════════════════════════════════
+function computeStats(matches){
+  if(!matches||!matches.length)return null;
+  const total=matches.length,wins=matches.filter(m=>m.win).length;
+  const avg=k=>{const v=matches.map(m=>m[k]).filter(x=>x!=null);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length*100)/100:0;};
+  const ak=avg('kills'),ad=avg('deaths'),aa=avg('assists');
+  return{total_matches:total,wins,losses:total-wins,winrate:Math.round(wins/total*1000)/10,
+    avg_kda:ad===0?(ak+aa).toFixed(2):Math.round((ak+aa)/ad*100)/100,
+    avg_kills:ak,avg_deaths:ad,avg_assists:aa,
+    avg_cs:avg('cs_total'),avg_damage:avg('damage_dealt'),
+    avg_vision:avg('vision_score'),avg_game_duration_min:Math.round(avg('time_played')/60*10)/10};
+}
 
-function SearchPage({ onResult }) {
-  const [name,    setName]    = useState("");
-  const [tag,     setTag]     = useState("");
-  const [region,  setRegion]  = useState("br1");
-  const [mode,    setMode]    = useState("ranked_solo");
-  const [count,   setCount]   = useState(20);
-  const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState("");
+function computeByChamp(ms){
+  if(!ms||!ms.length)return[];
+  const map={};
+  ms.forEach(m=>{const c=m.champion_name;if(!map[c])map[c]={champion:c,games:0,wins:0,k:[],d:[],a:[],cs:[]};
+    map[c].games++;map[c].wins+=m.win?1:0;map[c].k.push(m.kills);map[c].d.push(m.deaths);map[c].a.push(m.assists);map[c].cs.push(m.cs_total);});
+  const avg=arr=>arr.length?Math.round(arr.reduce((a,b)=>a+b,0)/arr.length*100)/100:0;
+  return Object.values(map).map(c=>{const ak=avg(c.k),ad=avg(c.d),aa=avg(c.a);
+    return{...c,winrate:Math.round(c.wins/c.games*1000)/10,avg_kda:ad===0?(ak+aa).toFixed(2):Math.round((ak+aa)/ad*100)/100,avg_cs:avg(c.cs)};
+  }).sort((a,b)=>b.games-a.games);
+}
 
-  async function doSearch() {
-    if (!name.trim() || !tag.trim()) { setError("Preencha o nome e a tag."); return; }
-    setError(""); setLoading(true);
-    try {
-      const url = `${API_BASE}/search?name=${encodeURIComponent(name.trim())}&tag=${encodeURIComponent(tag.trim())}&region=${region}&mode=${mode}&matches=${count}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Erro desconhecido.");
-      onResult(data);
-    } catch (e) {
-      setError(e.message);
-    }
+// ── SEARCH ──
+function SearchPage({onResult}){
+  const[name,setName]=useState("");const[tag,setTag]=useState("");
+  const[region,setRegion]=useState("br1");const[mode,setMode]=useState("ranked_solo");
+  const[count,setCount]=useState(20);const[loading,setLoading]=useState(false);const[error,setError]=useState("");
+
+  async function go(){
+    if(!name.trim()||!tag.trim()){setError("Preencha o nome e a tag.");return;}
+    setError("");setLoading(true);
+    try{
+      const r=await fetch(`${API_BASE}/search?name=${encodeURIComponent(name.trim())}&tag=${encodeURIComponent(tag.trim())}&region=${region}&mode=${mode}&matches=${count}`);
+      const d=await r.json();if(!r.ok)throw new Error(d.detail||"Erro.");onResult(d);
+    }catch(e){setError(e.message);}
     setLoading(false);
   }
 
-  return (
-    <div className="search-wrap">
+  if(loading)return<div className="lw"><div className="hpulse"/><div className="ltxt">Buscando dados...</div></div>;
+
+  return(
+    <div className="sw">
       <div className="logo-mark">
-        <div className="logo-hex">LS</div>
-        <div className="logo-text">LoL<span>Stats</span></div>
-        <div className="logo-sub">estatísticas do seu invocador</div>
+        <div className="logo-hex">R</div>
+        <div className="logo-name">Riftora</div>
+        <div className="logo-sub">League of Legends · Statistics</div>
       </div>
-
-      <div className="s-card">
-        {/* nick + tag */}
-        <div className="field-label">Invocador</div>
-        <div className="field-row">
-          <div className="input-box">
-            <input
-              type="text" placeholder="GameName"
-              value={name} onChange={e => setName(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && doSearch()}
-            />
-            <div className="tag-sep">#</div>
-            <input
-              className="tag-inp" type="text" placeholder="TAG"
-              value={tag} onChange={e => setTag(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && doSearch()}
-              maxLength={6}
-            />
+      <div className="sc">
+        <div className="flbl">Invocador</div>
+        <div className="frow">
+          <div className="ibox">
+            <input type="text" placeholder="GameName" value={name} onChange={e=>setName(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()}/>
+            <div className="tsep">#</div>
+            <input className="tinp" type="text" placeholder="TAG" value={tag} onChange={e=>setTag(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()} maxLength={6}/>
           </div>
-          <button className="btn-main" onClick={doSearch} disabled={loading}>
-            {loading ? "..." : "Buscar"}
-          </button>
+          <button className="bsearch" onClick={go} disabled={loading}>{loading?"...":"Buscar"}</button>
         </div>
-
-        {/* options */}
-        <div className="opts-grid">
-          {/* region */}
-          <div className="opt-group">
-            <label className="field-label">Região</label>
-            <div className="region-grid">
-              {REGIONS.map(r => (
-                <button
-                  key={r.id}
-                  className={`pill${region === r.id ? " active" : ""}`}
-                  onClick={() => setRegion(r.id)}
-                >{r.label}</button>
-              ))}
-            </div>
+        <div className="ogrid">
+          <div>
+            <div className="flbl">Região</div>
+            <div className="pwrap">{REGIONS.map(r=><button key={r.id} className={`pill${region===r.id?" on":""}`} onClick={()=>setRegion(r.id)}>{r.label}</button>)}</div>
           </div>
-
-          {/* mode */}
-          <div className="opt-group">
-            <label className="field-label">Modo</label>
-            <div className="pill-row" style={{flexDirection:"column"}}>
-              {MODES.map(m => (
-                <button
-                  key={m.id}
-                  className={`pill${mode === m.id ? " active" : ""}`}
-                  onClick={() => setMode(m.id)}
-                >{m.label}</button>
-              ))}
-            </div>
+          <div>
+            <div className="flbl">Modo</div>
+            <div className="pwrap" style={{flexDirection:"column"}}>{MODES.map(m=><button key={m.id} className={`pill${mode===m.id?" on":""}`} onClick={()=>setMode(m.id)}>{m.label}</button>)}</div>
           </div>
         </div>
-
-        {/* count */}
         <div style={{marginTop:"1rem"}}>
-          <div className="field-label">Partidas a buscar</div>
-          <div className="count-row">
-            <span className="count-val">{count}</span>
-            <input
-              type="range" min={10} max={200} step={10}
-              value={count} onChange={e => setCount(+e.target.value)}
-            />
-            <span style={{fontSize:".72rem",color:"var(--text3)"}}>200</span>
+          <div className="flbl">Partidas a buscar</div>
+          <div className="crow">
+            <span className="cnum">{count}</span>
+            <input type="range" min={10} max={200} step={10} value={count} onChange={e=>setCount(+e.target.value)}/>
+            <span style={{fontSize:".68rem",color:"var(--text3)"}}>200</span>
           </div>
         </div>
-
-        {error && <div className="error-bar">{error}</div>}
+        {error&&<div className="ebar">{error}</div>}
       </div>
     </div>
   );
 }
 
-// ══════════════════════════════════════════════════════
-// PROFILE PAGE
-// ══════════════════════════════════════════════════════
-
-function ProfilePage({ data, onBack }) {
-  const { player, mastery, matches, analysis, meta } = data;
-  const p = player;
-  const r = p.ranked || {};
-  const o = analysis?.overall || {};
-  const streak = analysis?.streak;
-  const evo = analysis?.evolution;
-  const byRole = analysis?.by_role || [];
-  const byHour = analysis?.by_hour || [];
-  const byChamp = analysis?.by_champion || [];
-
-  const wr = o.winrate ?? r.ranked_winrate ?? 0;
-  const wrColor = wr >= 55 ? "c-win" : wr < 45 ? "c-loss" : "c-text";
-
-  const tierLabel = r.tier ? `${r.tier} ${r.rank}` : "UNRANKED";
-
-  return (
-    <div className="profile-wrap">
-      {/* nav */}
-      <div className="nav-bar">
-        <button className="back-btn" onClick={onBack}>← Voltar</button>
-        <span className="nav-crumb">
-          <span>{p.game_name}#{p.tag_line}</span> · {meta?.region?.toUpperCase()} · {MODES.find(m=>m.id===meta?.mode)?.label}
-        </span>
-      </div>
-
-      {/* hero */}
-      <div className="hero">
-        <div className="icon-wrap">
-          <ImgWithFallback
-            className="icon-img"
-            src={A.icon(p.profile_icon_id)}
-            fallback={DD.icon(p.profile_icon_id)}
-            alt="icon"
-          />
-          <div className="icon-lv">Lv {p.summoner_level}</div>
+// ── SIDEBAR ──
+function Sidebar({mastery}){
+  const top20=(mastery||[]).slice(0,20);
+  const maxPts=top20[0]?.mastery_points||1;
+  return(
+    <div className="sbar">
+      <div className="stitle">Top 20 Maestria</div>
+      {top20.map((m,i)=>(
+        <div className="mi" key={m.champion_id}>
+          <div className="mrank">{i+1}</div>
+          <Img className="mimg" src={A.champ(m.champion_name)} fallback={DD.champ(m.champion_name)} alt={m.champion_name}/>
+          <div className="minfo">
+            <div className="mname">{m.champion_name}</div>
+            <div className="mpts">{(m.mastery_points/1000).toFixed(0)}k · M{m.mastery_level}</div>
+          </div>
+          <div className="mbar" style={{width:`${(m.mastery_points/maxPts)*100}%`}}/>
         </div>
-        <div>
-          <div className="hero-name">{p.game_name}</div>
-          <div className="hero-tag">#{p.tag_line} · <b>{meta?.region?.toUpperCase()}</b></div>
-          {streak?.count > 1 && (
-            <span className={`streak-badge ${streak.type}`}>
-              {streak.count}× {streak.type === "win" ? "vitórias" : "derrotas"}
-            </span>
-          )}
+      ))}
+    </div>
+  );
+}
+
+// ── PROFILE ──
+function ProfilePage({data,onBack}){
+  const{player,mastery,matches,analysis,meta}=data;
+  const[season,setSeason]=useState("all");
+  const ref=useReveal();
+  const p=player,r=p.ranked||{};
+
+  const fm=filterBySeason(matches,season);
+  const o=season==="all"&&analysis?.overall?analysis.overall:computeStats(fm)||analysis?.overall||{};
+  const streak=season==="all"?analysis?.streak:null;
+  const evo=season==="all"?analysis?.evolution:null;
+  const byRole=season==="all"?(analysis?.by_role||[]):[];
+  const byHour=season==="all"?(analysis?.by_hour||[]):[];
+  const byChamp=season==="all"?(analysis?.by_champion||[]):computeByChamp(fm);
+
+  const wr=o.winrate??0;
+  const wc=wr>=55?"c-win":wr<45?"c-loss":"c-txt";
+  const tierLabel=r.tier?`${r.tier} ${r.rank}`:"UNRANKED";
+
+  return(
+    <div className="proot">
+      <Sidebar mastery={mastery}/>
+      <div className="mcont" ref={ref}>
+
+        {/* nav */}
+        <div className="nbar rev">
+          <button className="bbtn" onClick={onBack}>← Voltar</button>
+          <span className="ncrumb"><b>{p.game_name}</b>#{p.tag_line} · {meta?.region?.toUpperCase()} · {MODES.find(m=>m.id===meta?.mode)?.label}</span>
         </div>
-        <div className="rank-block">
-          <div className="rank-tier">{tierLabel}</div>
-          {r.lp != null && <div className="rank-lp">{r.lp} LP</div>}
-          {r.ranked_wins != null && (
-            <div className="rank-record">{r.ranked_wins}W {r.ranked_losses}L</div>
-          )}
-          {evo?.trend && (
-            <div className={`trend-pill ${evo.trend}`} style={{marginTop:".4rem", display:"inline-flex"}}>
-              {evo.trend === "improving" ? "↑ Melhorando" : evo.trend === "declining" ? "↓ Piorando" : "→ Estável"}
+
+        {/* hero */}
+        <div className="hero rev">
+          <div className="icw">
+            <img className="icimg" src={A.icon(p.profile_icon_id)} onError={e=>{e.target.style.background="var(--border)";}} alt="icon"/>
+            <div className="iclv">Lv {p.summoner_level}</div>
+          </div>
+          <div>
+            <div className="hname">{p.game_name}</div>
+            <div className="htag">#{p.tag_line} · <b>{meta?.region?.toUpperCase()}</b></div>
+            {streak?.count>1&&<span className={`stk ${streak.type}`}>{streak.count}× {streak.type==="win"?"vitórias":"derrotas"}</span>}
+          </div>
+          <div className="rblock">
+            <div className="rtier">{tierLabel}</div>
+            {r.lp!=null&&<div className="rlp">{r.lp} LP</div>}
+            {r.ranked_wins!=null&&<div className="rrec">{r.ranked_wins}W {r.ranked_losses}L</div>}
+            {evo?.trend&&<div className={`tpill ${evo.trend}`}>{evo.trend==="improving"?"↑ Melhorando":evo.trend==="declining"?"↓ Piorando":"→ Estável"}</div>}
+          </div>
+        </div>
+
+        {/* season */}
+        <div className="sznbar rev">
+          <span className="sznlbl">Season</span>
+          <div className="szpills">
+            {SEASONS.map(s=><button key={s.id} className={`szp${s.id==="all"?" all":""}${season===s.id?" on":""}`} onClick={()=>setSeason(s.id)}>{s.label}</button>)}
+          </div>
+          <span style={{fontSize:".66rem",color:"var(--text3)",marginLeft:"auto"}}>{fm.length} partidas</span>
+        </div>
+
+        {/* stats */}
+        <div className="srow">
+          {[
+            {l:"Win Rate",v:`${wr}%`,s:`${o.wins??0}W ${o.losses??0}L`,c:wc,bar:true,bv:wr},
+            {l:"KDA Médio",v:o.avg_kda??"—",s:`${o.avg_kills}/${o.avg_deaths}/${o.avg_assists}`,c:"c-blue"},
+            {l:"CS Médio",v:o.avg_cs??"—",s:"minions+jungle",c:"c-txt"},
+            {l:"Dano Médio",v:o.avg_damage?Math.round(o.avg_damage/1000)+"k":"—",s:"por partida",c:"c-gold"},
+            {l:"Visão Média",v:o.avg_vision??"—",s:"vision score",c:"c-txt"},
+            {l:"Duração Média",v:o.avg_game_duration_min??"—",s:`${o.total_matches??0} partidas`,c:"c-txt",sfx:"min"},
+          ].map((x,i)=>(
+            <div className="scard rev" key={i} style={{transitionDelay:`${i*.055}s`}}>
+              <div className="slbl">{x.l}</div>
+              <div className={`sval ${x.c}`}>{x.v}{x.sfx&&<span style={{fontSize:"1rem"}}>{x.sfx}</span>}</div>
+              {x.bar&&<div className="wrbar"><div className="wrfill" style={{width:`${x.bv}%`}}/></div>}
+              <div className="ssub">{x.s}</div>
             </div>
-          )}
+          ))}
         </div>
-      </div>
 
-      {/* stat cards */}
-      <div className="stat-row">
-        {/* winrate */}
-        <div className="stat-card">
-          <div className="sc-label">Win Rate</div>
-          <div className={`sc-val ${wrColor}`}>{wr}%</div>
-          <div className="wr-bar"><div className="wr-fill" style={{width:`${wr}%`}}/></div>
-          <div className="sc-sub">{o.wins ?? r.ranked_wins}W {o.losses ?? r.ranked_losses}L</div>
-        </div>
-        <div className="stat-card">
-          <div className="sc-label">KDA Médio</div>
-          <div className="sc-val c-blue">{o.avg_kda ?? "—"}</div>
-          <div className="sc-sub">{o.avg_kills}/{o.avg_deaths}/{o.avg_assists}</div>
-        </div>
-        <div className="stat-card">
-          <div className="sc-label">CS Médio</div>
-          <div className="sc-val c-text">{o.avg_cs ?? "—"}</div>
-          <div className="sc-sub">minions + jungle</div>
-        </div>
-        <div className="stat-card">
-          <div className="sc-label">Dano Médio</div>
-          <div className="sc-val c-gold">{o.avg_damage ? Math.round(o.avg_damage/1000)+"k" : "—"}</div>
-          <div className="sc-sub">por partida</div>
-        </div>
-        <div className="stat-card">
-          <div className="sc-label">Visão Média</div>
-          <div className="sc-val c-text">{o.avg_vision ?? "—"}</div>
-          <div className="sc-sub">vision score</div>
-        </div>
-        <div className="stat-card">
-          <div className="sc-label">Duração Média</div>
-          <div className="sc-val c-text">{o.avg_game_duration_min ?? "—"}<span style={{fontSize:"1rem"}}>min</span></div>
-          <div className="sc-sub">{o.total_matches} partidas</div>
-        </div>
-      </div>
-
-      {/* top champions (by analysis) */}
-      {byChamp.length > 0 && <>
-        <div className="sec-head">
-          <div className="sec-title">// Top Campeões</div>
-          <div className="sec-line"/>
-        </div>
-        <div className="champ-grid">
-          {byChamp.slice(0,6).map(c => {
-            const wcol = c.winrate >= 55 ? "c-win" : c.winrate < 45 ? "c-loss" : "c-text";
-            return (
-              <div className="champ-card" key={c.champion}>
-                <ImgWithFallback
-                  className="champ-img"
-                  src={A.champ(c.champion)}
-                  fallback={DD.champ(c.champion)}
-                  alt={c.champion}
-                />
-                <div className="champ-info">
-                  <div className="champ-name">{c.champion}</div>
-                  <div className="champ-meta">
-                    <span className="champ-kda">KDA {c.avg_kda}</span>
-                    <span>{c.games} jogos</span>
-                    <span>{c.avg_cs?.toFixed(0)} CS</span>
+        {/* top champs */}
+        {byChamp.length>0&&<>
+          <div className="sec rev"><div className="sttl">// Top Campeões</div><div className="sline"/></div>
+          <div className="cgrid">
+            {byChamp.slice(0,6).map((c,i)=>{
+              const wc=c.winrate>=55?"c-win":c.winrate<45?"c-loss":"c-txt";
+              return(
+                <div className="ccard rev" key={c.champion} style={{transitionDelay:`${i*.05}s`}}>
+                  <Img className="cimg" src={A.champ(c.champion)} fallback={DD.champ(c.champion)} alt={c.champion}/>
+                  <div className="cinfo">
+                    <div className="cname">{c.champion}</div>
+                    <div className="cmeta"><span className="ckda">KDA {c.avg_kda}</span><span>{c.games}j</span><span>{c.avg_cs?.toFixed(0)} CS</span></div>
                   </div>
-                </div>
-                <div className={`champ-wr-num ${wcol}`}>{c.winrate}%</div>
-              </div>
-            );
-          })}
-        </div>
-      </>}
-
-      {/* by role */}
-      {byRole.length > 0 && <>
-        <div className="sec-head">
-          <div className="sec-title">// Por Rota</div>
-          <div className="sec-line"/>
-        </div>
-        <div className="role-grid" style={{marginBottom:"1.25rem"}}>
-          {byRole.map(r => {
-            const wcol = r.winrate >= 55 ? "c-win" : r.winrate < 45 ? "c-loss" : "c-text";
-            return (
-              <div className="role-card" key={r.role}>
-                <div className="role-name">{r.role}</div>
-                <div className={`sc-val ${wcol}`} style={{fontSize:"1.5rem"}}>{r.winrate}%</div>
-                <div className="role-stats">
-                  <span>{r.games} jogos · {r.wins}W</span>
-                  <span>CS {r.avg_cs?.toFixed(0)} · Dano {r.avg_damage ? Math.round(r.avg_damage/1000)+"k" : "—"}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </>}
-
-      {/* evolution */}
-      {evo?.blocks?.length > 0 && <>
-        <div className="sec-head">
-          <div className="sec-title">// Evolução</div>
-          <div className="sec-line"/>
-        </div>
-        <div className="evo-blocks">
-          {evo.blocks.map(b => {
-            const wcol = b.winrate >= 55 ? "c-win" : b.winrate < 45 ? "c-loss" : "c-text";
-            return (
-              <div className="evo-block" key={b.block}>
-                <div className="evo-range">{b.range}</div>
-                <div className={`evo-wr ${wcol}`}>{b.winrate}%</div>
-                <div className="evo-sub">KDA {b.avg_kda}</div>
-              </div>
-            );
-          })}
-        </div>
-      </>}
-
-      {/* by hour */}
-      {byHour.length > 0 && <>
-        <div className="sec-head">
-          <div className="sec-title">// Horário (BRT)</div>
-          <div className="sec-line"/>
-        </div>
-        <div className="hour-chart">
-          <div className="hour-bars">
-            {byHour.map(h => {
-              const maxGames = Math.max(...byHour.map(x => x.games));
-              const barH = maxGames > 0 ? Math.max(6, (h.games / maxGames) * 72) : 6;
-              const col = h.winrate >= 55 ? "var(--win)" : h.winrate < 45 ? "var(--loss)" : "var(--blue)";
-              return (
-                <div className="hour-bar-wrap" key={h.hour} title={`${h.label} — ${h.games}j ${h.winrate}%WR`}>
-                  <div className="hour-bar" style={{height:`${barH}px`, background: col}}/>
-                  <div className="hour-lbl">{h.hour}h</div>
+                  <div className={`cwr ${wc}`}>{c.winrate}%</div>
                 </div>
               );
             })}
           </div>
-        </div>
-      </>}
+        </>}
 
-      {/* mastery */}
-      {mastery?.length > 0 && <>
-        <div className="sec-head">
-          <div className="sec-title">// Maestria</div>
-          <div className="sec-line"/>
-        </div>
-        <div className="champ-grid">
-          {mastery.map(m => (
-            <div className="champ-card" key={m.champion_id}>
-              <ImgWithFallback
-                className="champ-img"
-                src={A.champ(m.champion_name)}
-                fallback={DD.champ(m.champion_name)}
-                alt={m.champion_name}
-              />
-              <div className="champ-info">
-                <div className="champ-name">{m.champion_name}</div>
-                <div className="champ-meta">
-                  <span>Lv {m.mastery_level}</span>
-                  <span>{(m.mastery_points/1000).toFixed(0)}k pts</span>
-                  <span>{m.last_played}</span>
+        {/* by role */}
+        {byRole.length>0&&<>
+          <div className="sec rev"><div className="sttl">// Por Rota</div><div className="sline"/></div>
+          <div className="rgrid">
+            {byRole.map((r,i)=>{
+              const wc=r.winrate>=55?"c-win":r.winrate<45?"c-loss":"c-txt";
+              return(
+                <div className="rcard rev" key={r.role} style={{transitionDelay:`${i*.05}s`}}>
+                  <div className="rname">{r.role}</div>
+                  <div className={`sval ${wc}`} style={{fontSize:"1.35rem"}}>{r.winrate}%</div>
+                  <div className="rstats"><span>{r.games}j · {r.wins}W</span><span>CS {r.avg_cs?.toFixed(0)} · {r.avg_damage?Math.round(r.avg_damage/1000)+"k":"—"}</span></div>
                 </div>
-              </div>
-              <div className="sc-val c-gold" style={{fontSize:"1rem"}}>M{m.mastery_level}</div>
-            </div>
-          ))}
-        </div>
-      </>}
+              );
+            })}
+          </div>
+        </>}
 
-      {/* recent matches */}
-      {matches?.length > 0 && <>
-        <div className="sec-head">
-          <div className="sec-title">// Partidas Recentes</div>
-          <div className="sec-line"/>
-        </div>
-        <div className="match-list">
-          {matches.slice(0,20).map((m, i) => {
-            const kda = m.deaths === 0
-              ? "Perfect"
-              : ((m.kills + m.assists) / m.deaths).toFixed(2);
-            const dur = m.time_played
-              ? `${Math.floor(m.time_played/60)}:${String(m.time_played%60).padStart(2,"0")}`
-              : "—";
-            const res = m.win ? "win" : "loss";
-            const items = Array.isArray(m.items) ? m.items : [];
-            const runes = m.runes || {};
+        {/* evolution */}
+        {evo?.blocks?.length>0&&<>
+          <div className="sec rev"><div className="sttl">// Evolução</div><div className="sline"/></div>
+          <div className="erow">
+            {evo.blocks.map((b,i)=>{
+              const wc=b.winrate>=55?"c-win":b.winrate<45?"c-loss":"c-txt";
+              return(
+                <div className="eblk rev" key={b.block} style={{transitionDelay:`${i*.04}s`}}>
+                  <div className="erng">{b.range}</div>
+                  <div className={`ewr ${wc}`}>{b.winrate}%</div>
+                  <div className="esub">KDA {b.avg_kda}</div>
+                </div>
+              );
+            })}
+          </div>
+        </>}
 
-            return (
-              <div className={`match-card ${res}`} key={i}>
-                <ImgWithFallback
-                  className="match-icon"
-                  src={A.champ(m.champion_name)}
-                  fallback={DD.champ(m.champion_name)}
-                  alt={m.champion_name}
-                />
-                <div className="match-main">
-                  <div className="match-champ">
-                    {m.champion_name}
-                    {m.role && <span className="role-badge" style={{marginLeft:".5rem"}}>{m.role}</span>}
+        {/* by hour */}
+        {byHour.length>0&&<>
+          <div className="sec rev"><div className="sttl">// Horário BRT</div><div className="sline"/></div>
+          <div className="hchart rev">
+            <div className="hbars">
+              {byHour.map(h=>{
+                const max=Math.max(...byHour.map(x=>x.games));
+                const bh=max>0?Math.max(4,(h.games/max)*70):4;
+                const col=h.winrate>=55?"var(--win)":h.winrate<45?"var(--loss)":"var(--blue)";
+                return(
+                  <div className="hbw" key={h.hour} title={`${h.label} — ${h.games}j ${h.winrate}%WR`}>
+                    <div className="hbar" style={{height:`${bh}px`,background:col}}/>
+                    <div className="hlbl">{h.hour}h</div>
                   </div>
-                  <div className="match-info">{dur} · {m.cs_total} CS · Dano {m.damage_dealt ? Math.round(m.damage_dealt/1000)+"k" : "—"}</div>
+                );
+              })}
+            </div>
+          </div>
+        </>}
 
-                  {/* items */}
-                  <div className="item-row" style={{marginTop:".4rem"}}>
-                    {items.slice(0,6).map((it, j) =>
-                      it ? (
-                        <ImgWithFallback
-                          key={j}
-                          className="item-icon"
-                          src={A.item(it.id)}
-                          fallback={DD.item(it.id)}
-                          alt={it.name}
-                          title={it.name}
-                        />
-                      ) : <div key={j} className="item-empty"/>
+        {/* matches */}
+        {fm.length>0&&<>
+          <div className="sec rev"><div className="sttl">// Partidas Recentes</div><div className="sline"/></div>
+          <div className="mlist">
+            {fm.slice(0,20).map((m,i)=>{
+              const kda=m.deaths===0?"Perfect":((m.kills+m.assists)/m.deaths).toFixed(2);
+              const dur=m.time_played?`${Math.floor(m.time_played/60)}:${String(m.time_played%60).padStart(2,"0")}`:"—";
+              const res=m.win?"win":"loss";
+              const items=Array.isArray(m.items)?m.items:[];
+              const runes=m.runes||{};
+              return(
+                <div className={`mcard ${res} rev`} key={i} style={{transitionDelay:`${i*.028}s`}}>
+                  <Img className="mic" src={A.champ(m.champion_name)} fallback={DD.champ(m.champion_name)} alt={m.champion_name}/>
+                  <div>
+                    <div className="mch">{m.champion_name}{m.role&&<span className="rbadge">{m.role}</span>}</div>
+                    <div className="minf">{dur} · {m.cs_total} CS · {m.damage_dealt?Math.round(m.damage_dealt/1000)+"k dano":"—"}</div>
+                    <div className="mitems">
+                      {items.slice(0,6).map((it,j)=>it?<Img key={j} className="iic" src={A.item(it.id)} fallback={DD.item(it.id)} alt={it.name} title={it.name}/>:<div key={j} className="iemp"/>)}
+                    </div>
+                    {runes.primary_perks&&(
+                      <div className="rrow">
+                        {runes.primary_perks.slice(0,1).map((rn,j)=>rn&&rn!=="Unknown"?<img key={j} className="ric" src={A.rune(rn)} alt={rn} title={rn} onError={e=>{e.target.style.opacity=.2;}}/>:null)}
+                        <span style={{fontSize:".6rem",color:"var(--text2)"}}>{runes.primary_style} · {runes.secondary_style}</span>
+                      </div>
                     )}
                   </div>
-
-                  {/* runes */}
-                  {runes.primary_perks && (
-                    <div className="rune-row">
-                      {runes.primary_perks.slice(0,1).map((rn, j) =>
-                        rn && rn !== "Unknown" ? (
-                          <img
-                            key={j}
-                            className="rune-icon"
-                            src={A.rune(rn)}
-                            alt={rn}
-                            title={rn}
-                            onError={e => { e.target.style.opacity=.3; }}
-                          />
-                        ) : null
-                      )}
-                      <span style={{fontSize:".68rem",color:"var(--text2)"}}>
-                        {runes.primary_style} · {runes.secondary_style}
-                      </span>
-                    </div>
-                  )}
+                  <div className="kdab"><div className="kdas">{m.kills}/{m.deaths}/{m.assists}</div><div className="kdar">{kda} KDA</div></div>
+                  <div className={`mres ${res}`}>{m.win?"Vitória":"Derrota"}</div>
                 </div>
-
-                <div className="match-kda">
-                  <div className="match-kda-score">{m.kills}/{m.deaths}/{m.assists}</div>
-                  <div className="match-kda-ratio">{kda} KDA</div>
-                </div>
-                <div className={`match-result ${res}`}>
-                  {m.win ? "Vitória" : "Derrota"}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </>}
+              );
+            })}
+          </div>
+        </>}
+      </div>
     </div>
   );
 }
 
-// ══════════════════════════════════════════════════════
-// APP ROOT
-// ══════════════════════════════════════════════════════
-
-function App() {
-  const [view,    setView]    = useState("search");
-  const [data,    setData]    = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  async function handleResult(result) {
-    setData(result);
-    setView("profile");
-  }
-
-  if (loading) return (
-    <div className="loader-wrap">
-      <div className="hex-loader"/>
-      <div className="loader-text">Buscando dados...</div>
-    </div>
-  );
-
-  if (view === "profile" && data) {
-    return <ProfilePage data={data} onBack={() => setView("search")} />;
-  }
-
-  return <SearchPage onResult={handleResult} />;
+function App(){
+  const[view,setView]=useState("search");const[data,setData]=useState(null);
+  return view==="profile"&&data?<ProfilePage data={data} onBack={()=>setView("search")}/>:<SearchPage onResult={d=>{setData(d);setView("profile");}}/>;
 }
-
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
 </body>
