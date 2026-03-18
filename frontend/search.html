@@ -46,6 +46,68 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");opacity:.5;}
 
 /* ══════════════════════
+   RESUME BANNER & RECENTES
+══════════════════════ */
+.resume-banner{
+  width:100%;max-width:560px;
+  background:rgba(200,151,58,.07);
+  border:1px solid rgba(200,151,58,.25);
+  border-radius:14px;padding:.9rem 1.2rem;
+  display:flex;align-items:center;gap:1rem;
+  margin-bottom:1.2rem;
+  position:relative;z-index:1;
+  animation:riseIn .6s cubic-bezier(.2,.8,.3,1) both;
+  cursor:none;
+}
+.resume-banner::before{
+  content:'';position:absolute;top:0;left:8%;right:8%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.35;
+}
+.resume-icon{font-size:1.6rem;flex-shrink:0;}
+.resume-info{flex:1;min-width:0;}
+.resume-name{font-family:var(--head);font-size:1.1rem;font-weight:800;letter-spacing:.02em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.resume-sub{font-size:.75rem;color:var(--text2);margin-top:.1rem;}
+.resume-btn{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  border:none;border-radius:8px;color:#060810;
+  font-family:var(--head);font-weight:800;font-size:.82rem;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:.4rem 1rem;cursor:none;transition:opacity .15s;flex-shrink:0;
+}
+.resume-btn:hover{opacity:.85;}
+.resume-dismiss{
+  background:transparent;border:none;color:var(--text3);
+  font-size:1rem;cursor:none;padding:.2rem;transition:color .15s;flex-shrink:0;
+  line-height:1;
+}
+.resume-dismiss:hover{color:var(--text2);}
+
+.recentes-wrap{width:100%;max-width:560px;position:relative;z-index:1;}
+.recentes-label{
+  font-family:var(--head);font-size:.68rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--text3);
+  margin-bottom:.55rem;padding:0 .2rem;
+}
+.recentes-list{display:flex;flex-direction:column;gap:.4rem;}
+.recente-item{
+  display:flex;align-items:center;gap:.75rem;
+  background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:.55rem .9rem;cursor:none;transition:all .15s;
+}
+.recente-item:hover{border-color:rgba(200,151,58,.3);background:var(--card);}
+.recente-icon{font-size:1rem;flex-shrink:0;opacity:.7;}
+.recente-name{font-family:var(--head);font-size:.95rem;font-weight:700;flex:1;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.recente-meta{font-size:.7rem;color:var(--text3);}
+.recente-del{
+  background:transparent;border:none;color:var(--text3);
+  font-size:.85rem;cursor:none;padding:.1rem .3rem;
+  transition:color .15s;line-height:1;
+}
+.recente-del:hover{color:var(--loss);}
+
+/* ══════════════════════
    SEARCH
 ══════════════════════ */
 .sw{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;position:relative;overflow:hidden;}
@@ -339,6 +401,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   .opts-grid{grid-template-columns:1fr;}
   .mcard{grid-template-columns:44px 1fr auto;}.kdab{display:none;}
 }
+
+/* ── LANG CORNER ── */
+.lang-corner{position:fixed;top:1.2rem;right:1.2rem;z-index:200;display:flex;gap:.25rem;}
+.lang-corner button{background:rgba(6,8,14,.8);border:1px solid var(--border);border-radius:6px;
+  color:var(--text2);font-family:var(--head);font-size:.72rem;font-weight:700;
+  letter-spacing:.1em;padding:.28rem .6rem;cursor:none;transition:all .15s;backdrop-filter:blur(8px);}
+.lang-corner button.on{border-color:var(--gold);color:var(--gold);background:rgba(200,151,58,.08);}
+.lang-corner button:hover{border-color:var(--text3);color:var(--text);}
 </style>
 </head>
 <body>
@@ -526,6 +596,25 @@ function Loader({count}) {
 // ══════════════════════
 // SEARCH PAGE
 // ══════════════════════
+// ── localStorage helpers ──
+function getRecents() {
+  try { return JSON.parse(localStorage.getItem('riftora_recents') || '[]'); } catch { return []; }
+}
+function saveRecent(entry) {
+  try {
+    let list = getRecents().filter(r => !(r.name===entry.name && r.tag===entry.tag));
+    list.unshift(entry);
+    list = list.slice(0, 5);
+    localStorage.setItem('riftora_recents', JSON.stringify(list));
+  } catch {}
+}
+function removeRecent(name, tag) {
+  try {
+    const list = getRecents().filter(r => !(r.name===name && r.tag===tag));
+    localStorage.setItem('riftora_recents', JSON.stringify(list));
+  } catch {}
+}
+
 function SearchPage({onSearch}) {
   const [name,   setName]   = useState("");
   const [tag,    setTag]    = useState("");
@@ -533,20 +622,62 @@ function SearchPage({onSearch}) {
   const [mode,   setMode]   = useState("ranked_solo");
   const [count,  setCount]  = useState(20);
   const [error,  setError]  = useState("");
+  const [recents, setRecents] = useState(() => getRecents());
 
-  function go() {
-    if(!name.trim() || !tag.trim()){ setError("Preencha o nome e a tag."); return; }
+  // check if there's an active session to resume
+  const resumeData = (() => {
+    try {
+      const rd = sessionStorage.getItem('rd');
+      const rv = sessionStorage.getItem('rv');
+      if(rd && rv === 'profile') {
+        const d = JSON.parse(rd);
+        return { name: d.player.game_name, tag: d.player.tag_line };
+      }
+    } catch {}
+    return null;
+  })();
+  const [showResume, setShowResume] = useState(!!resumeData);
+
+  function go(n, t, reg, mod, cnt) {
+    const nm = n || name, tg = t || tag;
+    if(!nm.trim() || !tg.trim()){ setError("Preencha o nome e a tag."); return; }
     setError("");
-    onSearch(name.trim(), tag.trim(), region, mode, count);
+    saveRecent({ name: nm.trim(), tag: tg.trim(), region: reg||region, mode: mod||mode, count: cnt||count });
+    setRecents(getRecents());
+    onSearch(nm.trim(), tg.trim(), reg||region, mod||mode, cnt||count);
   }
+
+  function handleDelRecent(e, n, t) {
+    e.stopPropagation();
+    removeRecent(n, t);
+    setRecents(getRecents());
+  }
+
+  const modeLabel = id => MODES.find(m=>m.id===id)?.label || id;
+  const regionLabel = id => REGIONS.find(r=>r.id===id)?.label || id;
 
   return (
     <div className="sw">
       <div className="logo-mark">
         <div className="logo-hex">R</div>
         <div className="logo-name">Riftora</div>
-        <div className="logo-sub">League of Legends · Statistics</div>
+        <div className="logo-sub"><span className="pt-txt">Estatísticas do seu Invocador</span><span className="en-txt" style={{display:"none"}}>Your Summoner Statistics</span></div>
       </div>
+
+      {/* resume banner */}
+      {showResume && resumeData && (
+        <div className="resume-banner">
+          <div className="resume-icon">⚡</div>
+          <div className="resume-info">
+            <div className="resume-name">{resumeData.name}<span style={{color:'var(--text3)',fontWeight:400}}>#{resumeData.tag}</span></div>
+            <div className="resume-sub">Sessão ativa — continuar de onde parou</div>
+          </div>
+          <button className="resume-btn" onClick={()=>window.location.href='/escolher'}>Continuar →</button>
+          <button className="resume-dismiss" onClick={()=>{
+            sessionStorage.removeItem('rd'); sessionStorage.removeItem('rv'); setShowResume(false);
+          }}>✕</button>
+        </div>
+      )}
 
       <div className="sc">
         <div className="flbl">Invocador</div>
@@ -558,7 +689,7 @@ function SearchPage({onSearch}) {
             <input className="tinp" type="text" placeholder="TAG" value={tag}
               onChange={e=>setTag(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()} maxLength={6}/>
           </div>
-          <button className="bsearch" onClick={go}>Buscar</button>
+          <button className="bsearch" onClick={()=>go()}>Buscar</button>
         </div>
 
         <div className="opts-grid">
@@ -570,7 +701,6 @@ function SearchPage({onSearch}) {
               ))}
             </div>
           </div>
-
           <div>
             <div className="flbl" style={{marginTop:".2rem"}}>Modo</div>
             <div className="modo-row">
@@ -592,6 +722,25 @@ function SearchPage({onSearch}) {
 
         {error && <div className="ebar">{error}</div>}
       </div>
+
+      {/* recentes */}
+      {recents.length > 0 && !showResume && (
+        <div className="recentes-wrap">
+          <div className="recentes-label">Recentes</div>
+          <div className="recentes-list">
+            {recents.map((r,i) => (
+              <div key={i} className="recente-item" onClick={()=>go(r.name, r.tag, r.region, r.mode, r.count)}>
+                <div className="recente-icon">🎮</div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div className="recente-name">{r.name}<span style={{color:'var(--text3)',fontWeight:400,fontSize:'.85rem'}}>#{r.tag}</span></div>
+                  <div className="recente-meta">{regionLabel(r.region)} · {modeLabel(r.mode)}</div>
+                </div>
+                <button className="recente-del" onClick={e=>handleDelRecent(e,r.name,r.tag)}>✕</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -839,6 +988,24 @@ function ProfilePage({data, onBack}) {
 // ══════════════════════
 // APP
 // ══════════════════════
+function LangCorner() {
+  const [lang, setLangState] = React.useState(() => localStorage.getItem('riftora_lang')||'pt');
+  function toggle(l){
+    localStorage.setItem('riftora_lang', l);
+    setLangState(l);
+    document.documentElement.className = l==='en'?'en':'';
+  }
+  React.useEffect(()=>{
+    document.documentElement.className = lang==='en'?'en':'';
+  },[]);
+  return (
+    <div className="lang-corner">
+      <button className={lang==='pt'?'on':''} onClick={()=>toggle('pt')}>PT</button>
+      <button className={lang==='en'?'on':''} onClick={()=>toggle('en')}>EN</button>
+    </div>
+  );
+}
+
 function App() {
   const [view,    setView]   = useState(() => {
     try { return sessionStorage.getItem("rv") || "search"; } catch { return "search"; }
@@ -874,7 +1041,7 @@ function App() {
     setView("search");
   }
 
-  if(loading) return <Loader count={count}/>;
+  if(loading) return <><LangCorner/><Loader count={count}/></>;
 
   // Se já tem dados salvos, vai direto pro escolher
   if(view === "profile" && data) {
@@ -882,7 +1049,7 @@ function App() {
     return null;
   }
 
-  return <SearchPage onSearch={handleSearch} initialError={error}/>;
+  return <><LangCorner/><SearchPage onSearch={handleSearch} initialError={error}/></>;
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);

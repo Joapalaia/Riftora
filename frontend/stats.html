@@ -258,9 +258,30 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 
 @media(max-width:960px){.mcont{padding:1.5rem 1rem 4rem;}}
 @media(max-width:640px){.hero{grid-template-columns:auto 1fr;}.rblock{grid-column:span 2;text-align:left;}.mcard{grid-template-columns:44px 1fr auto;}.kdab{display:none;}.obj-grid{grid-template-columns:repeat(2,1fr);}}
+
+/* ── LANG TOGGLE ── */
+.lang-corner{
+  position:fixed;top:1.2rem;right:1.2rem;z-index:200;
+  display:flex;gap:.25rem;
+}
+.lang-corner button{
+  background:rgba(6,8,14,.8);border:1px solid var(--border);border-radius:6px;
+  color:var(--text2);font-family:var(--head);font-size:.72rem;font-weight:700;
+  letter-spacing:.1em;padding:.28rem .6rem;cursor:none;transition:all .15s;
+  backdrop-filter:blur(8px);
+}
+.lang-corner button.on{border-color:var(--gold);color:var(--gold);background:rgba(200,151,58,.08);}
+.lang-corner button:hover{border-color:var(--text3);color:var(--text);}
+[data-en]{display:none;}
+.en [data-en]{display:inline;}
+.en [data-pt]{display:none;}
 </style>
 </head>
 <body>
+<div class="lang-corner" id="langCorner">
+  <button onclick="setLang('pt')" id="lbPT" class="on">PT</button>
+  <button onclick="setLang('en')" id="lbEN">EN</button>
+</div>
 <div id="cdot"></div><div id="cglow"></div>
 <div id="root" class="proot"></div>
 
@@ -272,6 +293,8 @@ document.addEventListener('mousemove',e=>{
 });
 
 const DDV="14.24.1";
+const ROLE_MAP={'TOP':'Top','JUNGLE':'Jungle','MIDDLE':'Mid','BOTTOM':'ADC','UTILITY':'Suporte','NONE':'?','UNKNOWN':'?','':'?'};
+function roleLabel(r){return ROLE_MAP[r]||r;}
 const CHAMP_FIX={"Nunu e Willump":"Nunu","Nunu & Willump":"Nunu","Renata Glasc":"Renata","Wukong":"MonkeyKing","Bel'Veth":"Belveth","K'Sante":"KSante","Kog'Maw":"KogMaw","Kha'Zix":"Khazix","Rek'Sai":"RekSai","Cho'Gath":"Chogath","Vel'Koz":"Velkoz","Tahm Kench":"TahmKench","Lee Sin":"LeeSin","Master Yi":"MasterYi","Miss Fortune":"MissFortune","Twisted Fate":"TwistedFate","Xin Zhao":"XinZhao","Jarvan IV":"JarvanIV","Dr. Mundo":"DrMundo","Aurelion Sol":"AurelionSol","FiddleSticks":"Fiddlesticks"};
 function cf(n){return CHAMP_FIX[n]||n;}
 function ci(n){return `assets/champions/${cf(n)}.png`;}
@@ -410,7 +433,7 @@ function renderPage(data){
       </div>
 
       <!-- COMBATE -->
-      <div class="sec rev"><div class="sttl">// Combate</div><div class="sline"></div></div>
+      <div class="sec rev"><div class="sttl"><span data-pt>// Combate</span><span data-en>// Combat</span></div><div class="sline"></div></div>
       <div class="srow">
         <div class="scard rev" style="transition-delay:.00s">
           <div class="slbl">Win Rate</div>
@@ -458,7 +481,7 @@ function renderPage(data){
       </div>
 
       <!-- FARM & ECONOMIA -->
-      <div class="sec rev"><div class="sttl">// Farm & Economia</div><div class="sline"></div></div>
+      <div class="sec rev"><div class="sttl"><span data-pt>// Farm & Economia</span><span data-en>// Farm & Economy</span></div><div class="sline"></div></div>
       <div class="srow">
         <div class="scard rev" style="transition-delay:.00s">
           <div class="slbl">CS Médio</div>
@@ -483,7 +506,7 @@ function renderPage(data){
       </div>
 
       <!-- VISÃO -->
-      <div class="sec rev"><div class="sttl">// Visão</div><div class="sline"></div></div>
+      <div class="sec rev"><div class="sttl"><span data-pt>// Visão</span><span data-en>// Vision</span></div><div class="sline"></div></div>
       <div class="srow">
         <div class="scard rev" style="transition-delay:.00s">
           <div class="slbl">Vision Score</div>
@@ -508,7 +531,7 @@ function renderPage(data){
       </div>
 
       <!-- OBJETIVOS -->
-      <div class="sec rev"><div class="sttl">// Objetivos (média por jogo)</div><div class="sline"></div></div>
+      <div class="sec rev"><div class="sttl"><span data-pt>// Objetivos (média por jogo)</span><span data-en>// Objectives (avg per game)</span></div><div class="sline"></div></div>
       <div class="obj-grid rev">
         <div class="obj-card"><div class="obj-icon">🐉</div><div class="obj-val">${avgDragons}</div><div class="obj-lbl">Dragões</div></div>
         <div class="obj-card"><div class="obj-icon">🐺</div><div class="obj-val">${avgBarons}</div><div class="obj-lbl">Barons</div></div>
@@ -527,7 +550,7 @@ function renderPage(data){
 
       <!-- TOP CAMPEÕES -->
       ${byChamp.length>0?`
-      <div class="sec rev"><div class="sttl">// Top Campeões</div><div class="sline"></div></div>
+      <div class="sec rev"><div class="sttl"><span data-pt>// Top Campeões</span><span data-en>// Top Champions</span></div><div class="sline"></div></div>
       <div class="cgrid">
         ${byChamp.slice(0,6).map((c,i)=>{
           const wc2=c.winrate>=55?'c-win':c.winrate<45?'c-loss':'c-txt';
@@ -548,12 +571,12 @@ function renderPage(data){
 
       <!-- POR ROTA -->
       ${byRole.length>0?`
-      <div class="sec rev"><div class="sttl">// Por Rota</div><div class="sline"></div></div>
+      <div class="sec rev"><div class="sttl"><span data-pt>// Por Rota</span><span data-en>// By Role</span></div><div class="sline"></div></div>
       <div class="rgrid">
         ${byRole.map((r2,i)=>{
           const wc2=r2.winrate>=55?'c-win':r2.winrate<45?'c-loss':'c-txt';
           return `<div class="rcard rev" style="transition-delay:${i*.05}s">
-            <div class="rname">${r2.role}</div>
+            <div class="rname">${roleLabel(r2.role)}</div>
             <div class="sval ${wc2}" style="font-size:1.45rem">${r2.winrate}%</div>
             <div class="rstats">
               <span>${r2.games} jogos · ${r2.wins}W</span>
@@ -565,7 +588,7 @@ function renderPage(data){
 
       <!-- EVOLUÇÃO -->
       ${evo?.blocks?.length>0?`
-      <div class="sec rev"><div class="sttl">// Evolução</div><div class="sline"></div></div>
+      <div class="sec rev"><div class="sttl"><span data-pt>// Evolução</span><span data-en>// Evolution</span></div><div class="sline"></div></div>
       <div class="erow">
         ${evo.blocks.map((b,i)=>{
           const wc2=b.winrate>=55?'c-win':b.winrate<45?'c-loss':'c-txt';
@@ -579,7 +602,7 @@ function renderPage(data){
 
       <!-- HORÁRIO -->
       ${byHour.length>0?`
-      <div class="sec rev"><div class="sttl">// Horário BRT</div><div class="sline"></div></div>
+      <div class="sec rev"><div class="sttl"><span data-pt>// Horário BRT</span><span data-en>// Time of Day (BRT)</span></div><div class="sline"></div></div>
       <div class="hchart rev">
         <div class="hbars">
           ${byHour.map(h=>{
@@ -605,7 +628,7 @@ function renderPage(data){
 
       <!-- PARTIDAS -->
       ${matches?.length>0?`
-      <div class="sec rev"><div class="sttl">// Partidas Recentes</div><div class="sline"></div></div>
+      <div class="sec rev"><div class="sttl"><span data-pt>// Partidas Recentes</span><span data-en>// Recent Matches</span></div><div class="sline"></div></div>
       <div class="mlist" id="mlist"></div>`:''}
     </div>
   `;
@@ -786,7 +809,7 @@ function renderPage(data){
         div.innerHTML=`
           <img class="mic" src="${ci(m.champion_name)}" onerror="this.src='${cif(m.champion_name)}'" alt="${m.champion_name}"/>
           <div>
-            <div class="mch">${m.champion_name}${m.role?`<span class="rbadge">${m.role}</span>`:''}</div>
+            <div class="mch">${m.champion_name}${m.role&&m.role!=="NONE"&&m.role!=="UNKNOWN"?`<span class="rbadge">${roleLabel(m.role)}</span>`:''}</div>
             <div class="minf">${dur} · ${m.cs_total} CS · ${m.damage_dealt?fmtK(m.damage_dealt)+' dano':'—'}</div>
             <div class="mitems">${items.slice(0,6).map((it,j)=>it?`<img class="iic" src="${itm(it.id)}" onerror="this.src='${itmf(it.id)}'" alt="${it.name}" title="${it.name}"/>`:`<div class="iemp"></div>`).join('')}</div>
             ${runes.primary_perks?`<div class="rrow">
@@ -814,6 +837,20 @@ window.addEventListener('DOMContentLoaded',()=>{
     renderPage(JSON.parse(raw));
   }catch(e){console.error(e);window.location.href='/search';}
 });
+
+// lang toggle
+(function(){
+  const saved = localStorage.getItem('riftora_lang')||'pt';
+  function setLang(l){
+    localStorage.setItem('riftora_lang',l);
+    document.documentElement.className = l==='en'?'en':'';
+    document.getElementById('lbPT').classList.toggle('on',l==='pt');
+    document.getElementById('lbEN').classList.toggle('on',l==='en');
+  }
+  window.setLang = setLang;
+  setLang(saved);
+})();
+
 </script>
 </body>
 </html>
