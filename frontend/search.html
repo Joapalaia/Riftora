@@ -83,7 +83,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 }
 .resume-dismiss:hover{color:var(--text2);}
 
-.recentes-wrap{width:100%;max-width:560px;position:relative;z-index:1;}
+.recentes-wrap{width:100%;max-width:560px;position:relative;z-index:1;margin-top:2rem;}
 .recentes-label{
   font-family:var(--head);font-size:.68rem;letter-spacing:.16em;
   text-transform:uppercase;color:var(--text3);
@@ -401,14 +401,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
   .opts-grid{grid-template-columns:1fr;}
   .mcard{grid-template-columns:44px 1fr auto;}.kdab{display:none;}
 }
-
-/* ── LANG CORNER ── */
-.lang-corner{position:fixed;top:1.2rem;right:1.2rem;z-index:200;display:flex;gap:.25rem;}
-.lang-corner button{background:rgba(6,8,14,.8);border:1px solid var(--border);border-radius:6px;
-  color:var(--text2);font-family:var(--head);font-size:.72rem;font-weight:700;
-  letter-spacing:.1em;padding:.28rem .6rem;cursor:none;transition:all .15s;backdrop-filter:blur(8px);}
-.lang-corner button.on{border-color:var(--gold);color:var(--gold);background:rgba(200,151,58,.08);}
-.lang-corner button:hover{border-color:var(--text3);color:var(--text);}
 </style>
 </head>
 <body>
@@ -661,7 +653,7 @@ function SearchPage({onSearch}) {
       <div className="logo-mark">
         <div className="logo-hex">R</div>
         <div className="logo-name">Riftora</div>
-        <div className="logo-sub"><span className="pt-txt">Estatísticas do seu Invocador</span><span className="en-txt" style={{display:"none"}}>Your Summoner Statistics</span></div>
+        <div className="logo-sub">League of Legends · Statistics</div>
       </div>
 
       {/* resume banner */}
@@ -988,24 +980,6 @@ function ProfilePage({data, onBack}) {
 // ══════════════════════
 // APP
 // ══════════════════════
-function LangCorner() {
-  const [lang, setLangState] = React.useState(() => localStorage.getItem('riftora_lang')||'pt');
-  function toggle(l){
-    localStorage.setItem('riftora_lang', l);
-    setLangState(l);
-    document.documentElement.className = l==='en'?'en':'';
-  }
-  React.useEffect(()=>{
-    document.documentElement.className = lang==='en'?'en':'';
-  },[]);
-  return (
-    <div className="lang-corner">
-      <button className={lang==='pt'?'on':''} onClick={()=>toggle('pt')}>PT</button>
-      <button className={lang==='en'?'on':''} onClick={()=>toggle('en')}>EN</button>
-    </div>
-  );
-}
-
 function App() {
   const [view,    setView]   = useState(() => {
     try { return sessionStorage.getItem("rv") || "search"; } catch { return "search"; }
@@ -1041,7 +1015,7 @@ function App() {
     setView("search");
   }
 
-  if(loading) return <><LangCorner/><Loader count={count}/></>;
+  if(loading) return <Loader count={count}/>;
 
   // Se já tem dados salvos, vai direto pro escolher
   if(view === "profile" && data) {
@@ -1049,7 +1023,7 @@ function App() {
     return null;
   }
 
-  return <><LangCorner/><SearchPage onSearch={handleSearch} initialError={error}/></>;
+  return <SearchPage onSearch={handleSearch} initialError={error}/>;
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
