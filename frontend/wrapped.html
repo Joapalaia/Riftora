@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Riftora · Wrapped</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Barlow:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+* { cursor: none !important; }
+:root{
+  --head:'Bebas Neue',sans-serif;
+  --sub:'Barlow Condensed',sans-serif;
+  --body:'Barlow',sans-serif;
+  --gold:#c8973a;--gold2:#e8c46d;--gold3:#fff0b0;
+}
+html,body{height:100%;overflow:hidden;background:#000;}
+
+/* cursor */
+#cdot{position:fixed;width:14px;height:14px;background:rgba(255,255,255,.9);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);mix-blend-mode:difference;}
+
+/* grain overlay */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");opacity:.6;}
+
+/* ── PROGRESS BAR ── */
+.progress{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  display:flex;gap:4px;padding:12px 16px;
+}
+.prog-seg{
+  flex:1;height:3px;border-radius:2px;
+  background:rgba(255,255,255,.2);overflow:hidden;
+}
+.prog-fill{height:100%;width:0%;background:#fff;border-radius:2px;transition:none;}
+.prog-fill.done{width:100%;}
+.prog-fill.active{width:100%;transition:width var(--slide-dur,6s) linear;}
+
+/* ── BACK BTN ── */
+.back-btn{
+  position:fixed;top:1.4rem;left:1rem;z-index:500;
+  background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.15);border-radius:8px;
+  color:rgba(255,255,255,.7);font-family:var(--sub);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.38rem .8rem;cursor:none;transition:all .15s;text-decoration:none;backdrop-filter:blur(8px);
+}
+.back-btn:hover{border-color:rgba(255,255,255,.4);color:#fff;}
+
+/* ── SLIDES CONTAINER ── */
+.slides{position:fixed;inset:0;z-index:1;}
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .5s ease;
+  overflow:hidden;
+}
+.slide.active{opacity:1;pointer-events:all;}
+.slide.exit{opacity:0;}
+
+/* click zones */
+.click-prev{position:absolute;left:0;top:0;width:35%;height:100%;z-index:100;}
+.click-next{position:absolute;right:0;top:0;width:65%;height:100%;z-index:100;}
+
+/* ── SLIDE BACKGROUNDS ── */
+.slide-bg{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center top;
+  transform:scale(1.05);
+  transition:transform 8s ease;
+}
+.slide.active .slide-bg{transform:scale(1);}
+
+.slide-overlay{position:absolute;inset:0;}
+
+/* ── SLIDE CONTENT ── */
+.slide-content{
+  position:relative;z-index:2;
+  width:100%;max-width:480px;
+  padding:5rem 2.5rem 4rem;
+  text-align:center;
+}
+
+/* ── TYPOGRAPHY SYSTEM ── */
+.tag-line{
+  font-family:var(--sub);font-size:.78rem;letter-spacing:.28em;text-transform:uppercase;
+  margin-bottom:.8rem;opacity:.7;
+}
+.big-number{
+  font-family:var(--head);
+  font-size:clamp(5rem,22vw,9rem);
+  line-height:.85;letter-spacing:.02em;
+  animation:countUp .8s cubic-bezier(.2,.8,.3,1) both;
+}
+@keyframes countUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+.big-title{
+  font-family:var(--head);
+  font-size:clamp(3rem,12vw,6rem);
+  line-height:.9;letter-spacing:.04em;text-transform:uppercase;
+  animation:slideUp .7s .1s cubic-bezier(.2,.8,.3,1) both;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.subtitle{
+  font-family:var(--sub);font-size:1.1rem;font-weight:300;letter-spacing:.08em;
+  margin-top:.6rem;opacity:.8;
+  animation:slideUp .7s .25s cubic-bezier(.2,.8,.3,1) both;
+}
+.body-text{
+  font-family:var(--body);font-size:1rem;line-height:1.6;
+  margin-top:.8rem;opacity:.75;
+  animation:slideUp .7s .35s cubic-bezier(.2,.8,.3,1) both;
+}
+.highlight{font-weight:700;opacity:1;}
+
+/* ── SLIDE 0: INTRO ── */
+.s0-bg{background:#050508;}
+.s0-hex{
+  width:90px;height:90px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--head);font-size:2.4rem;color:#050508;
+  margin:0 auto 1.5rem;
+  box-shadow:0 0 80px rgba(200,151,58,.5);
+  animation:hexIn 1s cubic-bezier(.2,.8,.3,1) both;
+}
+@keyframes hexIn{from{opacity:0;transform:scale(.5) rotate(-30deg);}to{opacity:1;transform:scale(1) rotate(0);}}
+.s0-name{
+  font-family:var(--head);
+  font-size:clamp(3rem,14vw,7rem);
+  letter-spacing:.06em;text-transform:uppercase;line-height:.9;
+  color:#fff;
+  animation:nameReveal 1s .3s cubic-bezier(.2,.8,.3,1) both;
+}
+@keyframes nameReveal{from{opacity:0;letter-spacing:.2em;}to{opacity:1;letter-spacing:.06em;}}
+.s0-sub{
+  font-family:var(--sub);font-size:.9rem;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(255,255,255,.4);margin-top:.8rem;
+  animation:slideUp .7s .7s both;
+}
+.s0-hint{
+  position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);
+  font-family:var(--sub);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.35);
+  animation:pulse 2s 1.5s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:.35;}50%{opacity:.7;}}
+/* star particles for intro */
+.stars{position:absolute;inset:0;overflow:hidden;}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle linear infinite;}
+@keyframes twinkle{0%,100%{opacity:0;}50%{opacity:1;}}
+
+/* ── SLIDE 1: PARTIDAS ── */
+.s1-overlay{background:linear-gradient(to top,rgba(0,0,0,.95) 0%,rgba(0,0,0,.5) 60%,rgba(0,0,0,.2) 100%);}
+
+/* ── SLIDE 2: CAMPEÃO ── */
+.s2-champ-art{
+  position:absolute;
+  right:-5%;bottom:0;
+  height:95%;
+  object-fit:contain;object-position:top;
+  opacity:.25;
+  filter:blur(0px);
+  animation:champIn 1.2s cubic-bezier(.2,.8,.3,1) both;
+}
+@keyframes champIn{from{opacity:0;transform:translateX(40px);}to{opacity:.25;transform:translateX(0);}}
+.s2-content{position:relative;z-index:2;width:100%;padding:0 2.5rem;text-align:left;margin-top:auto;padding-bottom:4rem;}
+.s2-label{font-family:var(--sub);font-size:.75rem;letter-spacing:.24em;text-transform:uppercase;opacity:.5;margin-bottom:.5rem;}
+.s2-name{
+  font-family:var(--head);
+  font-size:clamp(4rem,16vw,8rem);
+  line-height:.85;letter-spacing:.02em;text-transform:uppercase;
+  animation:slideUp .8s .1s both;
+}
+.s2-stats{
+  display:flex;gap:2rem;margin-top:1rem;
+  animation:slideUp .7s .3s both;
+}
+.s2-stat{display:flex;flex-direction:column;gap:.2rem;}
+.s2-stat-val{font-family:var(--head);font-size:1.8rem;font-weight:800;line-height:1;}
+.s2-stat-lbl{font-family:var(--sub);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;opacity:.5;}
+
+/* ── SLIDE 3: REGIÃO ── */
+.s3-region-name{
+  font-family:var(--head);
+  font-size:clamp(3.5rem,14vw,7rem);
+  line-height:.88;letter-spacing:.04em;text-transform:uppercase;
+  animation:slideUp .8s .2s both;
+}
+.s3-region-desc{
+  font-family:var(--body);font-style:italic;
+  font-size:1rem;line-height:1.6;opacity:.65;
+  max-width:340px;margin:1rem auto 0;
+  animation:slideUp .7s .4s both;
+}
+.region-badge{
+  display:inline-block;font-family:var(--sub);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;
+  padding:.3rem 1rem;border-radius:20px;border:1px solid currentColor;
+  opacity:.6;margin-bottom:1rem;
+  animation:slideUp .7s .05s both;
+}
+
+/* ── SLIDE 4: ESTILO ── */
+.archetype-icon{font-size:4rem;margin-bottom:.8rem;animation:bounceIn .8s .1s both;}
+@keyframes bounceIn{from{opacity:0;transform:scale(.3);}70%{transform:scale(1.1);}to{opacity:1;transform:scale(1);}}
+.archetype-name{
+  font-family:var(--head);
+  font-size:clamp(2.8rem,11vw,5.5rem);
+  line-height:.9;letter-spacing:.04em;text-transform:uppercase;
+  animation:slideUp .7s .2s both;
+}
+.archetype-desc{
+  font-family:var(--body);font-size:1rem;line-height:1.6;opacity:.65;
+  max-width:340px;margin:.8rem auto 0;
+  animation:slideUp .7s .4s both;
+}
+
+/* ── SLIDE 5: HORÁRIO ── */
+.clock-wrap{
+  position:relative;width:160px;height:160px;margin:0 auto 1.5rem;
+  animation:clockIn .8s .1s both;
+}
+@keyframes clockIn{from{opacity:0;transform:rotate(-180deg) scale(.5);}to{opacity:1;transform:rotate(0) scale(1);}}
+.clock-circle{
+  width:100%;height:100%;border-radius:50%;
+  border:2px solid rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.clock-hour{
+  font-family:var(--head);font-size:3.5rem;line-height:1;
+}
+.clock-label{font-family:var(--sub);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;opacity:.5;margin-top:.2rem;}
+.clock-dot{
+  position:absolute;width:10px;height:10px;border-radius:50%;
+  background:currentColor;
+  top:50%;left:50%;
+  transform-origin:0 0;
+}
+
+/* ── SLIDE 6: KDA ── */
+.kda-wrap{
+  display:flex;gap:0;margin:1.5rem auto 0;
+  animation:slideUp .7s .3s both;
+}
+.kda-block{flex:1;text-align:center;padding:1rem;}
+.kda-block:not(:last-child){border-right:1px solid rgba(255,255,255,.1);}
+.kda-val{font-family:var(--head);font-size:clamp(2.5rem,10vw,4.5rem);line-height:1;}
+.kda-lbl{font-family:var(--sub);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;opacity:.4;margin-top:.3rem;}
+
+/* ── SLIDE 7: MÚSICA ── */
+.music-wrap{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;padding:1.5rem 2rem;
+  max-width:380px;margin:1.5rem auto 0;
+  display:flex;flex-direction:column;align-items:center;gap:.8rem;
+  animation:slideUp .7s .3s both;
+  backdrop-filter:blur(10px);
+}
+.music-note{font-size:2.5rem;}
+.music-title{font-family:var(--head);font-size:1.8rem;letter-spacing:.04em;text-align:center;line-height:1.1;}
+.music-artist{font-family:var(--sub);font-size:.85rem;opacity:.55;letter-spacing:.08em;}
+.music-btn{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:#1DB954;border:none;border-radius:20px;
+  color:#000;font-family:var(--sub);font-size:.82rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:.55rem 1.4rem;cursor:none;transition:opacity .15s;text-decoration:none;margin-top:.3rem;
+}
+.music-btn:hover{opacity:.85;}
+.music-no-url{font-family:var(--sub);font-size:.78rem;opacity:.35;letter-spacing:.08em;text-transform:uppercase;margin-top:.3rem;}
+
+/* ── SLIDE 8: FINAL ── */
+.final-wrap{
+  background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;padding:2rem 2.2rem;
+  max-width:400px;width:90%;
+  backdrop-filter:blur(20px);
+  animation:slideUp .8s .2s both;
+}
+.final-name{font-family:var(--head);font-size:2.2rem;letter-spacing:.06em;margin-bottom:.3rem;}
+.final-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:1.2rem;}
+.final-stat{
+  background:rgba(255,255,255,.04);border-radius:10px;padding:.7rem .8rem;
+}
+.final-stat-val{font-family:var(--head);font-size:1.4rem;font-weight:800;line-height:1;}
+.final-stat-lbl{font-family:var(--sub);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;opacity:.4;margin-top:.15rem;}
+.final-badge{
+  display:inline-block;font-family:var(--sub);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;
+  padding:.25rem .8rem;border-radius:20px;border:1px solid currentColor;
+  margin-top:.8rem;opacity:.6;
+}
+.share-hint{
+  font-family:var(--sub);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;
+  opacity:.3;margin-top:1.2rem;text-align:center;
+}
+
+/* ── THEME VARS per slide ── */
+.theme-dark{color:#e8e0d0;}
+.theme-light{color:#1a1a2e;}
+.theme-void{color:#d0b8ff;}
+.theme-freljord{color:#c8e8ff;}
+.theme-noxus{color:#ffd8d0;}
+.theme-ionia{color:#ffd8e8;}
+.theme-shadow{color:#c0d8c0;}
+</style>
+</head>
+<body>
+<div id="cdot"></div>
+
+<a class="back-btn" href="/escolher">← Voltar</a>
+
+<div class="progress" id="progressBar"></div>
+
+<div class="slides" id="slides"></div>
+
+<script>
+// ════════════════════════════════════════════════════
+// ⚙️  CONFIGURAÇÃO DE MÚSICAS — edite aqui!
+// Chave = arquétipo (deve bater com ARCHETYPES abaixo)
+// url = link do Spotify/YouTube (null = não mostra botão)
+// ════════════════════════════════════════════════════
+const MUSIC_CONFIG = {
+  "O Espectro das Trevas": {
+    title: "Nightmare",
+    artist: "Avenged Sevenfold",
+    url: "https://open.spotify.com/track/0oCCkHMkGsGEQBWB3pVNVq"
+  },
+  "O Caçador Silencioso": {
+    title: "Coloque sua música aqui",
+    artist: "Artista",
+    url: null
+  },
+  "O Destruidor do Vazio": {
+    title: "Coloque sua música aqui",
+    artist: "Artista",
+    url: null
+  },
+  "O Guardião da Luz": {
+    title: "Coloque sua música aqui",
+    artist: "Artista",
+    url: null
+  },
+  "O Cavaleiro de Honra": {
+    title: "Coloque sua música aqui",
+    artist: "Artista",
+    url: null
+  },
+  "O Guerreiro Implacável": {
+    title: "Coloque sua música aqui",
+    artist: "Artista",
+    url: null
+  },
+  "O Mestre das Ilusões": {
+    title: "Coloque sua música aqui",
+    artist: "Artista",
+    url: null
+  },
+  "O Explorador Audacioso": {
+    title: "Coloque sua música aqui",
+    artist: "Artista",
+    url: null
+  },
+  "O Estrategista Frio": {
+    title: "Coloque sua música aqui",
+    artist: "Artista",
+    url: null
+  },
+  "O Guardião Inabalável": {
+    title: "Coloque sua música aqui",
+    artist: "Artista",
+    url: null
+  },
+  "default": {
+    title: "Coloque sua música aqui",
+    artist: "Artista",
+    url: null
+  }
+};
+
+// ════════════════════════════════════════════════════
+// 🗺️  DADOS DOS CAMPEÕES
+// region: região de Runeterra
+// theme: "dark" | "light" | "neutral"
+// archetype: estilo de jogo
+// ════════════════════════════════════════════════════
+const CHAMP_DATA = {
+  // SHADOW ISLES / BLACK MIST
+  "Fiddlesticks":  { region:"Shadow Isles", theme:"dark",  archetype:"O Espectro das Trevas" },
+  "Thresh":        { region:"Shadow Isles", theme:"dark",  archetype:"O Estrategista Frio" },
+  "Hecarim":       { region:"Shadow Isles", theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "Yorick":        { region:"Shadow Isles", theme:"dark",  archetype:"O Espectro das Trevas" },
+  "Karthus":       { region:"Shadow Isles", theme:"dark",  archetype:"O Espectro das Trevas" },
+  "Kalista":       { region:"Shadow Isles", theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Mordekaiser":   { region:"Shadow Isles", theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "Viego":         { region:"Shadow Isles", theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "Gwen":          { region:"Shadow Isles", theme:"dark",  archetype:"O Mestre das Ilusões" },
+  "Isolde":        { region:"Shadow Isles", theme:"dark",  archetype:"O Espectro das Trevas" },
+  // VOID
+  "Cho'Gath":      { region:"The Void",     theme:"dark",  archetype:"O Destruidor do Vazio" },
+  "Vel'Koz":       { region:"The Void",     theme:"dark",  archetype:"O Destruidor do Vazio" },
+  "Kog'Maw":       { region:"The Void",     theme:"dark",  archetype:"O Destruidor do Vazio" },
+  "Kha'Zix":       { region:"The Void",     theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Rek'Sai":       { region:"The Void",     theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Malzahar":      { region:"The Void",     theme:"dark",  archetype:"O Estrategista Frio" },
+  "Bel'Veth":      { region:"The Void",     theme:"dark",  archetype:"O Destruidor do Vazio" },
+  "Kassadin":      { region:"The Void",     theme:"dark",  archetype:"O Mestre das Ilusões" },
+  // DEMACIA
+  "Lux":           { region:"Demacia",      theme:"light", archetype:"O Guardião da Luz" },
+  "Garen":         { region:"Demacia",      theme:"light", archetype:"O Cavaleiro de Honra" },
+  "Jarvan IV":     { region:"Demacia",      theme:"light", archetype:"O Cavaleiro de Honra" },
+  "Fiora":         { region:"Demacia",      theme:"light", archetype:"O Guerreiro Implacável" },
+  "Galio":         { region:"Demacia",      theme:"light", archetype:"O Guardião Inabalável" },
+  "Poppy":         { region:"Demacia",      theme:"light", archetype:"O Guardião Inabalável" },
+  "Sylas":         { region:"Demacia",      theme:"dark",  archetype:"O Mestre das Ilusões" },
+  "Vayne":         { region:"Demacia",      theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Kayle":         { region:"Demacia",      theme:"light", archetype:"O Guardião da Luz" },
+  "Morgana":       { region:"Demacia",      theme:"dark",  archetype:"O Espectro das Trevas" },
+  "Quinn":         { region:"Demacia",      theme:"light", archetype:"O Caçador Silencioso" },
+  "Shyvana":       { region:"Demacia",      theme:"dark",  archetype:"O Guerreiro Implacável" },
+  // NOXUS
+  "Darius":        { region:"Noxus",        theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "Draven":        { region:"Noxus",        theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "Swain":         { region:"Noxus",        theme:"dark",  archetype:"O Estrategista Frio" },
+  "Katarina":      { region:"Noxus",        theme:"dark",  archetype:"O Caçador Silencioso" },
+  "LeBlanc":       { region:"Noxus",        theme:"dark",  archetype:"O Mestre das Ilusões" },
+  "Riven":         { region:"Noxus",        theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "Talon":         { region:"Noxus",        theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Vladimir":      { region:"Noxus",        theme:"dark",  archetype:"O Espectro das Trevas" },
+  "Sion":          { region:"Noxus",        theme:"dark",  archetype:"O Guardião Inabalável" },
+  "Samira":        { region:"Noxus",        theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "Renata Glasc":  { region:"Noxus",        theme:"dark",  archetype:"O Estrategista Frio" },
+  "Ambessa":       { region:"Noxus",        theme:"dark",  archetype:"O Guerreiro Implacável" },
+  // IONIA
+  "Yasuo":         { region:"Ionia",        theme:"neutral",archetype:"O Guerreiro Implacável" },
+  "Yone":          { region:"Ionia",        theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "Zed":           { region:"Ionia",        theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Akali":         { region:"Ionia",        theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Irelia":        { region:"Ionia",        theme:"neutral",archetype:"O Guerreiro Implacável" },
+  "Kennen":        { region:"Ionia",        theme:"light", archetype:"O Mestre das Ilusões" },
+  "Lee Sin":       { region:"Ionia",        theme:"neutral",archetype:"O Guerreiro Implacável" },
+  "Master Yi":     { region:"Ionia",        theme:"neutral",archetype:"O Guerreiro Implacável" },
+  "Shen":          { region:"Ionia",        theme:"neutral",archetype:"O Guardião Inabalável" },
+  "Wukong":        { region:"Ionia",        theme:"neutral",archetype:"O Guerreiro Implacável" },
+  "Xin Zhao":      { region:"Ionia",        theme:"neutral",archetype:"O Cavaleiro de Honra" },
+  "Karma":         { region:"Ionia",        theme:"light", archetype:"O Guardião da Luz" },
+  "Sett":          { region:"Ionia",        theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "Ahri":          { region:"Ionia",        theme:"neutral",archetype:"O Mestre das Ilusões" },
+  "Varus":         { region:"Ionia",        theme:"dark",  archetype:"O Caçador Silencioso" },
+  // FRELJORD
+  "Ashe":          { region:"Freljord",     theme:"neutral",archetype:"O Caçador Silencioso" },
+  "Sejuani":       { region:"Freljord",     theme:"dark",  archetype:"O Guardião Inabalável" },
+  "Tryndamere":    { region:"Freljord",     theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "Volibear":      { region:"Freljord",     theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "Anivia":        { region:"Freljord",     theme:"light", archetype:"O Guardião da Luz" },
+  "Braum":         { region:"Freljord",     theme:"light", archetype:"O Guardião Inabalável" },
+  "Lissandra":     { region:"Freljord",     theme:"dark",  archetype:"O Estrategista Frio" },
+  "Nunu e Willump":{ region:"Freljord",     theme:"light", archetype:"O Guardião da Luz" },
+  "Trundle":       { region:"Freljord",     theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "Udyr":          { region:"Freljord",     theme:"neutral",archetype:"O Guerreiro Implacável" },
+  // PILTOVER
+  "Jayce":         { region:"Piltover",     theme:"light", archetype:"O Explorador Audacioso" },
+  "Caitlyn":       { region:"Piltover",     theme:"light", archetype:"O Caçador Silencioso" },
+  "Vi":            { region:"Piltover",     theme:"light", archetype:"O Guerreiro Implacável" },
+  "Ezreal":        { region:"Piltover",     theme:"light", archetype:"O Explorador Audacioso" },
+  "Heimerdinger":  { region:"Piltover",     theme:"light", archetype:"O Explorador Audacioso" },
+  "Orianna":       { region:"Piltover",     theme:"neutral",archetype:"O Estrategista Frio" },
+  // ZAUN
+  "Jinx":          { region:"Zaun",         theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "Ekko":          { region:"Zaun",         theme:"neutral",archetype:"O Explorador Audacioso" },
+  "Singed":        { region:"Zaun",         theme:"dark",  archetype:"O Mestre das Ilusões" },
+  "Twitch":        { region:"Zaun",         theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Warwick":       { region:"Zaun",         theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Zac":           { region:"Zaun",         theme:"neutral",archetype:"O Guardião Inabalável" },
+  "Janna":         { region:"Zaun",         theme:"light", archetype:"O Guardião da Luz" },
+  "Viktor":        { region:"Zaun",         theme:"dark",  archetype:"O Estrategista Frio" },
+  "Urgot":         { region:"Zaun",         theme:"dark",  archetype:"O Destruidor do Vazio" },
+  // SHURIMA
+  "Azir":          { region:"Shurima",      theme:"light", archetype:"O Estrategista Frio" },
+  "Nasus":         { region:"Shurima",      theme:"neutral",archetype:"O Guardião Inabalável" },
+  "Renekton":      { region:"Shurima",      theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "Sivir":         { region:"Shurima",      theme:"neutral",archetype:"O Caçador Silencioso" },
+  "Taliyah":       { region:"Shurima",      theme:"neutral",archetype:"O Mestre das Ilusões" },
+  "Xerath":        { region:"Shurima",      theme:"dark",  archetype:"O Destruidor do Vazio" },
+  "Amumu":         { region:"Shurima",      theme:"dark",  archetype:"O Guardião Inabalável" },
+  "Naafiri":       { region:"Shurima",      theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Akshan":        { region:"Shurima",      theme:"light", archetype:"O Explorador Audacioso" },
+  "Skarner":       { region:"Shurima",      theme:"neutral",archetype:"O Guardião Inabalável" },
+  // TARGON
+  "Leona":         { region:"Targon",       theme:"light", archetype:"O Guardião da Luz" },
+  "Diana":         { region:"Targon",       theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Pantheon":      { region:"Targon",       theme:"neutral",archetype:"O Cavaleiro de Honra" },
+  "Soraka":        { region:"Targon",       theme:"light", archetype:"O Guardião da Luz" },
+  "Taric":         { region:"Targon",       theme:"light", archetype:"O Guardião da Luz" },
+  "Zoe":           { region:"Targon",       theme:"light", archetype:"O Mestre das Ilusões" },
+  "Aphelios":      { region:"Targon",       theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Aurelion Sol":  { region:"Targon",       theme:"dark",  archetype:"O Destruidor do Vazio" },
+  // BILGEWATER
+  "Miss Fortune":  { region:"Bilgewater",   theme:"neutral",archetype:"O Caçador Silencioso" },
+  "Gangplank":     { region:"Bilgewater",   theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "Graves":        { region:"Bilgewater",   theme:"neutral",archetype:"O Guerreiro Implacável" },
+  "Nautilus":      { region:"Bilgewater",   theme:"dark",  archetype:"O Guardião Inabalável" },
+  "Twisted Fate":  { region:"Bilgewater",   theme:"neutral",archetype:"O Mestre das Ilusões" },
+  "Pyke":          { region:"Bilgewater",   theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Illaoi":        { region:"Bilgewater",   theme:"dark",  archetype:"O Guardião Inabalável" },
+  // IXTAL
+  "Zyra":          { region:"Ixtal",        theme:"neutral",archetype:"O Mestre das Ilusões" },
+  "Qiyana":        { region:"Ixtal",        theme:"neutral",archetype:"O Caçador Silencioso" },
+  "Nidalee":       { region:"Ixtal",        theme:"neutral",archetype:"O Caçador Silencioso" },
+  "Rengar":        { region:"Ixtal",        theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Milio":         { region:"Ixtal",        theme:"light", archetype:"O Guardião da Luz" },
+  // BANDLE CITY
+  "Teemo":         { region:"Bandle City",  theme:"light", archetype:"O Caçador Silencioso" },
+  "Lulu":          { region:"Bandle City",  theme:"light", archetype:"O Guardião da Luz" },
+  "Tristana":      { region:"Bandle City",  theme:"light", archetype:"O Guerreiro Implacável" },
+  "Veigar":        { region:"Bandle City",  theme:"dark",  archetype:"O Mestre das Ilusões" },
+  "Corki":         { region:"Bandle City",  theme:"light", archetype:"O Explorador Audacioso" },
+  "Rumble":        { region:"Bandle City",  theme:"neutral",archetype:"O Guerreiro Implacável" },
+  "Ziggs":         { region:"Bandle City",  theme:"neutral",archetype:"O Destruidor do Vazio" },
+  "Yuumi":         { region:"Bandle City",  theme:"light", archetype:"O Guardião da Luz" },
+  // SHADOW ISLES extras / sem região clara
+  "Evelynn":       { region:"Shadow Isles", theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Nocturne":      { region:"Shadow Isles", theme:"dark",  archetype:"O Espectro das Trevas" },
+  "Shaco":         { region:"Shadow Isles", theme:"dark",  archetype:"O Mestre das Ilusões" },
+  "Elise":         { region:"Shadow Isles", theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Maokai":        { region:"Shadow Isles", theme:"dark",  archetype:"O Guardião Inabalável" },
+  // MISC
+  "Jax":           { region:"Icathia",      theme:"neutral",archetype:"O Guerreiro Implacável" },
+  "Zilean":        { region:"Icathia",      theme:"neutral",archetype:"O Estrategista Frio" },
+  "Gragas":        { region:"Freljord",     theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "Blitzcrank":    { region:"Zaun",         theme:"neutral",archetype:"O Guardião Inabalável" },
+  "Tahm Kench":    { region:"Bilgewater",   theme:"dark",  archetype:"O Guardião Inabalável" },
+  "Zed":           { region:"Ionia",        theme:"dark",  archetype:"O Caçador Silencioso" },
+  "Dr. Mundo":     { region:"Zaun",         theme:"dark",  archetype:"O Guerreiro Implacável" },
+  "K'Sante":       { region:"Shurima",      theme:"neutral",archetype:"O Guardião Inabalável" },
+};
+
+// ════════════════════════════════════════════════════
+// REGION VISUAL CONFIG
+// ════════════════════════════════════════════════════
+const REGION_CONFIG = {
+  "Shadow Isles":  { emoji:"🌑", color:"#4a7a5a", bg:"linear-gradient(135deg,#050f08 0%,#0a2010 40%,#051208 100%)", desc:"A neblina negra te chama. Você pertence às sombras eternas das Ilhas das Sombras." },
+  "The Void":      { emoji:"🌀", color:"#8844cc", bg:"linear-gradient(135deg,#05000f 0%,#150030 40%,#080015 100%)", desc:"O Vazio consome tudo. Sua presença não pode ser compreendida pelos mortais." },
+  "Noxus":         { emoji:"⚔️",  color:"#cc3322", bg:"linear-gradient(135deg,#150000 0%,#2a0808 40%,#100000 100%)", desc:"Força é tudo. O sangue do Império corre nas suas veias — você conquista ou é conquistado." },
+  "Demacia":       { emoji:"🛡️",  color:"#c8a840", bg:"linear-gradient(135deg,#0a0810 0%,#1a1530 40%,#0d0a18 100%)", desc:"Honra e coragem acima de tudo. Você defende os inocentes com vida e espada." },
+  "Ionia":         { emoji:"🌸",  color:"#cc6688", bg:"linear-gradient(135deg,#100510 0%,#200818 40%,#0f0510 100%)", desc:"O equilíbrio é sua essência. Você encontra força no fluxo da natureza e do espírito." },
+  "Freljord":      { emoji:"❄️",  color:"#88c8e8", bg:"linear-gradient(135deg,#000810 0%,#001525 40%,#000a15 100%)", desc:"O frio não te dobra — ele te forja. Você é tão inabalável quanto as montanhas do norte." },
+  "Piltover":      { emoji:"⚙️",  color:"#e8c040", bg:"linear-gradient(135deg,#100800 0%,#201500 40%,#120900 100%)", desc:"O progresso não para. Você vive na fronteira entre o possível e o impossível." },
+  "Zaun":          { emoji:"☢️",  color:"#88cc44", bg:"linear-gradient(135deg,#020800 0%,#041500 40%,#030a00 100%)", desc:"Nas profundezas de Zaun, os fracos sobrevivem e os fortes prosperam. Você é prova disso." },
+  "Shurima":       { emoji:"☀️",  color:"#e8a020", bg:"linear-gradient(135deg,#100800 0%,#201000 40%,#120800 100%)", desc:"O deserto te moldou. Você carrega o peso de um Império perdido e a chama da eternidade." },
+  "Targon":        { emoji:"⭐",  color:"#c0a8ff", bg:"linear-gradient(135deg,#04000f 0%,#08002a 40%,#04000f 100%)", desc:"Os céus são seu domínio. Você foi tocado pelo divino — uma força além da compreensão mortal." },
+  "Bilgewater":    { emoji:"⚓",  color:"#4488aa", bg:"linear-gradient(135deg,#000810 0%,#001020 40%,#000a15 100%)", desc:"Os mares não te assustam. Você navega entre o perigo e a fortuna sem pestanejar." },
+  "Ixtal":         { emoji:"🌿",  color:"#44aa66", bg:"linear-gradient(135deg,#001008 0%,#002010 40%,#001508 100%)", desc:"A selva te pertence. Você é um com a natureza — e a natureza não perdoa os fracos." },
+  "Bandle City":   { emoji:"🌟", color:"#ffcc44", bg:"linear-gradient(135deg,#080800 0%,#151000 40%,#0a0a00 100%)", desc:"Pequeno em tamanho, imensurável em espírito. Sua alegria é sua maior arma." },
+  "Icathia":       { emoji:"💀", color:"#aa8844", bg:"linear-gradient(135deg,#080400 0%,#150800 40%,#0a0500 100%)", desc:"Você carrega o peso de uma civilização perdida. Sua força é antiga e incompreendida." },
+};
+
+// ════════════════════════════════════════════════════
+// ARCHETYPE CONFIG
+// ════════════════════════════════════════════════════
+const ARCHETYPE_CONFIG = {
+  "O Espectro das Trevas":   { icon:"👻", desc:"Você assombra seus inimigos. Silencioso, imprevisível e inevitável — como a morte." },
+  "O Caçador Silencioso":    { icon:"🗡️", desc:"Paciente e preciso. Você espera o momento certo e golpeia com precisão cirúrgica." },
+  "O Destruidor do Vazio":   { icon:"🌀", desc:"Caos puro. Você não joga pelo meta — você joga para consumir tudo." },
+  "O Guardião da Luz":       { icon:"✨", desc:"Você brilha no caos. Onde há trevas, você leva luz — e vitória." },
+  "O Cavaleiro de Honra":    { icon:"⚔️", desc:"Leal até a morte. Você entra primeiro e sai por último — e carrega o time nas costas." },
+  "O Guerreiro Implacável":  { icon:"🔥", desc:"Sem recuo. Sem medo. Você vai pra cima de tudo e de todos — e sobrevive." },
+  "O Mestre das Ilusões":    { icon:"🎭", desc:"Ninguém sabe o que você vai fazer — nem você mesmo. Isso é seu maior poder." },
+  "O Explorador Audacioso":  { icon:"🧭", desc:"Curioso e criativo. Você acha soluções onde outros veem paredes." },
+  "O Estrategista Frio":     { icon:"🧊", desc:"Calculado e implacável. Você vence antes mesmo da batalha começar." },
+  "O Guardião Inabalável":   { icon:"🛡️", desc:"Uma rocha. Enquanto você estiver de pé, o time resiste." },
+};
+
+// ════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════
+const DDV = "14.24.1";
+const CHAMP_FIX = {"Nunu e Willump":"Nunu","Nunu & Willump":"Nunu","Renata Glasc":"Renata","Wukong":"MonkeyKing","Bel'Veth":"Belveth","K'Sante":"KSante","Kog'Maw":"KogMaw","Kha'Zix":"Khazix","Rek'Sai":"RekSai","Cho'Gath":"Chogath","Vel'Koz":"Velkoz","Tahm Kench":"TahmKench","Lee Sin":"LeeSin","Master Yi":"MasterYi","Miss Fortune":"MissFortune","Twisted Fate":"TwistedFate","Xin Zhao":"XinZhao","Jarvan IV":"JarvanIV","Dr. Mundo":"DrMundo","Aurelion Sol":"AurelionSol","FiddleSticks":"Fiddlesticks"};
+function cf(n){return CHAMP_FIX[n]||n;}
+function splashArt(n){return `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${cf(n)}_0.jpg`;}
+function iconImg(id){return `https://ddragon.leagueoflegends.com/cdn/${DDV}/img/profileicon/${id}.png`;}
+function fmt(v,d=1){return v!=null?Number(v).toFixed(d):'—';}
+
+function computeWrapped(data) {
+  const {player, mastery, matches, analysis} = data;
+  const top3 = (mastery||[]).slice(0,3).map(m=>m.champion_name);
+  const o = analysis?.overall || {};
+
+  // vote on theme, region, archetype from top3 champs
+  const votes = {dark:0, light:0, neutral:0};
+  const regionVotes = {};
+  const archetypeVotes = {};
+  top3.forEach(name => {
+    const cd = CHAMP_DATA[name] || {theme:'neutral', region:'Runeterra', archetype:'O Guerreiro Implacável'};
+    votes[cd.theme]++;
+    regionVotes[cd.region] = (regionVotes[cd.region]||0)+1;
+    archetypeVotes[cd.archetype] = (archetypeVotes[cd.archetype]||0)+1;
+  });
+
+  const theme = votes.dark>votes.light ? 'dark' : votes.light>votes.dark ? 'light' : 'neutral';
+  const region = Object.entries(regionVotes).sort((a,b)=>b[1]-a[1])[0]?.[0] || 'Runeterra';
+  const archetype = Object.entries(archetypeVotes).sort((a,b)=>b[1]-a[1])[0]?.[0] || 'O Guerreiro Implacável';
+
+  const topChamp = top3[0] || 'Jinx';
+  const regionCfg = REGION_CONFIG[region] || { emoji:'🌍', color:'#888', bg:'linear-gradient(135deg,#050508,#0a0a10)', desc:'Sua origem é um mistério.' };
+  const archCfg = ARCHETYPE_CONFIG[archetype] || ARCHETYPE_CONFIG['O Guerreiro Implacável'];
+  const music = MUSIC_CONFIG[archetype] || MUSIC_CONFIG['default'];
+
+  // best hour
+  const byHour = analysis?.by_hour || [];
+  const bestH = [...byHour].filter(h=>h.games>=2).sort((a,b)=>b.winrate-a.winrate)[0];
+
+  // total hours played estimate
+  const avgMin = o.avg_game_duration_min || 28;
+  const totalMatches = o.total_matches || (matches?.length || 0);
+  const hoursPlayed = Math.round(totalMatches * avgMin / 60);
+
+  return { player, top3, topChamp, theme, region, regionCfg, archetype, archCfg, music, bestH, o, totalMatches, hoursPlayed };
+}
+
+// ════════════════════════════════════════════════════
+// SLIDE BUILDERS
+// ════════════════════════════════════════════════════
+function buildSlides(w) {
+  const {player, top3, topChamp, theme, region, regionCfg, archetype, archCfg, music, bestH, o, totalMatches, hoursPlayed} = w;
+
+  const textColor = theme==='light' ? '#1a1020' : '#e8e0d0';
+  const accentColor = theme==='light' ? regionCfg.color : '#e8c46d';
+
+  const slides = [];
+
+  // ── SLIDE 0: INTRO ──
+  slides.push({
+    id:'intro',
+    html:`
+      <div class="s0-bg" style="position:absolute;inset:0;background:radial-gradient(ellipse at center,#0a0815 0%,#020205 100%)"></div>
+      <div class="stars" id="stars"></div>
+      <div class="slide-content" style="position:relative;z-index:2">
+        <div class="s0-hex">R</div>
+        <div class="s0-name" style="color:#fff">${player.game_name}</div>
+        <div class="s0-sub">Riftora Wrapped · 2025</div>
+      </div>
+      <div class="s0-hint">toque para começar</div>
+    `,
+    onEnter: () => {
+      const s = document.getElementById('stars');
+      if(!s||s.children.length>0) return;
+      for(let i=0;i<80;i++){
+        const p=document.createElement('div');
+        p.className='star';
+        const sz=Math.random()*2.5+.5;
+        p.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${2+Math.random()*4}s;animation-delay:${-Math.random()*4}s;`;
+        s.appendChild(p);
+      }
+    }
+  });
+
+  // ── SLIDE 1: PARTIDAS ──
+  slides.push({
+    id:'partidas',
+    html:`
+      <div class="slide-bg" style="background:${regionCfg.bg}"></div>
+      <div class="slide-overlay" style="background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 60%)"></div>
+      <div class="slide-content" style="color:${textColor}">
+        <div class="tag-line" style="color:${accentColor}">suas partidas</div>
+        <div class="big-number" style="color:#fff">${totalMatches}</div>
+        <div class="subtitle">partidas jogadas</div>
+        <div class="body-text">~<span class="highlight">${hoursPlayed} horas</span> na Rift. Quantas você ganhou?</div>
+      </div>
+    `
+  });
+
+  // ── SLIDE 2: CAMPEÃO ──
+  const champData = CHAMP_DATA[topChamp] || {};
+  const champColor = theme==='light' ? '#fff' : '#fff';
+  const champBg = theme==='dark'
+    ? 'linear-gradient(135deg,#050508 0%,#0d0d18 100%)'
+    : `linear-gradient(135deg,#080510 0%,#120820 100%)`;
+  slides.push({
+    id:'campeao',
+    html:`
+      <div class="slide-bg" style="background:${champBg}"></div>
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 70% 50%,rgba(${theme==='dark'?'200,151,58':'180,100,200'},.08) 0%,transparent 70%)"></div>
+      <img class="s2-champ-art" src="${splashArt(topChamp)}" alt="${topChamp}"
+        onerror="this.style.opacity='.1'" style="opacity:.22"/>
+      <div class="s2-content" style="color:#fff">
+        <div class="s2-label" style="color:${accentColor}">seu campeão</div>
+        <div class="s2-name">${topChamp}</div>
+        <div class="s2-stats">
+          <div class="s2-stat">
+            <div class="s2-stat-val" style="color:${accentColor}">${fmt(o.avg_kda)}</div>
+            <div class="s2-stat-lbl">KDA médio</div>
+          </div>
+          <div class="s2-stat">
+            <div class="s2-stat-val" style="color:#fff">${o.winrate??0}%</div>
+            <div class="s2-stat-lbl">winrate</div>
+          </div>
+          <div class="s2-stat">
+            <div class="s2-stat-val" style="color:rgba(255,255,255,.5)">${top3[1]||'—'}</div>
+            <div class="s2-stat-lbl">2º lugar</div>
+          </div>
+        </div>
+      </div>
+    `
+  });
+
+  // ── SLIDE 3: REGIÃO ──
+  slides.push({
+    id:'regiao',
+    html:`
+      <div class="slide-bg" style="background:${regionCfg.bg}"></div>
+      <div class="slide-overlay" style="background:radial-gradient(ellipse at center,transparent 20%,rgba(0,0,0,.6) 100%)"></div>
+      <div class="slide-content" style="color:#fff">
+        <div class="tag-line" style="color:${regionCfg.color};opacity:.8">sua região</div>
+        <div style="font-size:3.5rem;margin-bottom:.5rem;animation:bounceIn .8s .1s both">${regionCfg.emoji}</div>
+        <div class="s3-region-name" style="color:#fff">${region}</div>
+        <div class="s3-region-desc" style="color:rgba(255,255,255,.6)">${regionCfg.desc}</div>
+      </div>
+    `
+  });
+
+  // ── SLIDE 4: ARQUÉTIPO ──
+  slides.push({
+    id:'arquetipo',
+    html:`
+      <div class="slide-bg" style="background:radial-gradient(ellipse at center,#0f0a18 0%,#040208 100%)"></div>
+      <div class="slide-overlay" style="background:radial-gradient(ellipse 70% 70% at 50% 50%,rgba(${theme==='dark'?'80,0,120':'200,160,0'},.06) 0%,transparent 70%)"></div>
+      <div class="slide-content" style="color:#fff">
+        <div class="tag-line" style="color:${accentColor}">seu estilo</div>
+        <div class="archetype-icon">${archCfg.icon}</div>
+        <div class="archetype-name" style="color:#fff">${archetype}</div>
+        <div class="archetype-desc">${archCfg.desc}</div>
+      </div>
+    `
+  });
+
+  // ── SLIDE 5: HORÁRIO ──
+  const hourVal = bestH ? bestH.hour : '—';
+  const hourWR  = bestH ? bestH.winrate+'%' : '—';
+  const hourPeriod = bestH
+    ? bestH.hour >= 6 && bestH.hour < 12 ? 'da manhã'
+    : bestH.hour >= 12 && bestH.hour < 18 ? 'da tarde'
+    : bestH.hour >= 18 && bestH.hour < 24 ? 'da noite'
+    : 'da madrugada'
+    : '';
+  slides.push({
+    id:'horario',
+    html:`
+      <div class="slide-bg" style="background:radial-gradient(ellipse at center,#050510 0%,#01010a 100%)"></div>
+      <div class="slide-content" style="color:#fff">
+        <div class="tag-line" style="color:${accentColor}">quando você manda</div>
+        <div class="clock-wrap">
+          <div class="clock-circle" style="border-color:${accentColor}40">
+            <div style="text-align:center">
+              <div class="clock-hour" style="color:#fff">${hourVal}h</div>
+              <div class="clock-label" style="color:${accentColor}">${hourPeriod}</div>
+            </div>
+          </div>
+        </div>
+        <div class="big-title" style="color:${accentColor};font-size:clamp(2rem,8vw,4rem)">${hourWR}</div>
+        <div class="subtitle">winrate nesse horário</div>
+        <div class="body-text">Às ${hourVal}h você é <span class="highlight">impossível de parar.</span></div>
+      </div>
+    `
+  });
+
+  // ── SLIDE 6: KDA ──
+  slides.push({
+    id:'kda',
+    html:`
+      <div class="slide-bg" style="background:radial-gradient(ellipse at center,#0a0508 0%,#020204 100%)"></div>
+      <img style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.06;filter:blur(2px)"
+        src="${splashArt(top3[1]||topChamp)}" alt=""/>
+      <div class="slide-content" style="color:#fff">
+        <div class="tag-line" style="color:${accentColor}">seu legado</div>
+        <div class="big-title" style="color:#fff;margin-bottom:.5rem">${o.avg_kda??'—'}</div>
+        <div class="subtitle" style="color:${accentColor}">KDA médio</div>
+        <div class="kda-wrap" style="color:#fff;max-width:320px">
+          <div class="kda-block">
+            <div class="kda-val" style="color:var(--win,#3ecf7a)">${fmt(o.avg_kills)}</div>
+            <div class="kda-lbl">abates</div>
+          </div>
+          <div class="kda-block">
+            <div class="kda-val" style="color:#e05252">${fmt(o.avg_deaths)}</div>
+            <div class="kda-lbl">mortes</div>
+          </div>
+          <div class="kda-block">
+            <div class="kda-val" style="color:#3d9de8">${fmt(o.avg_assists)}</div>
+            <div class="kda-lbl">assists</div>
+          </div>
+        </div>
+      </div>
+    `
+  });
+
+  // ── SLIDE 7: MÚSICA ──
+  slides.push({
+    id:'musica',
+    html:`
+      <div class="slide-bg" style="background:radial-gradient(ellipse at center,#080810 0%,#020205 100%)"></div>
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(29,185,84,.05) 0%,transparent 70%)"></div>
+      <div class="slide-content" style="color:#fff">
+        <div class="tag-line" style="color:${accentColor}">sua trilha sonora</div>
+        <div class="big-title" style="color:#fff;font-size:clamp(1.8rem,6vw,3rem);margin-bottom:0">baseado no seu perfil</div>
+        <div class="music-wrap">
+          <div class="music-note">🎵</div>
+          <div class="music-title">${music.title}</div>
+          <div class="music-artist">${music.artist}</div>
+          ${music.url
+            ? `<a class="music-btn" href="${music.url}" target="_blank">▶ Ouvir no Spotify</a>`
+            : `<div class="music-no-url">configure a música no código</div>`
+          }
+        </div>
+        <div class="body-text" style="opacity:.4;font-size:.78rem">arquétipo: ${archetype}</div>
+      </div>
+    `
+  });
+
+  // ── SLIDE 8: FINAL ──
+  slides.push({
+    id:'final',
+    html:`
+      <div class="slide-bg" style="background:radial-gradient(ellipse at center,#080510 0%,#020205 100%)"></div>
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 80% at 50% 50%,${regionCfg.color}08 0%,transparent 70%)"></div>
+      <img style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.05;filter:blur(4px)"
+        src="${splashArt(topChamp)}" alt=""/>
+      <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;padding:2rem 1.5rem">
+        <div style="font-family:var(--sub);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:1rem">riftora wrapped · 2025</div>
+        <div class="final-wrap" style="color:#fff">
+          <div style="text-align:center;margin-bottom:.5rem">
+            <img src="${iconImg(player.profile_icon_id)}" style="width:52px;height:52px;border-radius:10px;border:2px solid rgba(255,255,255,.1)" onerror="this.style.opacity=.2"/>
+          </div>
+          <div class="final-name" style="text-align:center;color:#fff">${player.game_name}</div>
+          <div style="text-align:center;font-family:var(--sub);font-size:.8rem;opacity:.4;margin-bottom:.3rem">#${player.tag_line}</div>
+          <div style="text-align:center">
+            <span style="display:inline-block;font-family:var(--sub);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;padding:.22rem .8rem;border-radius:20px;border:1px solid ${regionCfg.color};color:${regionCfg.color};opacity:.8">${regionCfg.emoji} ${region}</span>
+          </div>
+          <div class="final-stats-grid">
+            <div class="final-stat">
+              <div class="final-stat-val" style="color:#e8c46d">${totalMatches}</div>
+              <div class="final-stat-lbl">partidas</div>
+            </div>
+            <div class="final-stat">
+              <div class="final-stat-val" style="color:#3ecf7a">${o.winrate??0}%</div>
+              <div class="final-stat-lbl">winrate</div>
+            </div>
+            <div class="final-stat">
+              <div class="final-stat-val" style="color:#3d9de8">${o.avg_kda??'—'}</div>
+              <div class="final-stat-lbl">KDA</div>
+            </div>
+            <div class="final-stat">
+              <div class="final-stat-val" style="color:rgba(255,255,255,.7)">${hoursPlayed}h</div>
+              <div class="final-stat-lbl">na Rift</div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:.8rem">
+            <div style="font-family:var(--head);font-size:1rem;opacity:.6">${archCfg.icon} ${archetype}</div>
+          </div>
+        </div>
+        <div class="share-hint">📸 tire um print e compartilhe</div>
+      </div>
+    `
+  });
+
+  return slides;
+}
+
+// ════════════════════════════════════════════════════
+// ENGINE
+// ════════════════════════════════════════════════════
+let currentSlide = 0;
+let slides = [];
+let progFills = [];
+
+function goTo(idx) {
+  if(idx < 0 || idx >= slides.length) return;
+  const prev = currentSlide;
+  currentSlide = idx;
+
+  document.querySelectorAll('.slide').forEach((el, i) => {
+    el.classList.remove('active','exit');
+    if(i === idx) el.classList.add('active');
+  });
+
+  // progress
+  progFills.forEach((f, i) => {
+    f.classList.remove('active','done');
+    if(i < idx) f.classList.add('done');
+    if(i === idx) f.classList.add('active');
+  });
+
+  // onEnter callback
+  if(slides[idx]?.onEnter) slides[idx].onEnter();
+}
+
+function next() { goTo(Math.min(currentSlide+1, slides.length-1)); }
+function prev() { goTo(Math.max(currentSlide-1, 0)); }
+
+// ════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  // cursor
+  const dot = document.getElementById('cdot');
+  document.addEventListener('mousemove', e => {
+    dot.style.left = e.clientX+'px';
+    dot.style.top  = e.clientY+'px';
+  });
+
+  // load data
+  let data;
+  try {
+    const raw = sessionStorage.getItem('rd');
+    if(!raw) { window.location.href='/search'; return; }
+    data = JSON.parse(raw);
+  } catch(e) { window.location.href='/search'; return; }
+
+  const wrapped = computeWrapped(data);
+  slides = buildSlides(wrapped);
+
+  // build progress bar
+  const pb = document.getElementById('progressBar');
+  slides.forEach((_, i) => {
+    const seg = document.createElement('div');
+    seg.className = 'prog-seg';
+    const fill = document.createElement('div');
+    fill.className = 'prog-fill';
+    seg.appendChild(fill);
+    pb.appendChild(seg);
+    progFills.push(fill);
+  });
+
+  // build slide elements
+  const container = document.getElementById('slides');
+  slides.forEach((s, i) => {
+    const el = document.createElement('div');
+    el.className = 'slide';
+    el.innerHTML = s.html;
+    // click zones
+    const prev = document.createElement('div');
+    prev.className = 'click-prev';
+    prev.addEventListener('click', e => { e.stopPropagation(); goTo(currentSlide-1); });
+    const next = document.createElement('div');
+    next.className = 'click-next';
+    next.addEventListener('click', e => { e.stopPropagation(); goTo(currentSlide+1); });
+    el.appendChild(prev);
+    el.appendChild(next);
+    container.appendChild(el);
+  });
+
+  // keyboard
+  document.addEventListener('keydown', e => {
+    if(e.key === 'ArrowRight' || e.key === ' ') next();
+    if(e.key === 'ArrowLeft') prev();
+  });
+
+  // touch swipe
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if(Math.abs(dx) > 40) { dx < 0 ? next() : prev(); }
+  });
+
+  goTo(0);
+});
+</script>
+</body>
+</html>
