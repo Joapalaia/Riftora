@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+* { cursor: none !important; }
 :root{
   --bg:#060810;--panel:#0b0e18;--border:#181f30;--border2:#222d40;
   --gold:#c8973a;--gold2:#e8c46d;--gold3:#ffdd8a;
@@ -19,13 +20,12 @@ html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;overflow-x:hidden;cursor:none;}
 
 #cdot{
-  position:fixed;width:0;height:0;
-  border-left:5px solid transparent;
-  border-right:5px solid transparent;
-  border-bottom:10px solid var(--gold);
+  position:fixed;width:14px;height:14px;
+  background:var(--gold);border-radius:50%;
   pointer-events:none;z-index:99999;
   transform:translate(-50%,-50%);
-  filter:drop-shadow(0 0 5px rgba(200,151,58,.7));
+  mix-blend-mode:screen;
+  box-shadow:0 0 8px rgba(200,151,58,.8);
 }
 #cglow{position:fixed;width:360px;height:360px;border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(200,151,58,.07) 0%,transparent 70%);}
 

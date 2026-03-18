@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+* { cursor: none !important; }
 :root{
   --bg:#060810;--gold:#c8973a;--gold2:#e8b86d;--text:#d4c9b0;
   --text2:#7a8494;--text3:#3a4458;--border:#1a2030;
@@ -18,13 +19,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--body);cursor:none;
 
 /* ── cursor ── */
 #cdot{
-  position:fixed;width:0;height:0;
-  border-left:5px solid transparent;
-  border-right:5px solid transparent;
-  border-bottom:10px solid var(--gold);
+  position:fixed;width:14px;height:14px;
+  background:var(--gold);border-radius:50%;
   pointer-events:none;z-index:99999;
   transform:translate(-50%,-50%);
-  filter:drop-shadow(0 0 5px rgba(200,151,58,.7));
+  mix-blend-mode:screen;
+  box-shadow:0 0 8px rgba(200,151,58,.8);
 }
 #cglow{position:fixed;width:400px;height:400px;border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(200,151,58,.06) 0%,rgba(61,157,232,.02) 45%,transparent 70%);}
 
@@ -293,14 +293,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--body);cursor:none;
 <script>
 // cursor
 const dot=document.getElementById('cdot'),glow=document.getElementById('cglow');
-let lx=0,ly=0;
 document.addEventListener('mousemove',e=>{
-  const dx=e.clientX-lx,dy=e.clientY-ly;
-  const angle=Math.atan2(dy,dx)*(180/Math.PI)+90;
   dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';
-  dot.style.transform=`translate(-50%,-50%) rotate(${angle}deg)`;
   glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px';
-  lx=e.clientX;ly=e.clientY;
 });
 
 // particles

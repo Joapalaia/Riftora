@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+* { cursor: none !important; }
 :root{
   --bg:#070910;--panel:#0c0f1a;--card:#101422;--border:#1a2030;--border2:#222d42;
   --gold:#c8973a;--gold2:#e8b86d;--gold-glow:rgba(200,151,58,.15);
@@ -20,13 +21,12 @@ html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:17px;min-height:100vh;overflow-x:hidden;cursor:none;}
 
 #cdot{
-  position:fixed;width:0;height:0;
-  border-left:5px solid transparent;
-  border-right:5px solid transparent;
-  border-bottom:10px solid var(--gold);
+  position:fixed;width:14px;height:14px;
+  background:var(--gold);border-radius:50%;
   pointer-events:none;z-index:99999;
   transform:translate(-50%,-50%);
-  filter:drop-shadow(0 0 5px rgba(200,151,58,.7));
+  mix-blend-mode:screen;
+  box-shadow:0 0 8px rgba(200,151,58,.8);
 }
 #cglow{position:fixed;width:320px;height:320px;border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(200,151,58,.065) 0%,rgba(61,157,232,.025) 45%,transparent 70%);}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");opacity:.5;}
@@ -160,14 +160,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 
 <script>
 const dot=document.getElementById('cdot'),glow=document.getElementById('cglow');
-let lastX=0,lastY=0;
 document.addEventListener('mousemove',e=>{
-  const dx=e.clientX-lastX,dy=e.clientY-lastY;
-  const angle=Math.atan2(dy,dx)*(180/Math.PI)+90;
   dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';
-  dot.style.transform=`translate(-50%,-50%) rotate(${angle}deg)`;
   glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px';
-  lastX=e.clientX;lastY=e.clientY;
 });
 
 const DDV="14.24.1";
