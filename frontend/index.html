@@ -185,9 +185,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .mrank{font-family:var(--head);font-size:.78rem;font-weight:700;color:var(--text3);min-width:18px;text-align:center;flex-shrink:0;}
 .mimg{width:52px;height:52px;border-radius:9px;object-fit:cover;border:1px solid var(--border2);background:var(--border);flex-shrink:0;}
 /* nome grandão + meta tudo na mesma linha */
-.mrow{flex:1;min-width:0;display:flex;align-items:center;gap:.6rem;}
-.mname{font-family:var(--head);font-size:1.15rem;font-weight:800;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em;flex:1;}
+.mrow{flex:1;min-width:0;display:flex;align-items:center;gap:.7rem;overflow:hidden;}
+.mname{font-family:var(--head);font-size:1.2rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em;flex:1;line-height:1;}
 .mmeta{font-family:var(--head);font-size:.78rem;color:var(--text2);white-space:nowrap;flex-shrink:0;}
 .mmeta b{color:var(--gold);font-weight:800;}
 .mbar{position:absolute;bottom:0;left:0;height:1px;background:linear-gradient(90deg,var(--gold),transparent);}
@@ -792,7 +791,7 @@ function ProfilePage({data, onBack}) {
         {matches?.length > 0 && <>
           <div className="sec rev"><div className="sttl">// Partidas Recentes</div><div className="sline"/></div>
           <div className="mlist">
-            {matches.slice(0,20).map((m,i) => {
+            {matches.map((m,i) => {
               const kda = m.deaths===0 ? "Perfect" : ((m.kills+m.assists)/m.deaths).toFixed(2);
               const dur = m.time_played ? `${Math.floor(m.time_played/60)}:${String(m.time_played%60).padStart(2,"0")}` : "—";
               const res = m.win ? "win" : "loss";
