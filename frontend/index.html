@@ -177,16 +177,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 }
 
 .mi{
-  display:flex;align-items:center;gap:.75rem;
-  padding:.7rem .65rem;border-radius:8px;border:1px solid transparent;
+  display:flex;align-items:center;gap:.8rem;
+  padding:.75rem .7rem;border-radius:10px;border:1px solid transparent;
   transition:all .18s;position:relative;overflow:hidden;
 }
 .mi:hover{background:var(--card);border-color:var(--border);}
-.mrank{font-family:var(--head);font-size:.75rem;font-weight:700;color:var(--text3);min-width:14px;text-align:center;}
-.mimg{width:44px;height:44px;border-radius:8px;object-fit:cover;border:1px solid var(--border2);background:var(--border);flex-shrink:0;}
-.minfo{flex:1;min-width:0;}
-.mname{font-family:var(--head);font-size:1rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em;}
-.mpts{font-size:.76rem;color:var(--text2);margin-top:.08rem;}
+.mrank{font-family:var(--head);font-size:.78rem;font-weight:700;color:var(--text3);min-width:18px;text-align:center;flex-shrink:0;}
+.mimg{width:52px;height:52px;border-radius:9px;object-fit:cover;border:1px solid var(--border2);background:var(--border);flex-shrink:0;}
+/* nome grandão + meta tudo na mesma linha */
+.mrow{flex:1;min-width:0;display:flex;align-items:center;gap:.6rem;}
+.mname{font-family:var(--head);font-size:1.15rem;font-weight:800;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em;flex:1;}
+.mmeta{font-family:var(--head);font-size:.78rem;color:var(--text2);white-space:nowrap;flex-shrink:0;}
+.mmeta b{color:var(--gold);font-weight:800;}
 .mbar{position:absolute;bottom:0;left:0;height:1px;background:linear-gradient(90deg,var(--gold),transparent);}
 
 /* main — centralizado */
@@ -610,9 +613,9 @@ function Sidebar({mastery}) {
         <div className="mi" key={m.champion_id}>
           <div className="mrank">{i+1}</div>
           <Img className="mimg" src={A.champ(m.champion_name)} fallback={DD.champ(m.champion_name)} alt={m.champion_name}/>
-          <div className="minfo">
+          <div className="mrow">
             <div className="mname">{m.champion_name}</div>
-            <div className="mpts">{(m.mastery_points/1000).toFixed(0)}k · M{m.mastery_level}</div>
+            <div className="mmeta"><b>M{m.mastery_level}</b> · {(m.mastery_points/1000).toFixed(0)}k</div>
           </div>
           <div className="mbar" style={{width:`${(m.mastery_points/maxPts)*100}%`}}/>
         </div>
