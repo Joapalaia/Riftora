@@ -6,8 +6,6 @@
 <title>Riftora · Wrapped</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Barlow:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 * { cursor: none !important; }
@@ -302,13 +300,15 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
   background:linear-gradient(to bottom,transparent 30%,rgba(10,8,20,.98) 100%);
 }
 .fc-hero-icon{
-  position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);
-  width:48px;height:48px;border-radius:10px;
+  display:block;
+  width:52px;height:52px;border-radius:12px;
   border:2px solid rgba(255,255,255,.2);object-fit:cover;
-  background:#111;z-index:10;
-  box-shadow:0 4px 16px rgba(0,0,0,.5);
+  background:#111;
+  box-shadow:0 4px 20px rgba(0,0,0,.6);
+  margin:-26px auto 0;
+  position:relative;z-index:10;
 }
-.fc-body{padding:1.8rem 1.5rem 1.5rem;}
+.fc-body{padding:1rem 1.5rem 1.5rem;}
 .fc-name{
   font-family:var(--head);font-size:2rem;letter-spacing:.06em;
   text-align:center;color:#fff;line-height:1;margin-bottom:.2rem;
@@ -384,57 +384,57 @@ const MUSIC_CONFIG = {
   "O Espectro das Trevas": {
     title: "Nightmare",
     artist: "Avenged Sevenfold",
-    url: "https://open.spotify.com/intl-pt/track/4UEo1b0wWrtHMC8bVqPiH8?si=b25391b58e3347dd"
+    url: "https://open.spotify.com/track/0oCCkHMkGsGEQBWB3pVNVq"
   },
   "O Caçador Silencioso": {
     title: "Stressed Out",
     artist: "Twenty One Pilots",
-    url: "https://open.spotify.com/intl-pt/track/3CRDbSIZ4r5MsZ0YwxuEkn?si=61d020cd284b4623"
+    url: "https://open.spotify.com/track/3CRDbSIZ4r5MsZ0YwxuEkn"
   },
   "O Destruidor do Vazio": {
     title: "Raining Blood",
     artist: "Slayer",
-    url: "https://open.spotify.com/intl-pt/track/6IbvZskf2GX2VSMd9Q93WL?si=5ddc9d4c7f2541be"
+    url: "https://open.spotify.com/track/6headGBLhK8RJVF0KG8SqJ"
   },
   "O Guardião da Luz": {
     title: "Unstoppable",
     artist: "Sia",
-    url: "https://open.spotify.com/intl-pt/track/1yvMUkIOTeUNtNWlWRgANS?si=d155d78214f4493e"
+    url: "https://open.spotify.com/track/7x9aauaA9cu6tyfpHnqDLo"
   },
   "O Cavaleiro de Honra": {
     title: "Knights of Cydonia",
     artist: "Muse",
-    url: "https://open.spotify.com/intl-pt/track/7ouMYWpwJ422jRcDASZB7P?si=035f3091ed21402f"
+    url: "https://open.spotify.com/track/3skn2lauakk11UiqE9GFWV"
   },
   "O Guerreiro Implacável": {
-    title: "Warriors",
-    artist: "Imagine Dragons",
-    url: "https://open.spotify.com/intl-pt/track/1sWeSMifj6Z6kZyI6z3bRc?si=24007689a6e144f2"
+    title: "Killing in the Name",
+    artist: "Rage Against the Machine",
+    url: "https://open.spotify.com/track/59WN2psjkt1tyaxjspN8fp"
   },
   "O Mestre das Ilusões": {
     title: "Poker Face",
     artist: "Lady Gaga",
-    url: "https://open.spotify.com/intl-pt/track/1QV6tiMFM6fSOKOGLMHYYg?si=c8927ec809b14f1d"
+    url: "https://open.spotify.com/track/0TjjlP5K3MTd1kyIzgKdQr"
   },
   "O Explorador Audacioso": {
     title: "Mr. Brightside",
     artist: "The Killers",
-    url: "https://open.spotify.com/intl-pt/track/003vvx7Niy0yvhvHt4a68B?si=76885b476fe84f92"
+    url: "https://open.spotify.com/track/003vvx7Niy0yvhvHt4a14Y"
   },
   "O Estrategista Frio": {
     title: "Nightcall",
     artist: "Kavinsky",
-    url: "https://open.spotify.com/intl-pt/track/0U0ldCRmgCqhVvD6ksG63j?si=85f6f8396cbc4d49"
+    url: "https://open.spotify.com/track/0U0ldCRmgCzjSMBNLu7nqd"
   },
   "O Guardião Inabalável": {
     title: "Seven Nation Army",
     artist: "The White Stripes",
-    url: "https://open.spotify.com/intl-pt/track/3dPQuX8Gs42Y7b454ybpMR?si=9bbe60ec6d944c3b"
+    url: "https://open.spotify.com/track/7oK9VyNzrYvRFo7nQEYkWN"
   },
   "default": {
     title: "Nightcall",
     artist: "Kavinsky",
-    url: "https://open.spotify.com/intl-pt/track/0U0ldCRmgCqhVvD6ksG63j?si=85f6f8396cbc4d49"
+    url: "https://open.spotify.com/track/0U0ldCRmgCzjSMBNLu7nqd"
   }
 };
 
@@ -891,8 +891,9 @@ function buildSlides(w) {
           <div class="fc-hero">
             <img class="fc-hero-img" src="${splashArt(topChamp)}" alt="${topChamp}" onerror="this.style.opacity=0"/>
             <div class="fc-hero-overlay"></div>
-            <img class="fc-hero-icon" src="${iconImg(player.profile_icon_id)}" onerror="this.style.opacity=.1" alt="icon"/>
           </div>
+          <!-- icon sits OUTSIDE fc-hero so it's not clipped -->
+          <img class="fc-hero-icon" src="${iconImg(player.profile_icon_id)}" onerror="this.style.opacity=.1" alt="icon"/>
 
           <!-- body -->
           <div class="fc-body" style="color:#fff">
