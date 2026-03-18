@@ -18,7 +18,15 @@
 html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;overflow-x:hidden;cursor:none;}
 
-#cdot{position:fixed;width:7px;height:7px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);mix-blend-mode:screen;}
+#cdot{
+  position:fixed;width:0;height:0;
+  border-left:5px solid transparent;
+  border-right:5px solid transparent;
+  border-bottom:10px solid var(--gold);
+  pointer-events:none;z-index:99999;
+  transform:translate(-50%,-50%);
+  filter:drop-shadow(0 0 5px rgba(200,151,58,.7));
+}
 #cglow{position:fixed;width:360px;height:360px;border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(200,151,58,.07) 0%,transparent 70%);}
 
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
@@ -262,7 +270,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   <div class="loader-text">Carregando maestrias...</div>
 </div>
 
-<a class="back-btn" href="escolher.html">← Voltar</a>
+<a class="back-btn" href="/escolher">← Voltar</a>
 
 <!-- HERO -->
 <div class="hero-wrap">
@@ -389,9 +397,9 @@ function render(data){
 window.addEventListener('DOMContentLoaded',()=>{
   try{
     const raw=sessionStorage.getItem('rd');
-    if(!raw){window.location.href='search.html';return;}
+    if(!raw){window.location.href='/search';return;}
     render(JSON.parse(raw));
-  }catch(e){window.location.href='search.html';}
+  }catch(e){window.location.href='/search';}
 });
 </script>
 </body>

@@ -1,6 +1,9 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/search",   "destination": "/search.html"   },
+    { "source": "/escolher", "destination": "/escolher.html" },
+    { "source": "/maestria", "destination": "/maestria.html" },
+    { "source": "/stats",    "destination": "/stats.html"    }
   ],
   "headers": [
     {

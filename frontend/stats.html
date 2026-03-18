@@ -19,29 +19,25 @@
 html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:17px;min-height:100vh;overflow-x:hidden;cursor:none;}
 
-#cdot{position:fixed;width:7px;height:7px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);mix-blend-mode:screen;}
+#cdot{
+  position:fixed;width:0;height:0;
+  border-left:5px solid transparent;
+  border-right:5px solid transparent;
+  border-bottom:10px solid var(--gold);
+  pointer-events:none;z-index:99999;
+  transform:translate(-50%,-50%);
+  filter:drop-shadow(0 0 5px rgba(200,151,58,.7));
+}
 #cglow{position:fixed;width:320px;height:320px;border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(200,151,58,.065) 0%,rgba(61,157,232,.025) 45%,transparent 70%);}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");opacity:.5;}
 
 /* ── LAYOUT ── */
-.proot{display:grid;grid-template-columns:300px 1fr;min-height:100vh;}
+.proot{display:block;min-height:100vh;}
 
-/* sidebar */
-.sbar{background:var(--panel);border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;padding:1.8rem 1.1rem;display:flex;flex-direction:column;gap:.35rem;}
-.sbar::-webkit-scrollbar{width:3px;}.sbar::-webkit-scrollbar-track{background:transparent;}.sbar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
-.stitle{font-family:var(--head);font-size:.82rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);text-align:center;padding:.5rem .4rem 1rem;border-bottom:1px solid var(--border);margin-bottom:.6rem;}
-.mi{display:flex;align-items:center;gap:.75rem;padding:.7rem .65rem;border-radius:8px;border:1px solid transparent;transition:all .18s;position:relative;overflow:hidden;}
-.mi:hover{background:var(--card);border-color:var(--border);}
-.mrank{font-family:var(--head);font-size:.75rem;font-weight:700;color:var(--text3);min-width:18px;text-align:center;flex-shrink:0;}
-.mimg{width:44px;height:44px;border-radius:8px;object-fit:cover;border:1px solid var(--border2);background:var(--border);flex-shrink:0;}
-.mrow{flex:1;min-width:0;display:flex;align-items:center;gap:.7rem;overflow:hidden;}
-.mname{font-family:var(--head);font-size:1.2rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em;flex:1;line-height:1;}
-.mmeta{font-family:var(--head);font-size:.78rem;color:var(--text2);white-space:nowrap;flex-shrink:0;}
-.mmeta b{color:var(--gold);font-weight:800;}
-.mbar{position:absolute;bottom:0;left:0;height:1px;background:linear-gradient(90deg,var(--gold),transparent);}
+/* sidebar removed */
 
 /* main */
-.mcont{padding:2rem 2.2rem 5rem;max-width:840px;width:100%;margin:0 auto;}
+.mcont{padding:2rem 2.5rem 5rem;max-width:960px;width:100%;margin:0 auto;}
 
 /* nav */
 .nbar{display:flex;align-items:center;gap:1rem;margin-bottom:2rem;}
@@ -150,10 +146,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 .rbadge{display:inline-block;padding:.12rem .45rem;border-radius:4px;font-family:var(--head);font-size:.6rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:rgba(61,157,232,.1);color:var(--blue);border:1px solid rgba(61,157,232,.2);margin-left:.4rem;}
 
 /* reveal */
-.rev{opacity:0;transform:translateY(18px);transition:opacity .5s cubic-bezier(.2,.8,.3,1),transform .5s cubic-bezier(.2,.8,.3,1);}
+.rev{opacity:0;transform:translateY(22px);transition:opacity .5s cubic-bezier(.2,.8,.3,1),transform .5s cubic-bezier(.2,.8,.3,1);}
 .rev.vis{opacity:1;transform:translateY(0);}
+.rev.hide{opacity:0;transform:translateY(-12px);transition:opacity .35s ease,transform .35s ease;}
 
-@media(max-width:960px){.proot{grid-template-columns:1fr;}.sbar{width:100%;height:auto;position:relative;flex-direction:row;overflow-x:auto;overflow-y:visible;padding:.9rem;border-right:none;border-bottom:1px solid var(--border);}.stitle{display:none;}.mi{min-width:130px;flex-shrink:0;}.mbar{display:none;}.mcont{padding:1.5rem 1rem 4rem;}}
+@media(max-width:960px){.mcont{padding:1.5rem 1rem 4rem;}}
 @media(max-width:640px){.hero{grid-template-columns:auto 1fr;}.rblock{grid-column:span 2;text-align:left;}.mcard{grid-template-columns:44px 1fr auto;}.kdab{display:none;}.obj-grid{grid-template-columns:repeat(2,1fr);}}
 </style>
 </head>
@@ -163,7 +160,15 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;b
 
 <script>
 const dot=document.getElementById('cdot'),glow=document.getElementById('cglow');
-document.addEventListener('mousemove',e=>{dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px';});
+let lastX=0,lastY=0;
+document.addEventListener('mousemove',e=>{
+  const dx=e.clientX-lastX,dy=e.clientY-lastY;
+  const angle=Math.atan2(dy,dx)*(180/Math.PI)+90;
+  dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';
+  dot.style.transform=`translate(-50%,-50%) rotate(${angle}deg)`;
+  glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px';
+  lastX=e.clientX;lastY=e.clientY;
+});
 
 const DDV="14.24.1";
 const CHAMP_FIX={"Nunu e Willump":"Nunu","Nunu & Willump":"Nunu","Renata Glasc":"Renata","Wukong":"MonkeyKing","Bel'Veth":"Belveth","K'Sante":"KSante","Kog'Maw":"KogMaw","Kha'Zix":"Khazix","Rek'Sai":"RekSai","Cho'Gath":"Chogath","Vel'Koz":"Velkoz","Tahm Kench":"TahmKench","Lee Sin":"LeeSin","Master Yi":"MasterYi","Miss Fortune":"MissFortune","Twisted Fate":"TwistedFate","Xin Zhao":"XinZhao","Jarvan IV":"JarvanIV","Dr. Mundo":"DrMundo","Aurelion Sol":"AurelionSol","FiddleSticks":"Fiddlesticks"};
@@ -196,7 +201,17 @@ async function loadRunes(){
 const runePromise=loadRunes();
 
 // reveal observer
-const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}});},{threshold:0.08});
+const obs=new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.remove('hide');
+      e.target.classList.add('vis');
+    } else if(e.target.classList.contains('vis')){
+      e.target.classList.add('hide');
+      e.target.classList.remove('vis');
+    }
+  });
+},{threshold:0.08,rootMargin:'0px 0px -40px 0px'});
 function revObs(root){root.querySelectorAll('.rev').forEach(el=>obs.observe(el));}
 
 function fmt(v,dec=1){return v!=null?Number(v).toFixed(dec):'—';}
@@ -257,11 +272,10 @@ function renderPage(data){
   const takenPct = (totalTaken/total*100).toFixed(1);
 
   document.getElementById('root').innerHTML = `
-    <div class="sbar">${renderSidebar(mastery)}</div>
     <div class="mcont" id="mcont">
 
       <div class="nbar rev">
-        <a class="bbtn" href="escolher.html">← Voltar</a>
+        <a class="bbtn" href="/escolher">← Voltar</a>
         <span class="ncrumb"><b>${p.game_name}</b>#${p.tag_line} · ${meta?.region?.toUpperCase()}</span>
       </div>
 
@@ -512,9 +526,9 @@ function renderPage(data){
 window.addEventListener('DOMContentLoaded',()=>{
   try{
     const raw=sessionStorage.getItem('rd');
-    if(!raw){window.location.href='index.html';return;}
+    if(!raw){window.location.href='/search';return;}
     renderPage(JSON.parse(raw));
-  }catch(e){console.error(e);window.location.href='index.html';}
+  }catch(e){console.error(e);window.location.href='/search';}
 });
 </script>
 </body>

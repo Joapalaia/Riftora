@@ -347,14 +347,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 
 <script>
 // cursor — sem qualquer delay ou lerp, posição exata
-const dot  = document.getElementById('cdot');
-const glow = document.getElementById('cglow');
-document.addEventListener('mousemove', e => {
-  const x = e.clientX, y = e.clientY;
-  dot.style.left  = x + 'px';
-  dot.style.top   = y + 'px';
-  glow.style.left = x + 'px';
-  glow.style.top  = y + 'px';
+const dot=document.getElementById('cdot'),glow=document.getElementById('cglow');
+let lx=0,ly=0;
+document.addEventListener('mousemove',e=>{
+  const dx=e.clientX-lx,dy=e.clientY-ly;
+  const angle=Math.atan2(dy,dx)*(180/Math.PI)+90;
+  dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';
+  dot.style.transform=`translate(-50%,-50%) rotate(${angle}deg)`;
+  glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px';
+  lx=e.clientX;ly=e.clientY;
 });
 </script>
 
@@ -865,7 +866,7 @@ function App() {
       try { sessionStorage.setItem("rd", JSON.stringify(d)); sessionStorage.setItem("rv", "profile"); } catch {}
       setData(d);
       // redirect to mode selection page
-      window.location.href = "escolher.html";
+      window.location.href = "/escolher";
     } catch(e) {
       setError(e.message);
     }
