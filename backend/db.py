@@ -19,7 +19,8 @@ class DecimalEncoder(json.JSONEncoder):
         return super().default(obj)
     
 # ============================================================
-DATABASE_URL = "postgresql://postgres:TONELA177%40!@db.aomemhxdhhipudolpfpp.supabase.co:5432/postgres"
+import os
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://postgres:TONELA177%40!@db.aomemhxdhhipudolpfpp.supabase.co:5432/postgres")
 # ============================================================
 
 
