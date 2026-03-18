@@ -25,7 +25,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:17
 
 /* ── cursor — sem delay ── */
 #cdot{
-  position:fixed;width:18px;height:18px;
+  position:fixed;width:8px;height:8px;
   background:var(--gold);border-radius:50%;
   pointer-events:none;z-index:99999;
   transform:translate(-50%,-50%);
@@ -996,25 +996,53 @@ function App() {
     setLoading(true);
     setError("");
     try {
+      // Passo 1 — inicia o job, retorna imediatamente com dados do banco
       const url = `${API_BASE}/search?name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}&region=${region}&mode=${mode}&matches=${cnt}`;
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 120000); // 2 minutos
-      const res = await fetch(url, { signal: controller.signal });
-      clearTimeout(timeout);
-      const d   = await res.json();
-      if(!res.ok) throw new Error(d.detail || "Erro desconhecido.");
-      try { sessionStorage.setItem("rd", JSON.stringify(d)); sessionStorage.setItem("rv", "profile"); } catch {}
-      setData(d);
-      // redirect to mode selection page
-      window.location.href = "/escolher";
+      const res = await fetch(url);
+      const initial = await res.json();
+      if(!res.ok) throw new Error(initial.detail || "Erro desconhecido.");
+
+      const jobKey = initial.job_key;
+
+      // Salva dados iniciais (pode estar incompleto, mas mostra algo)
+      const saveAndRedirect = (d) => {
+        try { sessionStorage.setItem("rd", JSON.stringify(d)); sessionStorage.setItem("rv", "profile"); } catch {}
+        window.location.href = "/escolher";
+      };
+
+      // Se já tem dados suficientes no banco, vai logo
+      if(initial.matches && initial.matches.length >= cnt) {
+        saveAndRedirect(initial);
+        return;
+      }
+
+      // Passo 2 — polling até job terminar
+      const poll = async () => {
+        const statusUrl = `${API_BASE}/status/${encodeURIComponent(jobKey)}?matches=${cnt}&region=${region}&mode=${mode}`;
+        const sRes = await fetch(statusUrl);
+        const sData = await sRes.json();
+
+        if(sData.status === "done") {
+          saveAndRedirect(sData);
+        } else if(sData.status === "error") {
+          setError(sData.error || "Erro ao buscar partidas.");
+          setLoading(false);
+        } else {
+          // ainda rodando — checa de novo em 3s
+          setTimeout(poll, 3000);
+        }
+      };
+
+      setTimeout(poll, 3000);
+
     } catch(e) {
-      if(e.name === 'AbortError') {
-        setError("Servidor demorou muito para responder. Tente novamente — já está acordando!");
+      if(e.name === "AbortError") {
+        setError("Tempo esgotado. O servidor está acordando — tente novamente em 30 segundos.");
       } else {
         setError(e.message);
       }
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   function handleBack() {

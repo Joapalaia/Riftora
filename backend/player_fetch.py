@@ -125,7 +125,7 @@ def request_api(url: str) -> dict | list:
 # ──────────────────────────────────────────────
 
 def get_puuid(game_name: str, tag_line: str) -> str:
-    url  = f"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{game_name}/{tag_line}"
+    url = f"https://{ROUTING_HOST}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{game_name}/{tag_line}"
     data = request_api(url)
     return data["puuid"]
 
