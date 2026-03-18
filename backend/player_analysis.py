@@ -111,13 +111,18 @@ def by_champion(matches):
 # ──────────────────────────────────────────────
 # 4. Por rota
 # ──────────────────────────────────────────────
+ROLE_LABEL = {
+    'TOP': 'Top', 'JUNGLE': 'Jungle', 'MIDDLE': 'Mid',
+    'BOTTOM': 'ADC', 'UTILITY': 'Suporte', 'NONE': 'Outro',
+}
 
 def by_role(matches):
     data = defaultdict(lambda: {"games": 0, "wins": 0, "cs": [], "damage": []})
     for m in matches:
-        role = m.get("role") or m.get("lane") or "UNKNOWN"
-        if role == "UNKNOWN":
+        role_raw = m.get("role") or m.get("lane") or "UNKNOWN"
+        if role_raw in ("UNKNOWN", "NONE", ""):
             continue
+        role = ROLE_LABEL.get(role_raw, role_raw)  # traduz aqui
         data[role]["games"] += 1
         data[role]["wins"]  += int(m["win"])
         data[role]["cs"].append(m["cs_total"])

@@ -458,7 +458,7 @@ function renderPage(data){
         </div>
         <div class="scard kp-card rev" style="transition-delay:.36s">
           <div class="slbl">Kill Participation</div>
-          <div class="sval c-blue">${typeof kp!=='undefined'&&kp?kp+'%':'—'}</div>
+          <div class="sval c-blue">${kp!=null&&kp!==0?kp+'%':'—'}</div>
           <div class="ssub">média por jogo</div>
         </div>
       </div>
