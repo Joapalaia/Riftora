@@ -6,6 +6,8 @@
 <title>Riftora · Wrapped</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700;800;900&family=Barlow:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 * { cursor: none !important; }
@@ -881,7 +883,7 @@ function buildSlides(w) {
       <div class="slide-bg" style="background:radial-gradient(ellipse at center,#06040f 0%,#010108 100%)"></div>
       <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 70% at 50% 40%,${regionCfg.color}06 0%,transparent 70%)"></div>
 
-      <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:4rem 1.5rem 2rem;gap:0">
+      <div style="position:relative;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:4rem 1.5rem 2rem;gap:0">
 
         <!-- CARD pra capturar como imagem -->
         <div id="finalCard" style="--final-accent:${regionCfg.color}">
@@ -925,8 +927,8 @@ function buildSlides(w) {
 
         <!-- share buttons -->
         <div class="share-row">
-          <button class="share-btn share-btn-img" onclick="shareAsImage()">📸 Compartilhar</button>
-          <button class="share-btn share-btn-web" onclick="shareLink()">🔗 Link</button>
+          <button class="share-btn share-btn-img" id="btnShareImg">📸 Compartilhar</button>
+          <button class="share-btn share-btn-web" id="btnShareLink">🔗 Link</button>
         </div>
       </div>
     `
@@ -1110,6 +1112,17 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   goTo(0);
+
+  // Bind share buttons via event delegation (works even when rendered dynamically)
+  document.addEventListener('click', e => {
+    const imgBtn = e.target.closest('#btnShareImg');
+    const linkBtn = e.target.closest('#btnShareLink');
+    if(imgBtn) { e.stopPropagation(); shareAsImage(); }
+    if(linkBtn) { e.stopPropagation(); shareLink(); }
+    // Music button - let <a> tags work naturally
+    const musicBtn = e.target.closest('.music-btn');
+    if(musicBtn) { e.stopPropagation(); }
+  }, true); // capture phase = fires before click-next
 });
 </script>
 </body>
