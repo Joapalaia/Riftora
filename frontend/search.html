@@ -876,8 +876,11 @@ function App() {
 
   if(loading) return <Loader count={count}/>;
 
-  if(view === "profile" && data)
-    return <ProfilePage data={data} onBack={handleBack}/>;
+  // Se já tem dados salvos, vai direto pro escolher
+  if(view === "profile" && data) {
+    window.location.replace("/escolher");
+    return null;
+  }
 
   return <SearchPage onSearch={handleSearch} initialError={error}/>;
 }
