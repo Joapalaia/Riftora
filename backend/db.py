@@ -194,7 +194,7 @@ def insert_matches(puuid: str, matches: list[dict]) -> int:
             %(vision_score)s, %(wards_placed)s, %(wards_killed)s, %(control_wards)s,
             %(gold_earned)s, %(gold_spent)s, %(gold_per_min)s, %(damage_per_min)s,
             %(dragons)s, %(barons)s, %(heralds)s, %(towers)s,
-            %(lane)s, %(role)s, %(summoner1)s, %(summoner2)s,
+            %(lane)s, %(role)s,  %(team_side)s, %(summoner1)s, %(summoner2)s,
             %(items)s, %(trinket)s, %(purchase_order)s, %(runes)s
         )
         ON CONFLICT (match_id, puuid) DO NOTHING;
