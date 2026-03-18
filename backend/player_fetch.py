@@ -20,6 +20,8 @@ import db
 
 # ══════════════════════════════════════════════
 KEY               = "RGAPI-5e514d53-e069-40ea-9177-f962370a46ac"
+ROUTING_HOST  = "americas"  # sobrescrito pelo api.py
+PLATFORM_HOST = "br1"       # sobrescrito pelo api.py
 OUTPUT_DIR        = "data/profiles"
 QUEUE_FILTER      = 420   # 420 = Ranked Solo/Duo
 BATCH_SIZE        = 100   # máximo permitido pela API por request
@@ -190,10 +192,16 @@ def get_champion_mastery(puuid: str, champ_map: dict, top: int = 999) -> list[di
 # ──────────────────────────────────────────────
 
 def get_match_ids(puuid: str, start: int = 0, count: int = 100) -> list[str]:
-    url = (
-        f"https://americas.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids"
-        f"?queue={QUEUE_FILTER}&start={start}&count={count}"
-    )
+    if QUEUE_FILTER is None:
+        url = (
+            f"https://{ROUTING_HOST}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids"
+            f"?start={start}&count={count}"
+        )
+    else:
+        url = (
+            f"https://{ROUTING_HOST}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids"
+            f"?queue={QUEUE_FILTER}&start={start}&count={count}"
+        )
     return request_api(url)
 
 
