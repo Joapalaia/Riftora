@@ -310,8 +310,9 @@ def extract_player_data(player: dict, game_start: int, match_id: str = "") -> di
             "summoner2": player["summoner2Id"],
         },
         "position": {
-            "lane": player["lane"],
-            "role": player["teamPosition"],
+            "lane":      player["lane"],
+            "role":      player["teamPosition"],
+            "team_side": "blue" if player["teamId"] == 100 else "red",
         },
         "objectives": {
             "dragons": player["dragonKills"],

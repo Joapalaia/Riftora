@@ -92,19 +92,38 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 @keyframes nameIn{from{opacity:0;transform:translateY(24px);letter-spacing:.12em;}to{opacity:1;transform:translateY(0);letter-spacing:.04em;}}
 
 .hero-sub{
-  display:flex;align-items:center;justify-content:center;gap:1rem;
-  margin-top:1.2rem;
+  display:flex;align-items:center;justify-content:center;gap:1.2rem;
+  margin-top:1.4rem;
   animation:fadeUp .7s .3s both;
 }
 .hero-icon{
-  width:52px;height:52px;border-radius:10px;
+  width:56px;height:56px;border-radius:10px;
   border:2px solid rgba(200,151,58,.3);object-fit:cover;
   box-shadow:0 0 20px rgba(200,151,58,.15);
+  flex-shrink:0;
 }
 .hero-info{text-align:left;}
-.hero-tag{font-family:var(--sub);font-size:1rem;color:var(--text2);}
+.hero-tag{font-family:var(--sub);font-size:1.1rem;color:var(--text2);}
 .hero-tag b{color:var(--gold);}
-.hero-lv{font-family:var(--sub);font-size:.85rem;color:var(--text3);}
+
+/* LEVEL — gigante e intimidador */
+.hero-lv-block{
+  animation:fadeUp .7s .45s both;
+  text-align:center;
+  margin-top:1.8rem;
+}
+.hero-lv-label{
+  font-family:var(--sub);font-size:.8rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--text3);margin-bottom:.2rem;
+}
+.hero-lv-num{
+  font-family:var(--head);
+  font-size:clamp(5rem,16vw,11rem);
+  letter-spacing:-.02em;line-height:.85;
+  background:linear-gradient(135deg,rgba(255,255,255,.9) 0%,var(--gold2) 40%,var(--gold) 80%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-shadow:none;
+}
 
 .hero-label{
   font-family:var(--sub);font-size:.9rem;letter-spacing:.2em;text-transform:uppercase;
@@ -281,8 +300,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     <img class="hero-icon" id="heroIcon" src="" alt="icon" onerror="this.style.opacity=.3"/>
     <div class="hero-info">
       <div class="hero-tag" id="heroTag"></div>
-      <div class="hero-lv" id="heroLv"></div>
     </div>
+  </div>
+  <div class="hero-lv-block">
+    <div class="hero-lv-label">Nível</div>
+    <div class="hero-lv-num" id="heroLv">—</div>
   </div>
   <div class="hero-label">Top 50 Campeões com Maior Maestria</div>
 </div>
@@ -337,7 +359,7 @@ function render(data){
   document.getElementById('heroName').textContent=player.game_name;
   document.getElementById('heroIcon').src=ii(player.profile_icon_id);
   document.getElementById('heroTag').innerHTML=`<b>#${player.tag_line}</b>`;
-  document.getElementById('heroLv').textContent=`Lv ${player.summoner_level}`;
+  document.getElementById('heroLv').textContent=player.summoner_level;
 
   // podium top 3 — visual order: #2, #1, #3
   const podium=document.getElementById('podium');

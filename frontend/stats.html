@@ -31,6 +31,112 @@ body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:17
 #cglow{position:fixed;width:320px;height:320px;border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(200,151,58,.065) 0%,rgba(61,157,232,.025) 45%,transparent 70%);}
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");opacity:.5;}
 
+/* ── PARTIDAS ANALISADAS BANNER ── */
+.analyzed-banner{
+  background:linear-gradient(135deg,rgba(200,151,58,.08),rgba(200,151,58,.04));
+  border:1px solid rgba(200,151,58,.2);
+  border-radius:12px;
+  padding:1.1rem 1.5rem;
+  margin-bottom:1.5rem;
+  display:flex;align-items:center;gap:1rem;
+  position:relative;overflow:hidden;
+}
+.analyzed-banner::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.4;
+}
+.analyzed-num{
+  font-family:var(--head);font-size:3rem;font-weight:900;
+  line-height:1;color:var(--gold);letter-spacing:-.02em;
+  flex-shrink:0;
+}
+.analyzed-info{flex:1;}
+.analyzed-label{
+  font-family:var(--head);font-size:1rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--text);
+}
+.analyzed-sub{font-size:.8rem;color:var(--text2);margin-top:.15rem;}
+
+/* ── TEAM SIDE ── */
+.side-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:1.3rem;}
+.side-card{
+  border-radius:12px;padding:1.3rem 1.2rem;
+  display:flex;align-items:center;gap:1rem;
+  position:relative;overflow:hidden;
+}
+.side-card.blue{background:rgba(61,157,232,.08);border:1px solid rgba(61,157,232,.2);}
+.side-card.red{background:rgba(224,82,82,.08);border:1px solid rgba(224,82,82,.2);}
+.side-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+.side-card.blue .side-dot{background:var(--blue);box-shadow:0 0 8px rgba(61,157,232,.5);}
+.side-card.red  .side-dot{background:var(--loss);box-shadow:0 0 8px rgba(224,82,82,.5);}
+.side-info{flex:1;}
+.side-name{font-family:var(--head);font-size:1.2rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;}
+.side-card.blue .side-name{color:var(--blue);}
+.side-card.red  .side-name{color:var(--loss);}
+.side-stats{font-size:.8rem;color:var(--text2);margin-top:.15rem;}
+.side-wr{font-family:var(--head);font-size:1.8rem;font-weight:800;flex-shrink:0;}
+.side-card.blue .side-wr{color:var(--blue);}
+.side-card.red  .side-wr{color:var(--loss);}
+
+/* ── DURATION ── */
+.dur-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin-bottom:1.3rem;}
+.dur-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.1rem;text-align:center;}
+.dur-label{font-family:var(--head);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:.35rem;}
+.dur-wr{font-family:var(--head);font-size:1.8rem;font-weight:800;}
+.dur-sub{font-size:.78rem;color:var(--text2);margin-top:.2rem;}
+
+/* ── CONSISTENCY ── */
+.consist-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.3rem;}
+.consist-item{
+  background:var(--panel);border:1px solid var(--border);border-radius:10px;
+  padding:.8rem 1rem;
+  display:grid;grid-template-columns:44px 1fr auto auto;align-items:center;gap:.85rem;
+}
+.consist-img{width:44px;height:44px;border-radius:7px;object-fit:cover;border:1px solid var(--border2);background:var(--border);}
+.consist-name{font-family:var(--head);font-size:1rem;font-weight:700;letter-spacing:.02em;}
+.consist-games{font-size:.78rem;color:var(--text2);}
+.consist-kda{font-family:var(--head);font-size:1rem;color:var(--blue);text-align:right;}
+.consist-std{font-size:.75rem;color:var(--text3);margin-top:.1rem;text-align:right;}
+
+/* ── FARM EFF ── */
+.farm-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.8rem;margin-bottom:1.3rem;}
+.farm-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;display:flex;align-items:center;gap:.75rem;}
+.farm-img{width:40px;height:40px;border-radius:7px;object-fit:cover;border:1px solid var(--border2);background:var(--border);flex-shrink:0;}
+.farm-name{font-family:var(--head);font-size:.95rem;font-weight:700;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.farm-val{font-family:var(--head);font-size:1rem;color:var(--win);font-weight:800;margin-top:.1rem;}
+.farm-sub{font-size:.7rem;color:var(--text2);}
+
+/* ── BEST HOUR CALLOUT ── */
+.best-hour-card{
+  background:rgba(62,207,122,.06);border:1px solid rgba(62,207,122,.15);
+  border-radius:12px;padding:1.1rem 1.4rem;margin-bottom:1.3rem;
+  display:flex;align-items:center;gap:1.2rem;
+}
+.bh-icon{font-size:2rem;}
+.bh-info{flex:1;}
+.bh-title{font-family:var(--head);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:.2rem;}
+.bh-hour{font-family:var(--head);font-size:1.6rem;font-weight:800;color:var(--win);letter-spacing:.04em;}
+.bh-sub{font-size:.8rem;color:var(--text2);margin-top:.1rem;}
+.bh-wr{font-family:var(--head);font-size:2rem;font-weight:800;color:var(--win);flex-shrink:0;}
+
+/* ── KP CARD ── */
+.kp-card{
+  background:var(--panel);border:1px solid var(--border);border-radius:12px;
+  padding:1.15rem 1.1rem;
+}
+
+/* ── STREAK MAX ── */
+.streak-max-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:1.3rem;}
+.streak-max-card{
+  border-radius:12px;padding:1.1rem 1.2rem;text-align:center;
+}
+.streak-max-card.wins{background:var(--win-dim);border:1px solid rgba(62,207,122,.2);}
+.streak-max-card.losses{background:var(--loss-dim);border:1px solid rgba(224,82,82,.2);}
+.streak-max-num{font-family:var(--head);font-size:3.5rem;font-weight:900;line-height:1;}
+.streak-max-card.wins .streak-max-num{color:var(--win);}
+.streak-max-card.losses .streak-max-num{color:var(--loss);}
+.streak-max-lbl{font-family:var(--head);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);margin-top:.3rem;}
+
 /* ── LAYOUT ── */
 .proot{display:block;min-height:100vh;}
 
@@ -274,6 +380,15 @@ function renderPage(data){
         <span class="ncrumb"><b>${p.game_name}</b>#${p.tag_line} · ${meta?.region?.toUpperCase()}</span>
       </div>
 
+      <!-- PARTIDAS ANALISADAS -->
+      <div class="analyzed-banner rev">
+        <div class="analyzed-num" id="analyzedNum">—</div>
+        <div class="analyzed-info">
+          <div class="analyzed-label">Partidas Analisadas</div>
+          <div class="analyzed-sub" id="analyzedSub">resultado baseado nas partidas abaixo</div>
+        </div>
+      </div>
+
       <!-- hero -->
       <div class="hero rev">
         <div class="icw">
@@ -333,6 +448,11 @@ function renderPage(data){
           <div class="slbl">CC Time Médio</div>
           <div class="sval c-txt">${avgCC}</div>
           <div class="ssub">segundos por jogo</div>
+        </div>
+        <div class="scard kp-card rev" style="transition-delay:.36s">
+          <div class="slbl">Kill Participation</div>
+          <div class="sval c-blue">${typeof kp!=='undefined'&&kp?kp+'%':'—'}</div>
+          <div class="ssub">média por jogo</div>
         </div>
       </div>
 
@@ -394,6 +514,15 @@ function renderPage(data){
         <div class="obj-card"><div class="obj-icon">🦀</div><div class="obj-val">${avgHeralds}</div><div class="obj-lbl">Heralds</div></div>
         <div class="obj-card"><div class="obj-icon">🗼</div><div class="obj-val">${avgTowers}</div><div class="obj-lbl">Torres</div></div>
       </div>
+
+      <!-- LADO AZUL/VERMELHO -->
+      <div id="sideSec"></div>
+
+      <!-- STREAK MAX -->
+      <div id="streakMaxSec"></div>
+
+      <!-- DURAÇÃO IDEAL -->
+      <div id="durSec"></div>
 
       <!-- TOP CAMPEÕES -->
       ${byChamp.length>0?`
@@ -464,12 +593,27 @@ function renderPage(data){
         </div>
       </div>`:''}
 
+      <!-- MELHOR HORÁRIO CALLOUT -->
+      <div id="bestHourSec"></div>
+
+      <!-- CONSISTÊNCIA -->
+      <div id="consistSec"></div>
+
+      <!-- FARM EFICIÊNCIA -->
+      <div id="farmSec"></div>
+
       <!-- PARTIDAS -->
       ${matches?.length>0?`
       <div class="sec rev"><div class="sttl">// Partidas Recentes</div><div class="sline"></div></div>
       <div class="mlist" id="mlist"></div>`:''}
     </div>
   `;
+
+  // ── PARTIDAS ANALISADAS ──
+  const anNum = document.getElementById('analyzedNum');
+  const anSub = document.getElementById('analyzedSub');
+  if(anNum) anNum.textContent = o.total_matches ?? (matches?.length ?? '—');
+  if(anSub) anSub.textContent = `${meta?.mode ? (meta.mode==='ranked_solo'?'Ranked Solo':meta.mode==='ranked_flex'?'Ranked Flex':meta.mode==='normal'?'Normal':meta.mode==='aram'?'ARAM':'Todos os modos') : ''} · ${meta?.region?.toUpperCase()||''}`;
 
   // animate bars
   setTimeout(()=>{
@@ -480,6 +624,151 @@ function renderPage(data){
     if(dd) dd.style.width=dealtPct+'%';
     if(dt) dt.style.width=takenPct+'%';
   },200);
+
+  // ── LADO AZUL/VERMELHO ──
+  const bySide = analysis?.by_team_side || [];
+  const sideSec = document.getElementById('sideSec');
+  if(sideSec && bySide.length){
+    const blueData = bySide.find(s=>s.side==='blue')||{games:0,wins:0,winrate:0};
+    const redData  = bySide.find(s=>s.side==='red') ||{games:0,wins:0,winrate:0};
+    sideSec.innerHTML = `
+      <div class="sec rev"><div class="sttl">// Lado Azul vs Vermelho</div><div class="sline"></div></div>
+      <div class="side-grid rev">
+        <div class="side-card blue">
+          <div class="side-dot"></div>
+          <div class="side-info">
+            <div class="side-name">Time Azul</div>
+            <div class="side-stats">${blueData.games} jogos · ${blueData.wins}V</div>
+          </div>
+          <div class="side-wr">${blueData.winrate}%</div>
+        </div>
+        <div class="side-card red">
+          <div class="side-dot"></div>
+          <div class="side-info">
+            <div class="side-name">Time Vermelho</div>
+            <div class="side-stats">${redData.games} jogos · ${redData.wins}V</div>
+          </div>
+          <div class="side-wr">${redData.winrate}%</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── STREAK MÁXIMA ──
+  const streaksData = analysis?.streaks;
+  const streakMaxSec = document.getElementById('streakMaxSec');
+  if(streakMaxSec && streaksData){
+    streakMaxSec.innerHTML = `
+      <div class="sec rev"><div class="sttl">// Maior Sequência</div><div class="sline"></div></div>
+      <div class="streak-max-grid rev">
+        <div class="streak-max-card wins">
+          <div class="streak-max-num">${streaksData.max_winstreak}</div>
+          <div class="streak-max-lbl">Vitórias Seguidas</div>
+        </div>
+        <div class="streak-max-card losses">
+          <div class="streak-max-num">${streaksData.max_losestreak}</div>
+          <div class="streak-max-lbl">Derrotas Seguidas</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── DURAÇÃO IDEAL ──
+  const byDur = analysis?.by_duration || [];
+  const durSec = document.getElementById('durSec');
+  if(durSec && byDur.length){
+    const best = [...byDur].filter(d=>d.games>0).sort((a,b)=>b.winrate-a.winrate)[0];
+    durSec.innerHTML = `
+      <div class="sec rev"><div class="sttl">// Duração Ideal</div><div class="sline"></div></div>
+      <div class="dur-grid rev">
+        ${byDur.map(d=>{
+          const wc2=d.winrate>=55?'c-win':d.winrate<45?'c-loss':'c-txt';
+          const isBest = best && d.bucket===best.bucket && d.games>0;
+          return `<div class="dur-card${isBest?' rev':' rev'}" style="${isBest?'border-color:rgba(62,207,122,.25);background:rgba(62,207,122,.04);':''}">
+            <div class="dur-label">${d.label}${isBest?' ⚡':''}</div>
+            <div class="dur-wr ${wc2}">${d.games>0?d.winrate+'%':'—'}</div>
+            <div class="dur-sub">${d.games} jogos${d.games>0?' · '+d.wins+'V':''}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  // ── MELHOR HORÁRIO CALLOUT ──
+  const byHourData = analysis?.by_hour || [];
+  const bestHourSec = document.getElementById('bestHourSec');
+  if(bestHourSec && byHourData.length){
+    const bestH = [...byHourData].filter(h=>h.games>=2).sort((a,b)=>b.winrate-a.winrate)[0];
+    if(bestH){
+      bestHourSec.innerHTML = `
+        <div class="sec rev"><div class="sttl">// Melhor Horário</div><div class="sline"></div></div>
+        <div class="best-hour-card rev">
+          <div class="bh-icon">🕐</div>
+          <div class="bh-info">
+            <div class="bh-title">Você joga melhor às</div>
+            <div class="bh-hour">${bestH.label}</div>
+            <div class="bh-sub">${bestH.games} jogos nesse horário</div>
+          </div>
+          <div class="bh-wr">${bestH.winrate}%</div>
+        </div>
+      `;
+    }
+  }
+
+  // ── KILL PARTICIPATION ──
+  const kp = analysis?.kill_participation;
+  const kpCard = document.querySelector('.kp-card');
+  if(kpCard && kp!=null) kpCard.querySelector('.sval').textContent = kp+'%';
+
+  // ── CONSISTÊNCIA ──
+  const consistData = analysis?.consistent_champs || [];
+  const consistSec = document.getElementById('consistSec');
+  if(consistSec && consistData.length){
+    consistSec.innerHTML = `
+      <div class="sec rev"><div class="sttl">// Campeões Mais Consistentes</div><div class="sline"></div></div>
+      <div class="consist-list rev">
+        ${consistData.map(c2=>`
+          <div class="consist-item">
+            <img class="consist-img" src="${ci(c2.champion)}" onerror="this.src='${cif(c2.champion)}'" alt="${c2.champion}"/>
+            <div>
+              <div class="consist-name">${c2.champion}</div>
+              <div class="consist-games">${c2.games} jogos</div>
+            </div>
+            <div>
+              <div class="consist-kda">KDA ${c2.avg_kda}</div>
+              <div class="consist-std">±${c2.std_kda} variação</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // ── FARM EFICIÊNCIA ──
+  const farmData = analysis?.farm_efficiency || [];
+  const farmSec = document.getElementById('farmSec');
+  if(farmSec && farmData.length){
+    farmSec.innerHTML = `
+      <div class="sec rev"><div class="sttl">// Farm por Campeão (CS/min)</div><div class="sline"></div></div>
+      <div class="farm-list rev">
+        ${farmData.map(f=>`
+          <div class="farm-card">
+            <img class="farm-img" src="${ci(f.champion)}" onerror="this.src='${cif(f.champion)}'" alt="${f.champion}"/>
+            <div style="min-width:0">
+              <div class="farm-name">${f.champion}</div>
+              <div class="farm-val">${f.avg_cs_min}</div>
+              <div class="farm-sub">CS/min · ${f.games}j</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // trigger reveal on new dynamic elements
+  setTimeout(()=>{
+    document.querySelectorAll('.rev:not(.vis)').forEach(el=>obs.observe(el));
+  },100);
 
   // render matches after runes load
   const mlist=document.getElementById('mlist');

@@ -226,16 +226,173 @@ def most_played(matches):
 # ──────────────────────────────────────────────
 # Análise completa
 # ──────────────────────────────────────────────
+def by_team_side(matches):
+    """Winrate por lado (azul/vermelho)."""
+    data = {"blue": {"games": 0, "wins": 0}, "red": {"games": 0, "wins": 0}}
+    for m in matches:
+        side = m.get("team_side")
+        if side not in data:
+            continue
+        data[side]["games"] += 1
+        data[side]["wins"]  += int(m["win"])
+    result = []
+    for side, d in data.items():
+        result.append({
+            "side":    side,
+            "games":   d["games"],
+            "wins":    d["wins"],
+            "winrate": winrate(d["wins"], d["games"]),
+        })
+    return result
+ 
+ 
+# ──────────────────────────────────────────────
+# Winstreak / losestreak máxima
+# ──────────────────────────────────────────────
+ 
+def streaks(matches):
+    """Maior winstreak e losestreak já registrada (do mais recente pro mais antigo)."""
+    max_win = max_loss = 0
+    cur_win = cur_loss = 0
+    for m in matches:
+        if m["win"]:
+            cur_win  += 1
+            cur_loss  = 0
+        else:
+            cur_loss += 1
+            cur_win   = 0
+        max_win  = max(max_win,  cur_win)
+        max_loss = max(max_loss, cur_loss)
+    return {"max_winstreak": max_win, "max_losestreak": max_loss}
+ 
+ 
+# ──────────────────────────────────────────────
+# Duração ideal
+# ──────────────────────────────────────────────
+ 
+def by_game_duration(matches):
+    """Winrate em jogos curtos (<25min), médios (25-35min) e longos (>35min)."""
+    buckets = {
+        "short":  {"label": "<25min",  "games": 0, "wins": 0},
+        "medium": {"label": "25-35min","games": 0, "wins": 0},
+        "long":   {"label": ">35min",  "games": 0, "wins": 0},
+    }
+    for m in matches:
+        mins = (m.get("time_played") or 0) / 60
+        if mins < 25:
+            k = "short"
+        elif mins <= 35:
+            k = "medium"
+        else:
+            k = "long"
+        buckets[k]["games"] += 1
+        buckets[k]["wins"]  += int(m["win"])
+    result = []
+    for k, d in buckets.items():
+        result.append({
+            "bucket":  k,
+            "label":   d["label"],
+            "games":   d["games"],
+            "wins":    d["wins"],
+            "winrate": winrate(d["wins"], d["games"]),
+        })
+    return result
+ 
+ 
+# ──────────────────────────────────────────────
+# Kill participation %
+# ──────────────────────────────────────────────
+ 
+def kill_participation(matches):
+    """
+    Kill participation = (kills + assists) / max(1, team_kills).
+    A API não retorna team_kills diretamente, então estimamos com
+    o total de kills/assists do player como proxy.
+    Retorna a média de (K+A) / max(1, K+D+A) como aproximação.
+    """
+    kps = []
+    for m in matches:
+        k, d, a = m["kills"], m["deaths"], m["assists"]
+        # proxy: participação no próprio combate
+        kp = round((k + a) / max(1, k + d + a) * 100, 1)
+        kps.append(kp)
+    return round(sum(kps) / len(kps), 1) if kps else 0.0
+ 
+ 
+# ──────────────────────────────────────────────
+# Campeão mais consistente (menor desvio padrão de KDA)
+# ──────────────────────────────────────────────
+ 
+def most_consistent_champion(matches, min_games=3):
+    """
+    Campeão com menor variância de KDA (precisa de mínimo de jogos).
+    """
+    from collections import defaultdict
+    import math
+ 
+    data = defaultdict(list)
+    for m in matches:
+        kda = round((m["kills"] + m["assists"]) / max(1, m["deaths"]), 2)
+        data[m["champion_name"]].append(kda)
+ 
+    results = []
+    for champ, kdas in data.items():
+        if len(kdas) < min_games:
+            continue
+        avg = sum(kdas) / len(kdas)
+        variance = sum((x - avg) ** 2 for x in kdas) / len(kdas)
+        std = math.sqrt(variance)
+        results.append({
+            "champion": champ,
+            "games":    len(kdas),
+            "avg_kda":  round(avg, 2),
+            "std_kda":  round(std, 2),
+        })
+ 
+    # Menor std = mais consistente
+    return sorted(results, key=lambda x: x["std_kda"])[:5]
+ 
+ 
+# ──────────────────────────────────────────────
+# Eficiência de farm por campeão (CS/min)
+# ──────────────────────────────────────────────
+ 
+def farm_efficiency(matches, min_games=2):
+    """CS por minuto médio por campeão."""
+    from collections import defaultdict
+ 
+    data = defaultdict(list)
+    for m in matches:
+        mins = (m.get("time_played") or 1) / 60
+        cs_per_min = round(m["cs_total"] / max(1, mins), 2)
+        data[m["champion_name"]].append(cs_per_min)
+ 
+    results = []
+    for champ, vals in data.items():
+        if len(vals) < min_games:
+            continue
+        results.append({
+            "champion":    champ,
+            "games":       len(vals),
+            "avg_cs_min":  round(sum(vals) / len(vals), 2),
+        })
+    return sorted(results, key=lambda x: x["avg_cs_min"], reverse=True)[:8]
 
 def analyze(matches):
     return {
-        "overall":     overall_stats(matches),
-        "streak":      current_streak(matches),
-        "most_played": most_played(matches),
-        "by_champion": by_champion(matches),
-        "by_role":     by_role(matches),
-        "evolution":   time_evolution(matches, window=20),
-        "by_hour":     by_hour(matches),
+        "overall":       overall_stats(matches),
+        "streak":        current_streak(matches),
+        "streaks":       streaks(matches),
+        "most_played":   most_played(matches),
+        "by_champion":   by_champion(matches),
+        "by_role":       by_role(matches),
+        "by_team_side":  by_team_side(matches),
+        "by_duration":   by_game_duration(matches),
+        "kill_participation": kill_participation(matches),
+        "consistent_champs": most_consistent_champion(matches),
+        "farm_efficiency":   farm_efficiency(matches),
+        "evolution":     time_evolution(matches, window=20),
+        "by_hour":       by_hour(matches),
     }
 
 

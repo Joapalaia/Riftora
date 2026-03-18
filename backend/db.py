@@ -182,7 +182,7 @@ def insert_matches(puuid: str, matches: list[dict]) -> int:
             vision_score, wards_placed, wards_killed, control_wards,
             gold_earned, gold_spent, gold_per_min, damage_per_min,
             dragons, barons, heralds, towers,
-            lane, role, summoner1, summoner2,
+            lane, role, team_side, summoner1, summoner2,
             items, trinket, purchase_order, runes
         ) VALUES (
             %(match_id)s, %(puuid)s, %(game_start)s, %(game_version)s,
@@ -250,6 +250,7 @@ def insert_matches(puuid: str, matches: list[dict]) -> int:
                     "towers":         obj.get("towers"),
                     "lane":           pos.get("lane"),
                     "role":           pos.get("role"),
+                    "team_side":      pos.get("team_side"),
                     "summoner1":      spells.get("summoner1"),
                     "summoner2":      spells.get("summoner2"),
                     "items":          json.dumps(build.get("items", [])),
