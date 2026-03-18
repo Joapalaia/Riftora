@@ -92,46 +92,13 @@ def get_ids_db() -> dict:
 _RIOT_KEY_CACHE: dict = {"key": None, "fetched_at": 0}
 
 def get_riot_api_key() -> str:
-    """
-    Busca a Riot API Key do Supabase Vault.
-
-    Para configurar no Supabase:
-      1. Acesse seu projeto → Database → Vault
-      2. Crie um secret com o nome: riot_api_key
-      3. Cole sua chave RGAPI-... como valor
-
-    A query abaixo usa a view decrypted_secrets (disponível no Supabase por padrão).
-    """
-    import time
-
-    # Cache de 5 minutos pra não bater no banco a cada request
-    if _RIOT_KEY_CACHE["key"] and (time.time() - _RIOT_KEY_CACHE["fetched_at"]) < 300:
-        return _RIOT_KEY_CACHE["key"]
-
-    sql = """
-        SELECT decrypted_secret
-        FROM vault.decrypted_secrets
-        WHERE name = 'riot_api_key'
-        LIMIT 1;
-    """
-    try:
-        with db.get_conn() as conn:
-            with conn.cursor() as cur:
-                cur.execute(sql)
-                row = cur.fetchone()
-                if not row:
-                    raise HTTPException(
-                        status_code=500,
-                        detail="Riot API Key não encontrada no Vault. Configure o secret 'riot_api_key' no Supabase Vault."
-                    )
-                key = row["decrypted_secret"]
-                _RIOT_KEY_CACHE["key"] = key
-                _RIOT_KEY_CACHE["fetched_at"] = time.time()
-                return key
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro ao buscar API Key do Vault: {e}")
+    key = os.environ.get("RIOT_API_KEY")
+    if not key:
+        raise HTTPException(
+            status_code=500,
+            detail="Riot API Key não configurada. Adicione RIOT_API_KEY nas variáveis de ambiente do Render."
+        )
+    return key
 
 
 # ══════════════════════════════════════════════
