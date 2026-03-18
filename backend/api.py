@@ -193,7 +193,7 @@ def search_player(
         print(f"[job] {jkey} → already running, skipping duplicate")
 
     # Retorna dados do banco imediatamente
-    player_db   = db.get_player(puuid) or {
+    player_db   = db.get_player(game_name, tag_line) or {
         "game_name": game_name, "tag_line": tag_line,
         "puuid": puuid, "summoner_level": None,
         "profile_icon_id": None, "ranked": {}
