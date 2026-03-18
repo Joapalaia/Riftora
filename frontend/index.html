@@ -395,14 +395,109 @@ function getLoadingSteps(count) {
 }
 
 const DDV = "14.9.1";
+
+// Nomes de campeões que a API retorna diferente do arquivo PNG
+const CHAMP_NAME_FIX = {
+  "Nunu & Willump": "Nunu",
+  "Renata Glasc":   "Renata",
+  "Wukong":         "MonkeyKing",
+  "Bel'Veth":       "Belveth",
+  "K'Sante":        "KSante",
+  "Kog'Maw":        "KogMaw",
+  "Kha'Zix":        "Khazix",
+  "Rek'Sai":        "RekSai",
+  "Cho'Gath":       "Chogath",
+  "Vel'Koz":        "Velkoz",
+  "Tahm Kench":     "TahmKench",
+  "Lee Sin":        "LeeSin",
+  "Master Yi":      "MasterYi",
+  "Miss Fortune":   "MissFortune",
+  "Twisted Fate":   "TwistedFate",
+  "Xin Zhao":       "XinZhao",
+  "Jarvan IV":      "JarvanIV",
+  "Dr. Mundo":      "DrMundo",
+  "Aurelion Sol":   "AurelionSol",
+};
+
+function champFile(name) {
+  return CHAMP_NAME_FIX[name] || name;
+}
+
+// Mapeamento runas pt_BR → nome do arquivo PNG (inglês)
+const RUNE_FILE = {
+  // Keystones
+  "Eletrocutar":          "Electrocute",
+  "Colheita Sombria":     "DarkHarvest",
+  "Chuva de Lâminas":     "HailOfBlades",
+  "Pressionar o Ataque":  "PressTheAttack",
+  "Tempo Letal":          "LethalTempoTemp",
+  "Conquistador":         "Conqueror",
+  "Frota de Movimento":   "FleetFootwork",
+  "Dominar":              "PressTheAttack",
+  "Cometa Arcano":        "ArcaneComet",
+  "Aery Convocada":       "SummonAery",
+  "Fase Brilhante":       "PhaseRush",
+  "Golpe Glacial":        "GlacialAugment",
+  "Grau Primeiro":        "FirstStrike",
+  "Livro de Feitiços":    "UnsealedSpellbook",
+  "Garras do Ártico":     "GlacialAugment",
+  "Aperto dos Mortos-Vivos": "GraspOfTheUndying",
+  "Demolir":              "Demolish",
+  "Placa Óssea":          "BonePlating",
+  "Guardião":             "Guardian",
+  "Após o Choque":        "VeteranAftershock",
+  // Runas secundárias / menores
+  "Golpe Baixo":          "CheapShot",
+  "Gosto de Sangue":      "GreenTerror_TasteOfBlood",
+  "Caçador de Tesouros":  "TreasureHunter",
+  "Impacto Repentino":    "SuddenImpact",
+  "Visão Fantasmal":      "GhostPoro",
+  "Caçador Implacável":   "RelentlessHunter",
+  "Caçador Supremo":      "UltimateHunter",
+  "Predador":             "Predator",
+  "Presença de Espírito": "PresenceOfMind",
+  "Lenda: Agilidade":     "LegendAlacrity",
+  "Lenda: Linhagem":      "LegendBloodline",
+  "Lenda: Tenacidade":    "LegendHaste",
+  "Golpe de Misericórdia":"CoupDeGrace",
+  "Abate":                "CutDown",
+  "Última Resistência":   "LastStand",
+  "Faixa de Manaflow":    "ManaflowBand",
+  "Foco Absoluto":        "AbsoluteFocus",
+  "Transcendência":       "Transcendence",
+  "Celeridade":           "CelerityTemp",
+  "Tempestade Crescente": "GatheringStorm",
+  "Queimadura":           "Scorch",
+  "Caminhada nas Águas":  "Waterwalking",
+  "Insight Cósmico":      "CosmicInsight",
+  "Calçados Mágicos":     "MagicalFootwear",
+  "Entrega de Biscoitos": "BiscuitDelivery",
+  "Pele de Pedra":        "Conditioning",
+  "Segundo Fôlego":       "SecondWind",
+  "Fonte de Vida":        "FontOfLife",
+  "Crescimento Excessivo":"Overgrowth",
+  "Inabalável":           "Unflinching",
+  "Revitalizar":          "Revitalize",
+  "Flash Hextech":        "HextechFlashtraption",
+  "Tônico de Distorção":  "TimeWarpTonic",
+  "Triunfo":              "Triumph",
+  "Absorver Vida":        "AbsorbLife",
+  "Primeiro Ataque":      "FirstStrike",
+  "Axioma Arcanista":     "Axiom_Arcanist",
+};
+
+function runeFile(name) {
+  return RUNE_FILE[name] || name;
+}
+
 const A = {
-  champ: n  => `assets/champions/${n}.png`,
+  champ: n  => `assets/champions/${champFile(n)}.png`,
   item:  id => `assets/items/${id}.png`,
-  rune:  n  => `assets/runes/${n}.png`,
+  rune:  n  => `assets/runes/${runeFile(n)}.png`,
   icon:  id => `https://ddragon.leagueoflegends.com/cdn/${DDV}/img/profileicon/${id}.png`,
 };
 const DD = {
-  champ: n  => `https://ddragon.leagueoflegends.com/cdn/${DDV}/img/champion/${n}.png`,
+  champ: n  => `https://ddragon.leagueoflegends.com/cdn/${DDV}/img/champion/${champFile(n)}.png`,
   item:  id => `https://ddragon.leagueoflegends.com/cdn/${DDV}/img/item/${id}.png`,
 };
 
