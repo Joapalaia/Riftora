@@ -121,30 +121,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   .cards-grid{grid-template-columns:1fr;}
   body{overflow:auto;}
 }
-
-/* ── LANG TOGGLE ── */
-.lang-corner{
-  position:fixed;top:1.2rem;right:1.2rem;z-index:200;
-  display:flex;gap:.25rem;
-}
-.lang-corner button{
-  background:rgba(6,8,14,.8);border:1px solid var(--border);border-radius:6px;
-  color:var(--text2);font-family:var(--head);font-size:.72rem;font-weight:700;
-  letter-spacing:.1em;padding:.28rem .6rem;cursor:none;transition:all .15s;
-  backdrop-filter:blur(8px);
-}
-.lang-corner button.on{border-color:var(--gold);color:var(--gold);background:rgba(200,151,58,.08);}
-.lang-corner button:hover{border-color:var(--text3);color:var(--text);}
-[data-en]{display:none;}
-.en [data-en]{display:inline;}
-.en [data-pt]{display:none;}
 </style>
 </head>
 <body>
-<div class="lang-corner" id="langCorner">
-  <button onclick="setLang('pt')" id="lbPT" class="on">PT</button>
-  <button onclick="setLang('en')" id="lbEN">EN</button>
-</div>
 <div id="cdot"></div>
 <div id="cglow"></div>
 <div class="bg-grid"></div>
@@ -161,23 +140,23 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
     </div>
   </div>
 
-  <div class="page-title"><span data-pt>O que quer ver?</span><span data-en>What do you want to see?</span></div>
+  <div class="page-title">O que quer ver?</div>
 
   <div class="cards-grid">
     <a class="mode-card available" href="/maestria">
       <div class="card-icon">🏆</div>
-      <span class="card-tag"><span data-pt>Disponível</span><span data-en>Available</span></span>
-      <div class="card-title">Mastery</div>
-      <div class="card-desc"><span data-pt>Top 50 campeões com mais maestria. Podium dourado, barras animadas — perfeito pra tirar print.</span><span data-en>Top 50 champions by mastery. Golden podium, animated bars — perfect for sharing.</span></div>
-      <div class="card-arrow"><span data-pt>Ver maestria</span><span data-en>View mastery</span> →</div>
+      <span class="card-tag">Disponível</span>
+      <div class="card-title">Maestria</div>
+      <div class="card-desc">Top 50 campeões com mais maestria. Podium dourado, barras animadas — perfeito pra tirar print.</div>
+      <div class="card-arrow">Ver maestria →</div>
     </a>
 
     <a class="mode-card available" href="/stats">
       <div class="card-icon">📊</div>
-      <span class="card-tag"><span data-pt>Disponível</span><span data-en>Available</span></span>
-      <div class="card-title">Statistics</div>
-      <div class="card-desc"><span data-pt>KDA, winrate, dano, visão, objetivos, ouro por minuto e muito mais das suas partidas.</span><span data-en>KDA, winrate, damage, vision, objectives, gold per minute and much more.</span></div>
-      <div class="card-arrow"><span data-pt>Ver stats</span><span data-en>View stats</span> →</div>
+      <span class="card-tag">Disponível</span>
+      <div class="card-title">Estatísticas</div>
+      <div class="card-desc">KDA, winrate, dano, visão, objetivos, ouro por minuto e muito mais das suas partidas.</div>
+      <div class="card-arrow">Ver stats →</div>
     </a>
 
     <div class="mode-card soon">
@@ -215,20 +194,6 @@ window.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('pbIcon').src=`https://ddragon.leagueoflegends.com/cdn/${DDV}/img/profileicon/${p.profile_icon_id}.png`;
   }catch(e){window.location.href='/search';}
 });
-
-// lang toggle
-(function(){
-  const saved = localStorage.getItem('riftora_lang')||'pt';
-  function setLang(l){
-    localStorage.setItem('riftora_lang',l);
-    document.documentElement.className = l==='en'?'en':'';
-    document.getElementById('lbPT').classList.toggle('on',l==='pt');
-    document.getElementById('lbEN').classList.toggle('on',l==='en');
-  }
-  window.setLang = setLang;
-  setLang(saved);
-})();
-
 </script>
 </body>
 </html>
