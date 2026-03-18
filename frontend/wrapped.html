@@ -9,6 +9,7 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 * { cursor: none !important; }
+a, button, .music-btn, .back-btn { pointer-events: auto !important; }
 :root{
   --head:'Bebas Neue',sans-serif;
   --sub:'Barlow Condensed',sans-serif;
@@ -127,9 +128,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
 @keyframes hexIn{from{opacity:0;transform:scale(.5) rotate(-30deg);}to{opacity:1;transform:scale(1) rotate(0);}}
 .s0-name{
   font-family:var(--head);
-  font-size:clamp(3rem,14vw,7rem);
-  letter-spacing:.06em;text-transform:uppercase;line-height:.9;
+  font-size:clamp(2rem,10vw,6rem);
+  letter-spacing:.04em;text-transform:uppercase;line-height:.9;
   color:#fff;
+  word-break:break-word;
+  max-width:100%;
   animation:nameReveal 1s .3s cubic-bezier(.2,.8,.3,1) both;
 }
 @keyframes nameReveal{from{opacity:0;letter-spacing:.2em;}to{opacity:1;letter-spacing:.06em;}}
@@ -271,29 +274,79 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
 .music-no-url{font-family:var(--sub);font-size:.78rem;opacity:.35;letter-spacing:.08em;text-transform:uppercase;margin-top:.3rem;}
 
 /* ── SLIDE 8: FINAL ── */
-.final-wrap{
-  background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);
-  border-radius:20px;padding:2rem 2.2rem;
-  max-width:400px;width:90%;
-  backdrop-filter:blur(20px);
+#finalCard{
+  position:relative;z-index:2;
+  width:min(380px,90vw);
+  background:linear-gradient(135deg,rgba(10,8,20,.95),rgba(5,4,12,.98));
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:24px;overflow:hidden;
   animation:slideUp .8s .2s both;
 }
-.final-name{font-family:var(--head);font-size:2.2rem;letter-spacing:.06em;margin-bottom:.3rem;}
-.final-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:1.2rem;}
-.final-stat{
-  background:rgba(255,255,255,.04);border-radius:10px;padding:.7rem .8rem;
+#finalCard::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--final-accent,#e8c46d),transparent);
 }
-.final-stat-val{font-family:var(--head);font-size:1.4rem;font-weight:800;line-height:1;}
-.final-stat-lbl{font-family:var(--sub);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;opacity:.4;margin-top:.15rem;}
-.final-badge{
-  display:inline-block;font-family:var(--sub);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;
-  padding:.25rem .8rem;border-radius:20px;border:1px solid currentColor;
-  margin-top:.8rem;opacity:.6;
+.fc-hero{
+  position:relative;height:160px;overflow:hidden;
 }
-.share-hint{
-  font-family:var(--sub);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;
-  opacity:.3;margin-top:1.2rem;text-align:center;
+.fc-hero-img{
+  width:100%;height:100%;object-fit:cover;object-position:top center;
+  filter:brightness(.35) saturate(.6);
 }
+.fc-hero-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,transparent 30%,rgba(10,8,20,.98) 100%);
+}
+.fc-hero-icon{
+  position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);
+  width:52px;height:52px;border-radius:12px;
+  border:2px solid rgba(255,255,255,.15);object-fit:cover;
+  background:#111;
+}
+.fc-body{padding:2rem 1.5rem 1.5rem;}
+.fc-name{
+  font-family:var(--head);font-size:2rem;letter-spacing:.06em;
+  text-align:center;color:#fff;line-height:1;margin-bottom:.2rem;
+}
+.fc-tag{font-family:var(--sub);font-size:.8rem;opacity:.35;text-align:center;margin-bottom:.8rem;}
+.fc-region{
+  display:flex;align-items:center;justify-content:center;gap:.4rem;
+  font-family:var(--sub);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+  padding:.22rem .9rem;border-radius:20px;border:1px solid currentColor;
+  width:fit-content;margin:0 auto .8rem;opacity:.7;
+}
+.fc-divider{height:1px;background:rgba(255,255,255,.06);margin:.8rem 0;}
+.fc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;}
+.fc-stat{text-align:center;padding:.5rem .3rem;}
+.fc-stat-val{font-family:var(--head);font-size:1.3rem;line-height:1;}
+.fc-stat-lbl{font-family:var(--sub);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;opacity:.35;margin-top:.15rem;}
+.fc-arch{
+  font-family:var(--head);font-size:.95rem;letter-spacing:.04em;
+  text-align:center;opacity:.5;margin-top:.7rem;
+}
+.fc-brand{
+  font-family:var(--sub);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;
+  opacity:.2;text-align:center;margin-top:.5rem;
+  padding-bottom:.2rem;
+}
+
+/* share buttons */
+.share-row{
+  display:flex;gap:.6rem;margin-top:1.2rem;justify-content:center;
+  animation:slideUp .7s .5s both;
+}
+.share-btn{
+  display:inline-flex;align-items:center;gap:.4rem;
+  border:none;border-radius:12px;
+  font-family:var(--sub);font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:.6rem 1.2rem;cursor:none;transition:opacity .15s,transform .1s;
+  pointer-events:auto !important;
+}
+.share-btn:active{transform:scale(.96);}
+.share-btn-img{background:linear-gradient(135deg,#c8973a,#e8c46d);color:#050508;}
+.share-btn-web{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#fff;}
+.share-btn-web:hover{background:rgba(255,255,255,.14);}
+.share-loading{opacity:.5;pointer-events:none;}
 
 /* ── THEME VARS per slide ── */
 .theme-dark{color:#e8e0d0;}
@@ -304,6 +357,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;
 .theme-ionia{color:#ffd8e8;}
 .theme-shadow{color:#c0d8c0;}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 <div id="cdot"></div>
@@ -820,49 +874,138 @@ function buildSlides(w) {
   slides.push({
     id:'final',
     html:`
-      <div class="slide-bg" style="background:radial-gradient(ellipse at center,#080510 0%,#020205 100%)"></div>
-      <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 80% at 50% 50%,${regionCfg.color}08 0%,transparent 70%)"></div>
-      <img style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.05;filter:blur(4px)"
-        src="${splashArt(topChamp)}" alt=""/>
-      <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;padding:2rem 1.5rem">
-        <div style="font-family:var(--sub);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:1rem">riftora wrapped · 2025</div>
-        <div class="final-wrap" style="color:#fff">
-          <div style="text-align:center;margin-bottom:.5rem">
-            <img src="${iconImg(player.profile_icon_id)}" style="width:52px;height:52px;border-radius:10px;border:2px solid rgba(255,255,255,.1)" onerror="this.style.opacity=.2"/>
+      <div class="slide-bg" style="background:radial-gradient(ellipse at center,#06040f 0%,#010108 100%)"></div>
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 70% at 50% 40%,${regionCfg.color}06 0%,transparent 70%)"></div>
+
+      <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:4rem 1.5rem 2rem;gap:0">
+
+        <!-- CARD pra capturar como imagem -->
+        <div id="finalCard" style="--final-accent:${regionCfg.color}">
+          <!-- hero art -->
+          <div class="fc-hero">
+            <img class="fc-hero-img" src="${splashArt(topChamp)}" alt="${topChamp}" onerror="this.style.opacity=0"/>
+            <div class="fc-hero-overlay"></div>
+            <img class="fc-hero-icon" src="${iconImg(player.profile_icon_id)}" onerror="this.style.opacity=.1" alt="icon"/>
           </div>
-          <div class="final-name" style="text-align:center;color:#fff">${player.game_name}</div>
-          <div style="text-align:center;font-family:var(--sub);font-size:.8rem;opacity:.4;margin-bottom:.3rem">#${player.tag_line}</div>
-          <div style="text-align:center">
-            <span style="display:inline-block;font-family:var(--sub);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;padding:.22rem .8rem;border-radius:20px;border:1px solid ${regionCfg.color};color:${regionCfg.color};opacity:.8">${regionCfg.emoji} ${region}</span>
-          </div>
-          <div class="final-stats-grid">
-            <div class="final-stat">
-              <div class="final-stat-val" style="color:#e8c46d">${totalMatches}</div>
-              <div class="final-stat-lbl">partidas</div>
+
+          <!-- body -->
+          <div class="fc-body" style="color:#fff">
+            <div class="fc-name">${player.game_name}</div>
+            <div class="fc-tag">#${player.tag_line}</div>
+            <div class="fc-region" style="color:${regionCfg.color};border-color:${regionCfg.color}40">
+              ${regionCfg.emoji} ${region}
             </div>
-            <div class="final-stat">
-              <div class="final-stat-val" style="color:#3ecf7a">${o.winrate??0}%</div>
-              <div class="final-stat-lbl">winrate</div>
+            <div class="fc-divider"></div>
+            <div class="fc-grid">
+              <div class="fc-stat">
+                <div class="fc-stat-val" style="color:#e8c46d">${totalMatches}</div>
+                <div class="fc-stat-lbl">partidas</div>
+              </div>
+              <div class="fc-stat">
+                <div class="fc-stat-val" style="color:#3ecf7a">${o.winrate??0}%</div>
+                <div class="fc-stat-lbl">winrate</div>
+              </div>
+              <div class="fc-stat">
+                <div class="fc-stat-val" style="color:#3d9de8">${o.avg_kda??'—'}</div>
+                <div class="fc-stat-lbl">KDA</div>
+              </div>
+              <div class="fc-stat">
+                <div class="fc-stat-val" style="color:rgba(255,255,255,.6)">${hoursPlayed}h</div>
+                <div class="fc-stat-lbl">na rift</div>
+              </div>
             </div>
-            <div class="final-stat">
-              <div class="final-stat-val" style="color:#3d9de8">${o.avg_kda??'—'}</div>
-              <div class="final-stat-lbl">KDA</div>
-            </div>
-            <div class="final-stat">
-              <div class="final-stat-val" style="color:rgba(255,255,255,.7)">${hoursPlayed}h</div>
-              <div class="final-stat-lbl">na Rift</div>
-            </div>
-          </div>
-          <div style="text-align:center;margin-top:.8rem">
-            <div style="font-family:var(--head);font-size:1rem;opacity:.6">${archCfg.icon} ${archetype}</div>
+            <div class="fc-arch">${archCfg.icon} ${archetype}</div>
+            <div class="fc-brand">riftora wrapped · 2025</div>
           </div>
         </div>
-        <div class="share-hint">📸 tire um print e compartilhe</div>
+
+        <!-- share buttons -->
+        <div class="share-row">
+          <button class="share-btn share-btn-img" onclick="shareAsImage()">📸 Compartilhar</button>
+          <button class="share-btn share-btn-web" onclick="shareLink()">🔗 Link</button>
+        </div>
       </div>
     `
   });
 
   return slides;
+}
+
+// ════════════════════════════════════════════════════
+// SHARE FUNCTIONS
+// ════════════════════════════════════════════════════
+
+async function shareAsImage() {
+  const card = document.getElementById('finalCard');
+  if(!card) return;
+
+  const btn = document.querySelector('.share-btn-img');
+  if(btn) { btn.textContent = '⏳ Gerando...'; btn.classList.add('share-loading'); }
+
+  try {
+    // Hide cursor dot temporarily
+    const dot = document.getElementById('cdot');
+    if(dot) dot.style.display='none';
+
+    const canvas = await html2canvas(card, {
+      backgroundColor: null,
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+    });
+
+    if(dot) dot.style.display='';
+
+    canvas.toBlob(async (blob) => {
+      const file = new File([blob], 'riftora-wrapped.png', { type: 'image/png' });
+
+      // Try Web Share API with file (works on mobile)
+      if(navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Meu Riftora Wrapped',
+            text: 'Veja meu Wrapped no Riftora!',
+          });
+        } catch(e) {
+          if(e.name !== 'AbortError') fallbackDownload(canvas);
+        }
+      } else {
+        // Fallback: download image
+        fallbackDownload(canvas);
+      }
+
+      if(btn) { btn.textContent = '📸 Compartilhar'; btn.classList.remove('share-loading'); }
+    }, 'image/png');
+
+  } catch(e) {
+    console.error('share error:', e);
+    if(btn) { btn.textContent = '📸 Compartilhar'; btn.classList.remove('share-loading'); }
+  }
+}
+
+function fallbackDownload(canvas) {
+  const link = document.createElement('a');
+  link.download = 'riftora-wrapped.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+async function shareLink() {
+  const url = window.location.href;
+  if(navigator.share) {
+    try {
+      await navigator.share({ title: 'Riftora Wrapped', url });
+      return;
+    } catch(e) {}
+  }
+  // fallback: copy to clipboard
+  try {
+    await navigator.clipboard.writeText(url);
+    const btn = document.querySelector('.share-btn-web');
+    if(btn) { btn.textContent = '✅ Copiado!'; setTimeout(()=>{ btn.textContent='🔗 Link'; },2000); }
+  } catch(e) {}
 }
 
 // ════════════════════════════════════════════════════
