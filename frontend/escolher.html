@@ -1,4 +1,3 @@
-# esse é o escolher
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -131,7 +130,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 
 <div class="wrap">
   <div class="top-bar">
-    <a class="back-btn" href="/search">← Voltar</a>
+    <button class="back-btn" onclick="sessionStorage.removeItem('rd');sessionStorage.removeItem('rv');window.location.href='/search'">← Voltar</button>
     <div class="player-badge">
       <img class="pb-icon" id="pbIcon" src="" alt="icon" onerror="this.style.opacity=.3"/>
       <div>
