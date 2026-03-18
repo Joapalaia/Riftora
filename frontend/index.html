@@ -878,11 +878,15 @@ function ProfilePage({data, onBack}) {
 // APP
 // ══════════════════════
 function App() {
-  const [view,   setView]   = useState("search");
-  const [data,   setData]   = useState(null);
-  const [loading,setLoading]= useState(false);
-  const [count,  setCount]  = useState(20);
-  const [error,  setError]  = useState("");
+  const [view,    setView]   = useState(() => {
+    try { return sessionStorage.getItem("rv") || "search"; } catch { return "search"; }
+  });
+  const [data,    setData]   = useState(() => {
+    try { const d = sessionStorage.getItem("rd"); return d ? JSON.parse(d) : null; } catch { return null; }
+  });
+  const [loading, setLoading]= useState(false);
+  const [count,   setCount]  = useState(20);
+  const [error,   setError]  = useState("");
 
   async function handleSearch(name, tag, region, mode, cnt) {
     setCount(cnt);
@@ -890,22 +894,27 @@ function App() {
     setError("");
     try {
       const url = `${API_BASE}/search?name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}&region=${region}&mode=${mode}&matches=${cnt}`;
-      const res  = await fetch(url);
-      const d    = await res.json();
+      const res = await fetch(url);
+      const d   = await res.json();
       if(!res.ok) throw new Error(d.detail || "Erro desconhecido.");
+      try { sessionStorage.setItem("rd", JSON.stringify(d)); sessionStorage.setItem("rv", "profile"); } catch {}
       setData(d);
       setView("profile");
     } catch(e) {
       setError(e.message);
-      setView("search-err");
     }
     setLoading(false);
+  }
+
+  function handleBack() {
+    try { sessionStorage.removeItem("rd"); sessionStorage.removeItem("rv"); } catch {}
+    setView("search");
   }
 
   if(loading) return <Loader count={count}/>;
 
   if(view === "profile" && data)
-    return <ProfilePage data={data} onBack={()=>setView("search")}/>;
+    return <ProfilePage data={data} onBack={handleBack}/>;
 
   return <SearchPage onSearch={handleSearch} initialError={error}/>;
 }
