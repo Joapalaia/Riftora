@@ -441,11 +441,18 @@ def fetch_player(game_name: str, tag_line: str, count: int, items_data: dict, ru
     db.upsert_mastery(puuid, mastery)
 
     # ── Descobre partidas novas ───────────────────────────────
-    latest_id = None if IGNORE_CACHE_STOP else db.get_latest_match_id(puuid)
-    if latest_id:
-        print(f"  Player já existe no banco. Buscando partidas novas...")
+    # ── Descobre partidas novas ───────────────────────────────
+    partidas_no_banco = db.get_matches(puuid, limit=count)
+    tem_suficiente    = len(partidas_no_banco) >= count
+
+    # Usa latest_match_id como stop só se já tem partidas suficientes
+    # e não estamos ignorando o cache
+    if IGNORE_CACHE_STOP or not tem_suficiente:
+        latest_id = None   # busca sem parar — pega tudo até atingir count
+        print(f"  Buscando {count} partidas (banco tem {len(partidas_no_banco)})...")
     else:
-        print(f"  Primeira busca. Coletando {count} partidas (isso pode demorar)...")
+        latest_id = db.get_latest_match_id(puuid)
+        print(f"  Player já existe no banco. Buscando partidas novas...")
 
     new_matches = fetch_new_matches(
         puuid, stop_at_id=latest_id, count=count,
