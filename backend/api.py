@@ -122,6 +122,13 @@ def run_fetch_job(jkey: str, name: str, tag: str, region: str, mode: str, matche
                 "mode":     mode,
             }
         print(f"[job] {jkey} → done")
+        # Remove outros jobs do mesmo puuid com params diferentes
+        # para que próxima busca com qtd diferente funcione normalmente
+        puuid_prefix = puuid + ":"
+        with _jobs_lock:
+            to_del = [k for k in _jobs if k.startswith(puuid_prefix) and k != jkey and _jobs[k].get("status") != "running"]
+            for k in to_del:
+                del _jobs[k]
 
     except Exception as e:
         print(f"[job] {jkey} → error: {e}")
@@ -190,7 +197,7 @@ def search_player(
         thread.start()
         print(f"[job] {jkey} → started")
     else:
-        print(f"[job] {jkey} → already running, skipping duplicate")
+        print(f"[job] {jkey} → already running, skipping duplicate (same params)")
 
     # Retorna dados do banco imediatamente
     player_db   = db.get_player(game_name, tag_line) or {
