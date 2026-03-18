@@ -306,7 +306,6 @@ def get_latest_match_id(puuid: str) -> str | None:
 # ──────────────────────────────────────────────
 
 def get_analysis(puuid: str) -> dict | None:
-    """Retorna a análise salva do player."""
     sql = "SELECT * FROM player_analysis WHERE puuid = %s;"
     with get_conn() as conn:
         with conn.cursor() as cur:
@@ -315,8 +314,9 @@ def get_analysis(puuid: str) -> dict | None:
             if not row:
                 return None
             r = dict(row)
-            # Desserializa campos JSONB que vierem como string
-            for field in ("overall", "streak", "most_played", "by_champion", "by_role", "evolution", "by_hour"):
+            for field in ("overall", "streak", "most_played", "by_champion",
+                          "by_role", "evolution", "by_hour", "by_team_side",
+                          "by_duration", "streaks", "consistent_champs", "farm_efficiency"):
                 if isinstance(r.get(field), str):
                     r[field] = json.loads(r[field])
             return r
@@ -344,38 +344,53 @@ def needs_analysis_update(puuid: str) -> bool:
 
 
 def upsert_analysis(puuid: str, analysis: dict, matches_analyzed: int) -> None:
-    """Salva ou atualiza a análise do player."""
     sql = """
         INSERT INTO player_analysis (
             puuid, analyzed_at, matches_analyzed,
             overall, streak, most_played,
-            by_champion, by_role, evolution, by_hour
+            by_champion, by_role, evolution, by_hour,
+            by_team_side, by_duration, streaks,
+            kill_participation, consistent_champs, farm_efficiency
         ) VALUES (
             %(puuid)s, NOW(), %(matches_analyzed)s,
             %(overall)s, %(streak)s, %(most_played)s,
-            %(by_champion)s, %(by_role)s, %(evolution)s, %(by_hour)s
+            %(by_champion)s, %(by_role)s, %(evolution)s, %(by_hour)s,
+            %(by_team_side)s, %(by_duration)s, %(streaks)s,
+            %(kill_participation)s, %(consistent_champs)s, %(farm_efficiency)s
         )
         ON CONFLICT (puuid) DO UPDATE SET
-            analyzed_at      = NOW(),
-            matches_analyzed = EXCLUDED.matches_analyzed,
-            overall          = EXCLUDED.overall,
-            streak           = EXCLUDED.streak,
-            most_played      = EXCLUDED.most_played,
-            by_champion      = EXCLUDED.by_champion,
-            by_role          = EXCLUDED.by_role,
-            evolution        = EXCLUDED.evolution,
-            by_hour          = EXCLUDED.by_hour;
+            analyzed_at        = NOW(),
+            matches_analyzed   = EXCLUDED.matches_analyzed,
+            overall            = EXCLUDED.overall,
+            streak             = EXCLUDED.streak,
+            most_played        = EXCLUDED.most_played,
+            by_champion        = EXCLUDED.by_champion,
+            by_role            = EXCLUDED.by_role,
+            evolution          = EXCLUDED.evolution,
+            by_hour            = EXCLUDED.by_hour,
+            by_team_side       = EXCLUDED.by_team_side,
+            by_duration        = EXCLUDED.by_duration,
+            streaks            = EXCLUDED.streaks,
+            kill_participation = EXCLUDED.kill_participation,
+            consistent_champs  = EXCLUDED.consistent_champs,
+            farm_efficiency    = EXCLUDED.farm_efficiency;
     """
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(sql, {
-                "puuid":            puuid,
-                "matches_analyzed": matches_analyzed,
-                "overall":          json.dumps(analysis["overall"],     cls=DecimalEncoder),
-"streak":           json.dumps(analysis["streak"],      cls=DecimalEncoder),
-"most_played":      json.dumps(analysis["most_played"], cls=DecimalEncoder),
-"by_champion":      json.dumps(analysis["by_champion"], cls=DecimalEncoder),
-"by_role":          json.dumps(analysis["by_role"],     cls=DecimalEncoder),
-"evolution":        json.dumps(analysis["evolution"],   cls=DecimalEncoder),
-"by_hour":          json.dumps(analysis["by_hour"],     cls=DecimalEncoder),
+                "puuid":              puuid,
+                "matches_analyzed":   matches_analyzed,
+                "overall":            json.dumps(analysis["overall"],            cls=DecimalEncoder),
+                "streak":             json.dumps(analysis["streak"],             cls=DecimalEncoder),
+                "most_played":        json.dumps(analysis["most_played"],        cls=DecimalEncoder),
+                "by_champion":        json.dumps(analysis["by_champion"],        cls=DecimalEncoder),
+                "by_role":            json.dumps(analysis["by_role"],            cls=DecimalEncoder),
+                "evolution":          json.dumps(analysis["evolution"],          cls=DecimalEncoder),
+                "by_hour":            json.dumps(analysis["by_hour"],            cls=DecimalEncoder),
+                "by_team_side":       json.dumps(analysis["by_team_side"],       cls=DecimalEncoder),
+                "by_duration":        json.dumps(analysis["by_duration"],        cls=DecimalEncoder),
+                "streaks":            json.dumps(analysis["streaks"],            cls=DecimalEncoder),
+                "kill_participation": analysis.get("kill_participation", 0),
+                "consistent_champs":  json.dumps(analysis.get("consistent_champs", []), cls=DecimalEncoder),
+                "farm_efficiency":    json.dumps(analysis.get("farm_efficiency",   []), cls=DecimalEncoder),
             })

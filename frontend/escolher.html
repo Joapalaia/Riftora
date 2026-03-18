@@ -183,7 +183,11 @@ document.addEventListener('mousemove',e=>{
   glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px';
 });
 
-const DDV="14.24.1";
+let DDV = "16.5.1"; // fallback temporário
+fetch("https://riftora-backend.onrender.com/version")
+  .then(r => r.json())
+  .then(d => { DDV = d.version; })
+  .catch(() => {});
 window.addEventListener('DOMContentLoaded',()=>{
   try{
     const raw=sessionStorage.getItem('rd');

@@ -271,10 +271,14 @@ document.addEventListener('mousemove',e=>{
   glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px';
 });
 
-const DDV="14.24.1";
+let DDV = "16.5.1"; // fallback temporário
+fetch("https://riftora-backend.onrender.com/version")
+  .then(r => r.json())
+  .then(d => { DDV = d.version; })
+  .catch(() => {});
 const ROLE_MAP={'TOP':'Top','JUNGLE':'Jungle','MIDDLE':'Mid','BOTTOM':'ADC','UTILITY':'Suporte','NONE':'?','UNKNOWN':'?','':'?'};
 function roleLabel(r){return ROLE_MAP[r]||r;}
-const CHAMP_FIX={"Nunu e Willump":"Nunu","Nunu & Willump":"Nunu","Renata Glasc":"Renata","Wukong":"MonkeyKing","Bel'Veth":"Belveth","K'Sante":"KSante","Kog'Maw":"KogMaw","Kha'Zix":"Khazix","Rek'Sai":"RekSai","Cho'Gath":"Chogath","Vel'Koz":"Velkoz","Tahm Kench":"TahmKench","Lee Sin":"LeeSin","Master Yi":"MasterYi","Miss Fortune":"MissFortune","Twisted Fate":"TwistedFate","Xin Zhao":"XinZhao","Jarvan IV":"JarvanIV","Dr. Mundo":"DrMundo","Aurelion Sol":"AurelionSol","FiddleSticks":"Fiddlesticks"};
+const CHAMP_FIX={"Nunu e Willump":"Nunu","Nunu & Willump":"Nunu","Renata Glasc":"Renata","Wukong":"MonkeyKing","Bel'Veth":"Belveth","K'Sante":"KSante","Kog'Maw":"KogMaw","Kha'Zix":"Khazix","Rek'Sai":"RekSai","Cho'Gath":"Chogath","Vel'Koz":"Velkoz","Tahm Kench":"TahmKench","Lee Sin":"LeeSin","Master Yi":"MasterYi","Miss Fortune":"MissFortune","Twisted Fate":"TwistedFate","Xin Zhao":"XinZhao","Jarvan IV":"JarvanIV","Dr. Mundo":"DrMundo","Aurelion Sol":"AurelionSol","FiddleSticks":"Fiddlesticks", "LeBlanc": "Leblanc",};
 function cf(n){return CHAMP_FIX[n]||n;}
 function ci(n){return `assets/champions/${cf(n)}.png`;}
 function cif(n){return `https://ddragon.leagueoflegends.com/cdn/${DDV}/img/champion/${cf(n)}.png`;}
