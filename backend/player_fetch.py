@@ -26,6 +26,7 @@ OUTPUT_DIR        = "data/profiles"
 QUEUE_FILTER      = 420   # 420 = Ranked Solo/Duo
 BATCH_SIZE        = 100   # máximo permitido pela API por request
 CACHE_MAX_AGE_H   = 1     # horas — se o cache tiver menos que isso, retorna direto sem buscar nada
+IGNORE_CACHE_STOP = False  # quando True, não usa latest_match_id como ponto de parada
 CACHE_MAX_MATCHES = 200   # máximo de partidas mantidas no cache por player
 # ══════════════════════════════════════════════
 
@@ -440,7 +441,7 @@ def fetch_player(game_name: str, tag_line: str, count: int, items_data: dict, ru
     db.upsert_mastery(puuid, mastery)
 
     # ── Descobre partidas novas ───────────────────────────────
-    latest_id = db.get_latest_match_id(puuid)
+    latest_id = None if IGNORE_CACHE_STOP else db.get_latest_match_id(puuid)
     if latest_id:
         print(f"  Player já existe no banco. Buscando partidas novas...")
     else:
