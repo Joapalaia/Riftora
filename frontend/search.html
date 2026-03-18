@@ -997,7 +997,10 @@ function App() {
     setError("");
     try {
       const url = `${API_BASE}/search?name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}&region=${region}&mode=${mode}&matches=${cnt}`;
-      const res = await fetch(url);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 120000); // 2 minutos
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeout);
       const d   = await res.json();
       if(!res.ok) throw new Error(d.detail || "Erro desconhecido.");
       try { sessionStorage.setItem("rd", JSON.stringify(d)); sessionStorage.setItem("rv", "profile"); } catch {}
@@ -1005,7 +1008,11 @@ function App() {
       // redirect to mode selection page
       window.location.href = "/escolher";
     } catch(e) {
-      setError(e.message);
+      if(e.name === 'AbortError') {
+        setError("Servidor demorou muito para responder. Tente novamente — já está acordando!");
+      } else {
+        setError(e.message);
+      }
     }
     setLoading(false);
   }
