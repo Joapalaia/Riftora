@@ -813,7 +813,10 @@ window.addEventListener('DOMContentLoaded',()=>{
     const raw=sessionStorage.getItem('rd');
     if(!raw){window.location.href='/search';return;}
     renderPage(JSON.parse(raw));
-  }catch(e){console.error(e);window.location.href='/search';}
+  }catch(e){
+    console.error('ERRO STATS:', e);
+    document.body.innerHTML = '<pre style="color:red;padding:2rem">ERRO: '+e.message+'</pre>';
+  }
 });
 </script>
 </body>
