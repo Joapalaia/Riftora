@@ -9,7 +9,7 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#06080e;--panel:#0b0e18;--border:#181f30;--border2:#222d40;
+  --bg:#060810;--panel:#0b0e18;--border:#181f30;--border2:#222d40;
   --gold:#c8973a;--gold2:#e8c46d;--gold3:#ffdd8a;
   --blue:#3d9de8;--win:#3ecf7a;
   --text:#e2d8c0;--text2:#8090a8;--text3:#3a4860;
@@ -21,218 +21,236 @@ body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:1
 #cdot{position:fixed;width:7px;height:7px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);mix-blend-mode:screen;}
 #cglow{position:fixed;width:360px;height:360px;border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(200,151,58,.07) 0%,transparent 70%);}
 
-/* ── noise grain ── */
 body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");opacity:.5;}
 
-/* ── LOADING ── */
+/* ── LOADER ── */
 .loader{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;transition:opacity .6s,visibility .6s;}
 .loader.hidden{opacity:0;visibility:hidden;}
 .loader-hex{width:60px;height:60px;background:linear-gradient(135deg,var(--gold),var(--gold2));clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);animation:hexPulse 1.2s ease-in-out infinite;}
 @keyframes hexPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.25;transform:scale(.75);}}
-.loader-text{font-family:var(--sub);font-size:.9rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text2);}
+.loader-text{font-family:var(--sub);font-size:1rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text2);}
 
-/* ── HERO HEADER ── */
-.hero-section{
-  position:relative;min-height:100vh;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;overflow:hidden;
-  padding:2rem;
-}
-
-/* massive background champ silhouette */
-.hero-bg-champ{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  pointer-events:none;overflow:hidden;
-}
-.hero-bg-img{
-  width:70vmin;height:70vmin;object-fit:cover;
-  filter:blur(1px) brightness(.15) saturate(.3);
-  transform:scale(1.1);
-  animation:heroFloat 8s ease-in-out infinite;
-}
-@keyframes heroFloat{0%,100%{transform:scale(1.1) translateY(0);}50%{transform:scale(1.12) translateY(-12px);}}
-
-/* golden radial glow behind */
-.hero-glow{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:80vmin;height:80vmin;border-radius:50%;pointer-events:none;
-  background:radial-gradient(circle,rgba(200,151,58,.12) 0%,rgba(200,151,58,.04) 40%,transparent 70%);
-}
-
-.hero-content{position:relative;z-index:2;text-align:center;}
-
-.hero-back{
+/* nav */
+.back-btn{
   position:fixed;top:1.5rem;left:1.5rem;z-index:100;
-  background:rgba(6,8,14,.8);border:1px solid var(--border);border-radius:8px;
-  color:var(--text2);font-family:var(--sub);font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;
-  padding:.45rem .9rem;cursor:none;transition:all .15s;text-decoration:none;backdrop-filter:blur(10px);
+  background:rgba(6,8,14,.85);border:1px solid var(--border);border-radius:8px;
+  color:var(--text2);font-family:var(--sub);font-size:.9rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:.5rem 1rem;cursor:none;transition:all .15s;text-decoration:none;backdrop-filter:blur(10px);
 }
-.hero-back:hover{border-color:var(--gold);color:var(--gold);}
+.back-btn:hover{border-color:var(--gold);color:var(--gold);}
 
-/* summoner info */
-.summoner-icon-wrap{position:relative;display:inline-block;margin-bottom:1.5rem;}
-.summoner-icon{
-  width:96px;height:96px;border-radius:16px;
-  border:2px solid rgba(200,151,58,.4);object-fit:cover;
-  box-shadow:0 0 40px rgba(200,151,58,.2);
-  animation:iconGlow 3s ease-in-out infinite;
-}
-@keyframes iconGlow{0%,100%{box-shadow:0 0 40px rgba(200,151,58,.2);}50%{box-shadow:0 0 60px rgba(200,151,58,.4);}}
-.summoner-lv{
-  position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);
-  background:var(--gold);color:#060810;
-  font-family:var(--sub);font-size:.7rem;font-weight:800;
-  padding:2px 10px;border-radius:20px;white-space:nowrap;letter-spacing:.06em;
+/* ── HERO HEADER — tipográfico ── */
+.hero-wrap{
+  position:relative;
+  padding:6rem 2rem 4rem;
+  text-align:center;
+  overflow:hidden;
 }
 
-.summoner-name{
+/* subtle bg glow */
+.hero-wrap::before{
+  content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:600px;height:400px;border-radius:50%;
+  background:radial-gradient(ellipse,rgba(200,151,58,.06) 0%,transparent 70%);
+  pointer-events:none;
+}
+
+/* horizontal lines decoration */
+.hero-lines{
+  position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:hidden;
+}
+.hero-lines::before,.hero-lines::after{
+  content:'';position:absolute;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(200,151,58,.15),transparent);
+}
+.hero-lines::before{top:40%;}
+.hero-lines::after{bottom:30%;}
+
+.hero-eyebrow{
+  font-family:var(--sub);font-size:1rem;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--text3);margin-bottom:1rem;
+  animation:fadeUp .7s .1s both;
+}
+
+.hero-name{
   font-family:var(--head);
-  font-size:clamp(2.5rem,8vw,5.5rem);
-  letter-spacing:.06em;text-transform:uppercase;
-  line-height:.95;
-  background:linear-gradient(135deg,#fff 0%,var(--gold2) 50%,var(--gold) 100%);
+  font-size:clamp(4rem,12vw,9rem);
+  letter-spacing:.04em;text-transform:uppercase;line-height:.9;
+  background:linear-gradient(135deg,#fff 10%,var(--gold2) 50%,var(--gold) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  animation:nameIn 1s .3s cubic-bezier(.2,.8,.3,1) both;
+  animation:nameIn .9s .15s cubic-bezier(.2,.8,.3,1) both;
 }
-@keyframes nameIn{from{opacity:0;letter-spacing:.2em;}to{opacity:1;letter-spacing:.06em;}}
+@keyframes nameIn{from{opacity:0;transform:translateY(24px);letter-spacing:.12em;}to{opacity:1;transform:translateY(0);letter-spacing:.04em;}}
 
-.summoner-tag{font-family:var(--body);font-size:.9rem;color:var(--text2);margin-top:.3rem;}
-.summoner-tag b{color:var(--gold);}
+.hero-sub{
+  display:flex;align-items:center;justify-content:center;gap:1rem;
+  margin-top:1.2rem;
+  animation:fadeUp .7s .3s both;
+}
+.hero-icon{
+  width:52px;height:52px;border-radius:10px;
+  border:2px solid rgba(200,151,58,.3);object-fit:cover;
+  box-shadow:0 0 20px rgba(200,151,58,.15);
+}
+.hero-info{text-align:left;}
+.hero-tag{font-family:var(--sub);font-size:1rem;color:var(--text2);}
+.hero-tag b{color:var(--gold);}
+.hero-lv{font-family:var(--sub);font-size:.85rem;color:var(--text3);}
 
 .hero-label{
-  font-family:var(--sub);font-size:.75rem;letter-spacing:.22em;
-  text-transform:uppercase;color:var(--text3);margin-top:1rem;
-  animation:fadeIn 1s .6s both;
-}
-@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
-
-.scroll-hint{
-  position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);
-  display:flex;flex-direction:column;align-items:center;gap:.5rem;
-  animation:bounce 2s ease-in-out infinite;color:var(--text3);
-  font-family:var(--sub);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;
-}
-@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-6px);}}
-.scroll-arrow{font-size:1.2rem;}
-
-/* ── MASTERY SECTION ── */
-.mastery-section{padding:3rem 1.5rem 6rem;max-width:900px;margin:0 auto;}
-
-/* top 3 podium */
-.podium{
-  display:grid;grid-template-columns:1fr 1.2fr 1fr;
-  gap:1rem;margin-bottom:3rem;align-items:end;
+  font-family:var(--sub);font-size:.9rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--text3);margin-top:2.5rem;
+  animation:fadeUp .7s .5s both;
 }
 
-.podium-card{
-  background:var(--panel);border:1px solid var(--border);border-radius:16px;
-  overflow:hidden;position:relative;
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── TOP 3 PODIUM — tipográfico ── */
+.podium-section{
+  max-width:860px;margin:0 auto;
+  padding:0 1.5rem 2rem;
+}
+
+.podium-grid{
+  display:grid;grid-template-columns:1fr 1.1fr 1fr;
+  gap:1rem;align-items:end;margin-bottom:2.5rem;
+}
+
+.pod-card{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:14px;padding:1.4rem 1.2rem 1.5rem;
+  position:relative;overflow:hidden;
   transition:transform .2s;cursor:default;
 }
-.podium-card:hover{transform:translateY(-4px);}
+.pod-card:hover{transform:translateY(-3px);}
 
-/* gold shimmer on #1 */
-.podium-card.rank-1{
-  border-color:rgba(200,151,58,.4);
-  box-shadow:0 0 40px rgba(200,151,58,.12),0 0 1px rgba(200,151,58,.3);
-}
-.podium-card.rank-1::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--gold),var(--gold2),var(--gold),transparent);
-  animation:shimmer 2s linear infinite;
-}
-@keyframes shimmer{0%{background-position:-200%;}100%{background-position:200%;}}
+.pod-card.r1{border-color:rgba(200,151,58,.3);box-shadow:0 0 30px rgba(200,151,58,.08);}
+.pod-card.r1::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),var(--gold2),transparent);}
 
-.podium-card.rank-2,.podium-card.rank-3{
-  border-color:rgba(255,255,255,.08);
+.pod-num{
+  font-family:var(--head);
+  font-size:4rem;line-height:1;
+  margin-bottom:.5rem;opacity:.15;
+  position:absolute;top:.5rem;right:.8rem;
+}
+.r1 .pod-num{color:var(--gold3);opacity:.25;}
+.r2 .pod-num{color:#d0d0d0;}
+.r3 .pod-num{color:#cd7f32;}
+
+/* small icon thumbnail */
+.pod-thumb{
+  width:48px;height:48px;border-radius:8px;object-fit:cover;
+  border:1px solid var(--border2);background:var(--border);
+  margin-bottom:.9rem;
+  filter:saturate(.7) brightness(.85);
+}
+.pod-card:hover .pod-thumb{filter:saturate(1) brightness(1);}
+
+.pod-champ{
+  font-family:var(--head);font-size:1.8rem;letter-spacing:.04em;text-transform:uppercase;
+  line-height:1;margin-bottom:.5rem;
+}
+.r1 .pod-champ{
+  background:linear-gradient(135deg,var(--gold3),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
 
-.podium-img-wrap{
-  position:relative;width:100%;padding-top:100%;overflow:hidden;
+.pod-lv-badge{
+  display:inline-block;font-family:var(--sub);font-size:.78rem;font-weight:800;
+  letter-spacing:.08em;padding:.18rem .6rem;border-radius:4px;margin-bottom:.5rem;
 }
-.podium-img{
-  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  transition:transform .4s;
-}
-.podium-card:hover .podium-img{transform:scale(1.05);}
+.r1 .pod-lv-badge{background:rgba(200,151,58,.12);color:var(--gold);border:1px solid rgba(200,151,58,.25);}
+.r2 .pod-lv-badge{background:rgba(192,192,192,.08);color:#b0b8c8;border:1px solid rgba(192,192,192,.15);}
+.r3 .pod-lv-badge{background:rgba(160,96,48,.1);color:#c08050;border:1px solid rgba(160,96,48,.2);}
 
-.podium-overlay{
-  position:absolute;inset:0;
-  background:linear-gradient(to top,rgba(6,8,14,.95) 0%,rgba(6,8,14,.4) 50%,transparent 100%);
-}
-
-.podium-rank{
-  position:absolute;top:.75rem;left:.75rem;
-  font-family:var(--head);font-size:2rem;letter-spacing:.02em;line-height:1;
-}
-.rank-1 .podium-rank{color:var(--gold3);}
-.rank-2 .podium-rank{color:silver;}
-.rank-3 .podium-rank{color:#cd7f32;}
-
-.podium-info{padding:.9rem 1rem 1.1rem;}
-.podium-name{font-family:var(--sub);font-size:1.2rem;font-weight:800;letter-spacing:.04em;margin-bottom:.3rem;}
-.podium-meta{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;}
-.podium-lv{
-  font-family:var(--sub);font-size:.72rem;font-weight:700;letter-spacing:.08em;
-  padding:.15rem .55rem;border-radius:4px;
-}
-.rank-1 .podium-lv{background:rgba(200,151,58,.15);color:var(--gold);border:1px solid rgba(200,151,58,.25);}
-.rank-2 .podium-lv{background:rgba(192,192,192,.1);color:silver;border:1px solid rgba(192,192,192,.2);}
-.rank-3 .podium-lv{background:rgba(205,127,50,.1);color:#cd7f32;border:1px solid rgba(205,127,50,.2);}
-.podium-pts{font-family:var(--sub);font-size:.8rem;color:var(--text2);}
+.pod-pts{font-family:var(--sub);font-size:.9rem;color:var(--text2);}
 
 /* pts bar */
-.pts-bar{height:2px;background:var(--border);margin-top:.6rem;border-radius:1px;overflow:hidden;}
-.pts-fill{height:100%;border-radius:1px;transition:width 1.5s cubic-bezier(.4,0,.2,1);}
-.rank-1 .pts-fill{background:linear-gradient(90deg,var(--gold),var(--gold2));}
-.rank-2 .pts-fill{background:linear-gradient(90deg,#a0a0a0,#d0d0d0);}
-.rank-3 .pts-fill{background:linear-gradient(90deg,#a06030,#d09050);}
+.pod-bar{height:3px;background:var(--border);border-radius:1px;margin-top:.8rem;overflow:hidden;}
+.pod-fill{height:100%;border-radius:1px;transition:width 1.5s cubic-bezier(.4,0,.2,1);width:0;}
+.r1 .pod-fill{background:linear-gradient(90deg,var(--gold),var(--gold2));}
+.r2 .pod-fill{background:linear-gradient(90deg,#808898,#b0b8c8);}
+.r3 .pod-fill{background:linear-gradient(90deg,#805030,#c08050);}
 
-/* section title */
-.sec-title{
-  font-family:var(--head);font-size:1.5rem;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--text2);margin-bottom:1.2rem;
-  display:flex;align-items:center;gap:.7rem;
+/* ── LIST 4-50 ── */
+.list-section{max-width:860px;margin:0 auto;padding:0 1.5rem 5rem;}
+
+.list-header{
+  display:flex;align-items:center;gap:.8rem;margin-bottom:1.2rem;
 }
-.sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
-.sec-title span{color:var(--gold);}
+.list-title{
+  font-family:var(--head);font-size:1.6rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--text3);
+}
+.list-title span{color:var(--gold);}
+.list-divider{flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
 
-/* list items 4-50 */
-.mastery-list{display:flex;flex-direction:column;gap:.5rem;}
+.ml-list{display:flex;flex-direction:column;gap:.45rem;}
 
 .ml-item{
   display:grid;
-  grid-template-columns:28px 48px 1fr auto;
-  align-items:center;gap:.85rem;
-  padding:.7rem .9rem;
+  grid-template-columns:36px 44px 1fr auto auto;
+  align-items:center;gap:.9rem;
+  padding:.8rem 1rem;
   background:var(--panel);border:1px solid var(--border);border-radius:10px;
-  transition:border-color .15s,background .15s;
-  opacity:0;transform:translateY(12px);
+  opacity:0;transform:translateX(-8px);
   transition:border-color .15s,background .15s,opacity .4s,transform .4s;
 }
-.ml-item.vis{opacity:1;transform:translateY(0);}
+.ml-item.vis{opacity:1;transform:translateX(0);}
 .ml-item:hover{border-color:var(--border2);background:#0e1120;}
 
-.ml-rank{font-family:var(--sub);font-size:.82rem;font-weight:700;color:var(--text3);text-align:center;}
-.ml-img{width:48px;height:48px;border-radius:8px;object-fit:cover;border:1px solid var(--border2);background:var(--border);}
-.ml-info{min-width:0;}
-.ml-name{font-family:var(--sub);font-size:1rem;font-weight:700;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ml-bar-wrap{height:3px;background:var(--border);border-radius:1px;margin-top:.35rem;overflow:hidden;}
-.ml-bar{height:100%;border-radius:1px;background:linear-gradient(90deg,rgba(200,151,58,.5),rgba(200,151,58,.2));transition:width 1s cubic-bezier(.4,0,.2,1);}
-.ml-right{text-align:right;flex-shrink:0;}
-.ml-lv{font-family:var(--sub);font-size:.82rem;font-weight:800;color:var(--gold);}
-.ml-pts{font-family:var(--sub);font-size:.7rem;color:var(--text2);margin-top:.1rem;}
+.ml-num{
+  font-family:var(--head);font-size:1.1rem;letter-spacing:.02em;
+  color:var(--text3);text-align:center;line-height:1;
+}
+/* highlight top 10 */
+.ml-item[data-rank="4"] .ml-num,
+.ml-item[data-rank="5"] .ml-num,
+.ml-item[data-rank="6"] .ml-num,
+.ml-item[data-rank="7"] .ml-num,
+.ml-item[data-rank="8"] .ml-num,
+.ml-item[data-rank="9"] .ml-num,
+.ml-item[data-rank="10"] .ml-num{color:rgba(200,151,58,.5);}
 
-/* share button */
-.share-wrap{text-align:center;margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);}
-.share-hint{font-family:var(--sub);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);margin-bottom:1rem;}
-.btn-share{
+.ml-thumb{
+  width:44px;height:44px;border-radius:7px;object-fit:cover;
+  border:1px solid var(--border2);background:var(--border);
+  filter:saturate(.6) brightness(.8);transition:filter .2s;flex-shrink:0;
+}
+.ml-item:hover .ml-thumb{filter:saturate(.9) brightness(.95);}
+
+.ml-name{
+  font-family:var(--head);font-size:1.3rem;letter-spacing:.03em;text-transform:uppercase;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1;
+}
+
+.ml-bar-wrap{height:2px;background:var(--border);border-radius:1px;margin-top:.35rem;overflow:hidden;width:100%;max-width:200px;}
+.ml-bar{height:100%;border-radius:1px;background:linear-gradient(90deg,rgba(200,151,58,.4),rgba(200,151,58,.1));transition:width 1.2s cubic-bezier(.4,0,.2,1);width:0;}
+
+.ml-lv{
+  font-family:var(--head);font-size:1.1rem;letter-spacing:.04em;
+  color:var(--gold);flex-shrink:0;min-width:32px;text-align:right;
+}
+
+.ml-pts{
+  font-family:var(--sub);font-size:.85rem;color:var(--text2);
+  white-space:nowrap;flex-shrink:0;min-width:52px;text-align:right;
+}
+
+/* share footer */
+.share-footer{
+  text-align:center;padding:3rem 1.5rem;
+  border-top:1px solid var(--border);max-width:860px;margin:0 auto;
+}
+.share-hint{font-family:var(--sub);font-size:.9rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text3);margin-bottom:1.2rem;}
+.btn-top{
   background:linear-gradient(135deg,var(--gold),var(--gold2));
   border:none;border-radius:10px;color:#060810;
-  font-family:var(--sub);font-weight:800;font-size:1rem;letter-spacing:.1em;text-transform:uppercase;
-  padding:.75rem 2rem;cursor:none;transition:opacity .15s,transform .1s;
+  font-family:var(--sub);font-weight:800;font-size:1rem;letter-spacing:.12em;text-transform:uppercase;
+  padding:.8rem 2.2rem;cursor:none;transition:opacity .15s,transform .1s;
 }
-.btn-share:hover{opacity:.85;}.btn-share:active{transform:scale(.97);}
+.btn-top:hover{opacity:.85;}.btn-top:active{transform:scale(.97);}
 </style>
 </head>
 <body>
@@ -244,184 +262,136 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   <div class="loader-text">Carregando maestrias...</div>
 </div>
 
-<a class="hero-back" href="escolher.html">← Voltar</a>
+<a class="back-btn" href="escolher.html">← Voltar</a>
 
 <!-- HERO -->
-<section class="hero-section" id="heroSection">
-  <div class="hero-bg-champ">
-    <img class="hero-bg-img" id="heroBgImg" src="" alt=""/>
-  </div>
-  <div class="hero-glow"></div>
-
-  <div class="hero-content">
-    <div class="summoner-icon-wrap">
-      <img class="summoner-icon" id="summonerIcon" src="" alt="icon"
-        onerror="this.style.background='var(--border)'"/>
-      <div class="summoner-lv" id="summonerLv">Lv —</div>
+<div class="hero-wrap">
+  <div class="hero-lines"></div>
+  <div class="hero-eyebrow">Riftora · Maestria</div>
+  <div class="hero-name" id="heroName">—</div>
+  <div class="hero-sub">
+    <img class="hero-icon" id="heroIcon" src="" alt="icon" onerror="this.style.opacity=.3"/>
+    <div class="hero-info">
+      <div class="hero-tag" id="heroTag"></div>
+      <div class="hero-lv" id="heroLv"></div>
     </div>
-    <div class="summoner-name" id="summonerName">—</div>
-    <div class="summoner-tag" id="summonerTag"></div>
-    <div class="hero-label">Campeões com maior maestria</div>
   </div>
+  <div class="hero-label">Top 50 Campeões com Maior Maestria</div>
+</div>
 
-  <div class="scroll-hint">
-    <span class="scroll-arrow">↓</span>
-    <span>Ver todos</span>
+<!-- PODIUM -->
+<div class="podium-section">
+  <div class="podium-grid" id="podium"></div>
+</div>
+
+<!-- LIST -->
+<div class="list-section">
+  <div class="list-header">
+    <div class="list-title"><span>#</span>4 – 50</div>
+    <div class="list-divider"></div>
   </div>
-</section>
+  <div class="ml-list" id="mlList"></div>
+</div>
 
-<!-- MASTERY LIST -->
-<section class="mastery-section">
-  <div class="podium" id="podium"></div>
-  <div class="sec-title"><span>#</span>4 – 50</div>
-  <div class="mastery-list" id="masteryList"></div>
-
-  <div class="share-wrap">
-    <div class="share-hint">Tire um print e compartilhe!</div>
-    <button class="btn-share" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Voltar ao topo</button>
-  </div>
-</section>
+<div class="share-footer">
+  <div class="share-hint">Tire um print e compartilhe!</div>
+  <button class="btn-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Topo</button>
+</div>
 
 <script>
-const DDV = "14.24.1";
-const CHAMP_FIX = {
-  "Nunu e Willump":"Nunu","Nunu & Willump":"Nunu","Renata Glasc":"Renata",
-  "Wukong":"MonkeyKing","Bel'Veth":"Belveth","K'Sante":"KSante",
-  "Kog'Maw":"KogMaw","Kha'Zix":"Khazix","Rek'Sai":"RekSai",
-  "Cho'Gath":"Chogath","Vel'Koz":"Velkoz","Tahm Kench":"TahmKench",
-  "Lee Sin":"LeeSin","Master Yi":"MasterYi","Miss Fortune":"MissFortune",
-  "Twisted Fate":"TwistedFate","Xin Zhao":"XinZhao","Jarvan IV":"JarvanIV",
-  "Dr. Mundo":"DrMundo","Aurelion Sol":"AurelionSol","FiddleSticks":"Fiddlesticks",
-};
-function champFile(n){return CHAMP_FIX[n]||n;}
-function champImg(n){return `assets/champions/${champFile(n)}.png`;}
-function champFallback(n){return `https://ddragon.leagueoflegends.com/cdn/${DDV}/img/champion/${champFile(n)}.png`;}
-function iconImg(id){return `https://ddragon.leagueoflegends.com/cdn/${DDV}/img/profileicon/${id}.png`;}
+const DDV="14.24.1";
+const CHAMP_FIX={"Nunu e Willump":"Nunu","Nunu & Willump":"Nunu","Renata Glasc":"Renata","Wukong":"MonkeyKing","Bel'Veth":"Belveth","K'Sante":"KSante","Kog'Maw":"KogMaw","Kha'Zix":"Khazix","Rek'Sai":"RekSai","Cho'Gath":"Chogath","Vel'Koz":"Velkoz","Tahm Kench":"TahmKench","Lee Sin":"LeeSin","Master Yi":"MasterYi","Miss Fortune":"MissFortune","Twisted Fate":"TwistedFate","Xin Zhao":"XinZhao","Jarvan IV":"JarvanIV","Dr. Mundo":"DrMundo","Aurelion Sol":"AurelionSol","FiddleSticks":"Fiddlesticks"};
+function cf(n){return CHAMP_FIX[n]||n;}
+function ci(n){return `assets/champions/${cf(n)}.png`;}
+function cif(n){return `https://ddragon.leagueoflegends.com/cdn/${DDV}/img/champion/${cf(n)}.png`;}
+function ii(id){return `https://ddragon.leagueoflegends.com/cdn/${DDV}/img/profileicon/${id}.png`;}
 
-// cursor
 const dot=document.getElementById('cdot'),glow=document.getElementById('cglow');
-document.addEventListener('mousemove',e=>{
-  dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';
-  glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px';
-});
+document.addEventListener('mousemove',e=>{dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px';});
 
 // scroll reveal
-const observer = new IntersectionObserver(entries=>{
-  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');observer.unobserve(e.target);}});
-},{threshold:0.05});
-
-function rankColor(i){
-  if(i===0) return 'rank-1';
-  if(i===1) return 'rank-2';
-  if(i===2) return 'rank-3';
-  return '';
-}
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}});},{threshold:0.04});
 
 function masLvColor(lv){
-  if(lv>=10) return '#e8c46d';
-  if(lv>=7)  return '#c8973a';
-  if(lv>=5)  return '#a07830';
-  return 'var(--text2)';
+  if(lv>=14)return'var(--gold3)';
+  if(lv>=10)return'var(--gold2)';
+  if(lv>=7) return'var(--gold)';
+  if(lv>=5) return'#a07830';
+  return'var(--text2)';
 }
 
 function render(data){
-  const {player, mastery} = data;
-  const top50 = (mastery||[]).slice(0,50);
-  const maxPts = top50[0]?.mastery_points || 1;
+  const {player,mastery}=data;
+  const top50=(mastery||[]).slice(0,50);
+  const maxPts=top50[0]?.mastery_points||1;
 
-  // summoner info
-  document.getElementById('summonerIcon').src = iconImg(player.profile_icon_id);
-  document.getElementById('summonerLv').textContent = `Lv ${player.summoner_level}`;
-  document.getElementById('summonerName').textContent = player.game_name;
-  document.getElementById('summonerTag').innerHTML = `<b>#${player.tag_line}</b>`;
+  // hero
+  document.getElementById('heroName').textContent=player.game_name;
+  document.getElementById('heroIcon').src=ii(player.profile_icon_id);
+  document.getElementById('heroTag').innerHTML=`<b>#${player.tag_line}</b>`;
+  document.getElementById('heroLv').textContent=`Lv ${player.summoner_level}`;
 
-  // hero bg = #1 champ
-  if(top50[0]){
-    const bg = document.getElementById('heroBgImg');
-    bg.src = champImg(top50[0].champion_name);
-    bg.onerror = ()=>{ bg.src = champFallback(top50[0].champion_name); };
-  }
-
-  // podium top 3
-  const podium = document.getElementById('podium');
-  const order = [1,0,2]; // silver, gold, bronze visual order
-  order.forEach(idx => {
-    if(!top50[idx]) return;
-    const m = top50[idx];
-    const rankClass = rankColor(idx);
-    const pct = (m.mastery_points / maxPts * 100).toFixed(1);
-    const div = document.createElement('div');
-    div.className = `podium-card ${rankClass}`;
-    div.innerHTML = `
-      <div class="podium-img-wrap">
-        <img class="podium-img" src="${champImg(m.champion_name)}"
-          onerror="this.src='${champFallback(m.champion_name)}'" alt="${m.champion_name}"/>
-        <div class="podium-overlay"></div>
-        <div class="podium-rank">${idx+1}</div>
-      </div>
-      <div class="podium-info">
-        <div class="podium-name">${m.champion_name}</div>
-        <div class="podium-meta">
-          <span class="podium-lv">M${m.mastery_level}</span>
-          <span class="podium-pts">${(m.mastery_points/1000).toFixed(0)}k pts</span>
-        </div>
-        <div class="pts-bar"><div class="pts-fill" style="width:0" data-w="${pct}%"></div></div>
-      </div>
+  // podium top 3 — visual order: #2, #1, #3
+  const podium=document.getElementById('podium');
+  [[1,'r2'],[0,'r1'],[2,'r3']].forEach(([idx,cls])=>{
+    const m=top50[idx];
+    if(!m)return;
+    const pct=(m.mastery_points/maxPts*100).toFixed(1);
+    const div=document.createElement('div');
+    div.className=`pod-card ${cls}`;
+    div.innerHTML=`
+      <div class="pod-num">${idx+1}</div>
+      <img class="pod-thumb" src="${ci(m.champion_name)}" onerror="this.src='${cif(m.champion_name)}'" alt="${m.champion_name}"/>
+      <div class="pod-champ">${m.champion_name}</div>
+      <span class="pod-lv-badge">Maestria ${m.mastery_level}</span>
+      <div class="pod-pts">${(m.mastery_points/1000).toFixed(0)}k pontos</div>
+      <div class="pod-bar"><div class="pod-fill" data-w="${pct}%"></div></div>
     `;
     podium.appendChild(div);
   });
 
-  // animate bars after a tick
+  // animate podium bars
   setTimeout(()=>{
-    document.querySelectorAll('.pts-fill[data-w]').forEach(el=>{el.style.width=el.dataset.w;});
-    document.querySelectorAll('.ml-bar[data-w]').forEach(el=>{el.style.width=el.dataset.w;});
-  },100);
+    document.querySelectorAll('.pod-fill[data-w]').forEach(el=>el.style.width=el.dataset.w);
+  },150);
 
   // list 4-50
-  const list = document.getElementById('masteryList');
+  const list=document.getElementById('mlList');
   top50.slice(3).forEach((m,i)=>{
-    const pct = (m.mastery_points / maxPts * 100).toFixed(1);
-    const div = document.createElement('div');
-    div.className = 'ml-item';
-    div.innerHTML = `
-      <div class="ml-rank">${i+4}</div>
-      <img class="ml-img" src="${champImg(m.champion_name)}"
-        onerror="this.src='${champFallback(m.champion_name)}'" alt="${m.champion_name}"/>
-      <div class="ml-info">
+    const rank=i+4;
+    const pct=(m.mastery_points/maxPts*100).toFixed(1);
+    const div=document.createElement('div');
+    div.className='ml-item';
+    div.dataset.rank=rank;
+    div.style.transitionDelay=`${i*0.025}s`;
+    div.innerHTML=`
+      <div class="ml-num">${rank}</div>
+      <img class="ml-thumb" src="${ci(m.champion_name)}" onerror="this.src='${cif(m.champion_name)}'" alt="${m.champion_name}"/>
+      <div style="min-width:0">
         <div class="ml-name">${m.champion_name}</div>
-        <div class="ml-bar-wrap"><div class="ml-bar" style="width:0" data-w="${pct}%"></div></div>
+        <div class="ml-bar-wrap"><div class="ml-bar" data-w="${pct}%"></div></div>
       </div>
-      <div class="ml-right">
-        <div class="ml-lv" style="color:${masLvColor(m.mastery_level)}">M${m.mastery_level}</div>
-        <div class="ml-pts">${(m.mastery_points/1000).toFixed(0)}k</div>
-      </div>
+      <div class="ml-lv" style="color:${masLvColor(m.mastery_level)}">M${m.mastery_level}</div>
+      <div class="ml-pts">${(m.mastery_points/1000).toFixed(0)}k</div>
     `;
     list.appendChild(div);
-    observer.observe(div);
-    // stagger delay
-    div.style.transitionDelay = `${i*0.03}s`;
+    obs.observe(div);
   });
 
-  // hide loader
-  document.getElementById('loader').classList.add('hidden');
-
-  // animate bars on visible items after short delay
+  // animate list bars after items become visible
   setTimeout(()=>{
-    document.querySelectorAll('.ml-bar[data-w]').forEach(el=>{el.style.width=el.dataset.w;});
-  },600);
+    document.querySelectorAll('.ml-bar[data-w]').forEach(el=>el.style.width=el.dataset.w);
+  },800);
+
+  document.getElementById('loader').classList.add('hidden');
 }
 
-// load data from sessionStorage
 window.addEventListener('DOMContentLoaded',()=>{
   try{
-    const raw = sessionStorage.getItem('rd');
-    if(!raw){window.location.href='index.html';return;}
-    const data = JSON.parse(raw);
-    render(data);
-  }catch(e){
-    console.error(e);
-    window.location.href='index.html';
-  }
+    const raw=sessionStorage.getItem('rd');
+    if(!raw){window.location.href='search.html';return;}
+    render(JSON.parse(raw));
+  }catch(e){window.location.href='search.html';}
 });
 </script>
 </body>
