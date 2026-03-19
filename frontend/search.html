@@ -32,14 +32,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:17
   pointer-events:none;z-index:99999;
   transform:translate(-50%,-50%);
   mix-blend-mode:screen;
-  /* segue o mouse direto via JS, sem transition */
 }
 #cglow{
   position:fixed;width:340px;height:340px;border-radius:50%;
   pointer-events:none;z-index:99998;
   transform:translate(-50%,-50%);
   background:radial-gradient(circle,rgba(200,151,58,.07) 0%,rgba(61,157,232,.03) 45%,transparent 70%);
-  /* glow também sem delay — suave mas imediato */
   transition:none;
 }
 
@@ -150,8 +148,19 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .flbl::before{content:'';display:inline-block;width:12px;height:1px;background:var(--gold);}
 
 .frow{display:flex;gap:.75rem;align-items:stretch;}
+/* shake animation para o input quando erro de nick */
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  15%{transform:translateX(-6px);}
+  30%{transform:translateX(6px);}
+  45%{transform:translateX(-4px);}
+  60%{transform:translateX(4px);}
+  75%{transform:translateX(-2px);}
+  90%{transform:translateX(2px);}
+}
 .ibox{flex:1;display:flex;background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s,box-shadow .2s;}
 .ibox:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-glow);}
+.ibox.error{border-color:var(--loss);box-shadow:0 0 0 3px rgba(224,82,82,.12);animation:shake .4s cubic-bezier(.36,.07,.19,.97);}
 .ibox input{background:transparent;border:none;outline:none;color:var(--text);font-family:var(--body);font-size:1rem;padding:.85rem 1rem;flex:1;min-width:0;}
 .ibox input::placeholder{color:var(--text3);}
 .tsep{padding:0 .75rem;display:flex;align-items:center;color:var(--text3);font-size:1.1rem;border-left:1px solid var(--border);}
@@ -183,9 +192,19 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .cnum{font-family:var(--head);font-size:1.5rem;font-weight:700;color:var(--gold);min-width:3rem;}
 input[type=range]{flex:1;-webkit-appearance:none;height:3px;background:var(--border);border-radius:2px;outline:none;}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--gold);cursor:none;box-shadow:0 0 8px rgba(200,151,58,.5);}
-.ebar{margin-top:1rem;padding:.75rem 1rem;border-radius:8px;
+
+/* ── error bar: genérico + variante "not-found" ── */
+.ebar{
+  margin-top:1rem;padding:.75rem 1rem;border-radius:8px;
   background:var(--loss-dim);border:1px solid rgba(224,82,82,.25);
-  color:var(--loss);font-size:.88rem;text-align:center;}
+  color:var(--loss);font-size:.88rem;
+  display:flex;align-items:center;gap:.6rem;
+  animation:riseIn .3s cubic-bezier(.2,.8,.3,1) both;
+}
+.ebar-icon{font-size:1rem;flex-shrink:0;}
+.ebar-body{flex:1;}
+.ebar-title{font-family:var(--head);font-size:.92rem;font-weight:700;letter-spacing:.04em;}
+.ebar-sub{font-size:.78rem;color:rgba(224,82,82,.7);margin-top:.15rem;}
 
 /* ══════════════════════
    LOADER
@@ -249,7 +268,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .mi:hover{background:var(--card);border-color:var(--border);}
 .mrank{font-family:var(--head);font-size:.78rem;font-weight:700;color:var(--text3);min-width:18px;text-align:center;flex-shrink:0;}
 .mimg{width:52px;height:52px;border-radius:9px;object-fit:cover;border:1px solid var(--border2);background:var(--border);flex-shrink:0;}
-/* nome grandão + meta tudo na mesma linha */
 .mrow{flex:1;min-width:0;display:flex;align-items:center;gap:.7rem;overflow:hidden;}
 .mname{font-family:var(--head);font-size:1.2rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.02em;flex:1;line-height:1;}
 .mmeta{font-family:var(--head);font-size:.78rem;color:var(--text2);white-space:nowrap;flex-shrink:0;}
@@ -411,7 +429,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 <div id="root"></div>
 
 <script>
-// cursor — sem qualquer delay ou lerp, posição exata
 const dot=document.getElementById('cdot'),glow=document.getElementById('cglow');
 document.addEventListener('mousemove',e=>{
   dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';
@@ -430,7 +447,6 @@ const REGIONS = [
   {id:"las1",label:"LAS"},{id:"oc1",label:"OCE"},
 ];
 
-// Apenas 4 modos
 const MODES = [
   {id:"ranked_solo", label:"Ranked Solo"},
   {id:"ranked_flex", label:"Ranked Flex"},
@@ -438,14 +454,28 @@ const MODES = [
   {id:"all",         label:"Todos"},
 ];
 
-// Loading messages com tempos estimados em segundos
+// ── Detecta se é erro de "invocador não encontrado" ──
+function isNotFoundError(msg) {
+  if(!msg) return false;
+  const m = msg.toLowerCase();
+  return (
+    m.includes("not found") ||
+    m.includes("não encontrado") ||
+    m.includes("nao encontrado") ||
+    m.includes("summoner") && m.includes("404") ||
+    m.includes("404") ||
+    m.includes("player not found") ||
+    m.includes("invocador não encontrado") ||
+    m.includes("puuid")   // às vezes o backend retorna erro de PUUID quando o nick não existe
+  );
+}
+
 function getLoadingSteps(count) {
   const steps = [
     {msg:`Localizando invocador...`,        dur: 3},
     {msg:`Buscando dados de elo e level...`, dur: 4},
     {msg:`Carregando maestrias...`,          dur: 4},
   ];
-  // estimativa: ~1.5s por partida nova (inclui timeline)
   const batches = Math.ceil(count / 20);
   for(let i = 0; i < batches; i++) {
     const from = i * 20 + 1;
@@ -457,10 +487,7 @@ function getLoadingSteps(count) {
   return steps;
 }
 
-// ── DDragon version (fetched at runtime) ──
-let DDV = "14.24.1";  // fallback; atualizado dinamicamente
-
-// Nomes de campeões que a API retorna diferente do arquivo local/DDragon
+let DDV = "14.24.1";
 const CHAMP_FIX = {
   "Nunu & Willump":"Nunu","Renata Glasc":"Renata","Wukong":"MonkeyKing",
   "Bel'Veth":"Belveth","K'Sante":"KSante","Kog'Maw":"KogMaw","Kha'Zix":"Khazix",
@@ -468,35 +495,25 @@ const CHAMP_FIX = {
   "Tahm Kench":"TahmKench","Lee Sin":"LeeSin","Master Yi":"MasterYi",
   "Miss Fortune":"MissFortune","Twisted Fate":"TwistedFate","Xin Zhao":"XinZhao",
   "Jarvan IV":"JarvanIV","Dr. Mundo":"DrMundo","Aurelion Sol":"AurelionSol",
-  "Fiddlesticks":"Fiddlesticks",  // API às vezes retorna variações
+  "Fiddlesticks":"Fiddlesticks",
 };
 function champFile(n){ return CHAMP_FIX[n] || n; }
 
-// Mapa nome_ptBR → URL completa da imagem (preenchido ao carregar DDragon)
-const RUNE_IMG = {};   // {"Eletrocutar": "https://ddragon.../Electrocute.png", ...}
-
-// Carrega runas do DDragon em pt_BR + en_US e monta o mapa nome→URL
+const RUNE_IMG = {};
 async function loadRuneImages() {
   try {
-    // Pega versão atual
     const vRes = await fetch("https://ddragon.leagueoflegends.com/api/versions.json");
     const versions = await vRes.json();
     DDV = versions[0];
-
-    // Busca en_US (tem o icon path) e pt_BR (tem o nome traduzido)
     const [enRes, ptRes] = await Promise.all([
       fetch(`https://ddragon.leagueoflegends.com/cdn/${DDV}/data/en_US/runesReforged.json`),
       fetch(`https://ddragon.leagueoflegends.com/cdn/${DDV}/data/pt_BR/runesReforged.json`),
     ]);
     const enData = await enRes.json();
     const ptData = await ptRes.json();
-
-    // Monta mapa: índice em ptData corresponde ao mesmo índice em enData
     ptData.forEach((treePT, ti) => {
       const treeEN = enData[ti];
-      // Estilo (ex: "Dominação" → icon do treeEN)
       RUNE_IMG[treePT.name] = `https://ddragon.leagueoflegends.com/cdn/img/${treeEN.icon}`;
-
       treePT.slots.forEach((slotPT, si) => {
         slotPT.runes.forEach((runePT, ri) => {
           const runeEN = treeEN.slots[si].runes[ri];
@@ -508,8 +525,6 @@ async function loadRuneImages() {
     console.warn("Falha ao carregar runas do DDragon:", e);
   }
 }
-
-// Inicia o carregamento imediatamente
 const runeLoadPromise = loadRuneImages();
 
 const A = {
@@ -540,15 +555,37 @@ function useReveal() {
   return ref;
 }
 
+// ── Componente de erro — diferencia "não encontrado" de erro genérico ──
+function ErrorBar({ message }) {
+  if(!message) return null;
+  const notFound = isNotFoundError(message);
+  return (
+    <div className="ebar">
+      <div className="ebar-icon">{notFound ? "🔍" : "⚠️"}</div>
+      <div className="ebar-body">
+        {notFound ? (
+          <>
+            <div className="ebar-title">Invocador não encontrado</div>
+            <div className="ebar-sub">Verifique o nome e a tag, ou tente outra região.</div>
+          </>
+        ) : (
+          <>
+            <div className="ebar-title">{message}</div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ══════════════════════
-// LOADER com log animado
+// LOADER
 // ══════════════════════
 function Loader({count}) {
   const steps = getLoadingSteps(count);
   const [activeIdx, setActiveIdx] = useState(0);
   const [elapsed, setElapsed]     = useState(0);
 
-  // avança os steps baseado no tempo estimado
   useEffect(() => {
     let idx = 0;
     function advance() {
@@ -559,7 +596,6 @@ function Loader({count}) {
     advance();
   }, []);
 
-  // contador de tempo
   useEffect(() => {
     const t = setInterval(() => setElapsed(e => e + 1), 1000);
     return () => clearInterval(t);
@@ -590,7 +626,6 @@ function Loader({count}) {
 // ══════════════════════
 // SEARCH PAGE
 // ══════════════════════
-// ── localStorage helpers ──
 function getRecents() {
   try { return JSON.parse(localStorage.getItem('riftora_recents') || '[]'); } catch { return []; }
 }
@@ -609,16 +644,29 @@ function removeRecent(name, tag) {
   } catch {}
 }
 
-function SearchPage({onSearch}) {
-  const [name,   setName]   = useState("");
-  const [tag,    setTag]    = useState("");
-  const [region, setRegion] = useState("br1");
-  const [mode,   setMode]   = useState("ranked_solo");
-  const [count,  setCount]  = useState(20);
-  const [error,  setError]  = useState("");
-  const [recents, setRecents] = useState(() => getRecents());
+function SearchPage({onSearch, externalError}) {
+  const [name,     setName]     = useState("");
+  const [tag,      setTag]      = useState("");
+  const [region,   setRegion]   = useState("br1");
+  const [mode,     setMode]     = useState("ranked_solo");
+  const [count,    setCount]    = useState(20);
+  const [error,    setError]    = useState(externalError || "");
+  const [shake,    setShake]    = useState(false);
+  const [recents,  setRecents]  = useState(() => getRecents());
 
-  // check if there's an active session to resume
+  // propaga erro externo (vindo do App após falha no fetch)
+  useEffect(() => {
+    if(externalError) {
+      setError(externalError);
+      triggerShake();
+    }
+  }, [externalError]);
+
+  function triggerShake() {
+    setShake(true);
+    setTimeout(() => setShake(false), 450);
+  }
+
   const resumeData = (() => {
     try {
       const rd = sessionStorage.getItem('rd');
@@ -634,7 +682,11 @@ function SearchPage({onSearch}) {
 
   function go(n, t, reg, mod, cnt) {
     const nm = n || name, tg = t || tag;
-    if(!nm.trim() || !tg.trim()){ setError("Preencha o nome e a tag."); return; }
+    if(!nm.trim() || !tg.trim()){
+      setError("Preencha o nome e a tag.");
+      triggerShake();
+      return;
+    }
     setError("");
     saveRecent({ name: nm.trim(), tag: tg.trim(), region: reg||region, mode: mod||mode, count: cnt||count });
     setRecents(getRecents());
@@ -647,7 +699,7 @@ function SearchPage({onSearch}) {
     setRecents(getRecents());
   }
 
-  const modeLabel = id => MODES.find(m=>m.id===id)?.label || id;
+  const modeLabel   = id => MODES.find(m=>m.id===id)?.label || id;
   const regionLabel = id => REGIONS.find(r=>r.id===id)?.label || id;
 
   return (
@@ -658,7 +710,6 @@ function SearchPage({onSearch}) {
         <div className="logo-sub">League of Legends · Statistics</div>
       </div>
 
-      {/* resume banner */}
       {showResume && resumeData && (
         <div className="resume-banner">
           <div className="resume-icon">⚡</div>
@@ -676,12 +727,15 @@ function SearchPage({onSearch}) {
       <div className="sc">
         <div className="flbl">Invocador</div>
         <div className="frow">
-          <div className="ibox">
+          {/* classe "error" no ibox dispara o shake via CSS */}
+          <div className={`ibox${shake && error ? ' error' : ''}`}>
             <input type="text" placeholder="GameName" value={name}
-              onChange={e=>setName(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()}/>
+              onChange={e=>{ setName(e.target.value); if(error) setError(""); }}
+              onKeyDown={e=>e.key==="Enter"&&go()}/>
             <div className="tsep">#</div>
             <input className="tinp" type="text" placeholder="TAG" value={tag}
-              onChange={e=>setTag(e.target.value)} onKeyDown={e=>e.key==="Enter"&&go()} maxLength={6}/>
+              onChange={e=>{ setTag(e.target.value); if(error) setError(""); }}
+              onKeyDown={e=>e.key==="Enter"&&go()} maxLength={6}/>
           </div>
           <button className="bsearch" onClick={()=>go()}>Buscar</button>
         </div>
@@ -714,10 +768,10 @@ function SearchPage({onSearch}) {
           </div>
         </div>
 
-        {error && <div className="ebar">{error}</div>}
+        {/* Aviso de erro — distingue "não encontrado" de erro genérico */}
+        <ErrorBar message={error}/>
       </div>
 
-      {/* recentes */}
       {recents.length > 0 && !showResume && (
         <div className="recentes-wrap">
           <div className="recentes-label">Recentes</div>
@@ -740,7 +794,7 @@ function SearchPage({onSearch}) {
 }
 
 // ══════════════════════
-// SIDEBAR — maestria
+// SIDEBAR
 // ══════════════════════
 function Sidebar({mastery}) {
   const top20  = (mastery||[]).slice(0, 20);
@@ -770,9 +824,7 @@ function ProfilePage({data, onBack}) {
   const {player, mastery, matches, analysis, meta} = data;
   const ref = useReveal();
   const [runesReady, setRunesReady] = useState(Object.keys(RUNE_IMG).length > 0);
-  useEffect(() => {
-    runeLoadPromise.then(() => setRunesReady(true));
-  }, []);
+  useEffect(() => { runeLoadPromise.then(() => setRunesReady(true)); }, []);
   const p = player, r = p.ranked || {};
   const o = analysis?.overall || {};
   const streak = analysis?.streak;
@@ -788,22 +840,16 @@ function ProfilePage({data, onBack}) {
   return (
     <div className="proot">
       <Sidebar mastery={mastery}/>
-
       <div className="mcont" ref={ref}>
-
-        {/* nav */}
         <div className="nbar rev">
           <button className="bbtn" onClick={onBack}>← Voltar</button>
           <span className="ncrumb">
             <b>{p.game_name}</b>#{p.tag_line} · {meta?.region?.toUpperCase()} · {MODES.find(m=>m.id===meta?.mode)?.label}
           </span>
         </div>
-
-        {/* hero */}
         <div className="hero rev">
           <div className="icw">
-            <img className="icimg" src={A.icon(p.profile_icon_id)}
-              onError={e=>{e.target.style.background="var(--border)";}} alt="icon"/>
+            <img className="icimg" src={A.icon(p.profile_icon_id)} onError={e=>{e.target.style.background="var(--border)";}} alt="icon"/>
             <div className="iclv">Lv {p.summoner_level}</div>
           </div>
           <div>
@@ -826,8 +872,6 @@ function ProfilePage({data, onBack}) {
             )}
           </div>
         </div>
-
-        {/* stat cards */}
         <div className="srow">
           {[
             {l:"Win Rate",   v:`${wr}%`, s:`${o.wins??0}W ${o.losses??0}L`,              c:wc,        bar:true, bv:wr},
@@ -845,8 +889,6 @@ function ProfilePage({data, onBack}) {
             </div>
           ))}
         </div>
-
-        {/* top champs */}
         {byChamp.length > 0 && <>
           <div className="sec rev"><div className="sttl">// Top Campeões</div><div className="sline"/></div>
           <div className="cgrid">
@@ -869,8 +911,6 @@ function ProfilePage({data, onBack}) {
             })}
           </div>
         </>}
-
-        {/* by role */}
         {byRole.length > 0 && <>
           <div className="sec rev"><div className="sttl">// Por Rota</div><div className="sline"/></div>
           <div className="rgrid">
@@ -889,8 +929,6 @@ function ProfilePage({data, onBack}) {
             })}
           </div>
         </>}
-
-        {/* evolution */}
         {evo?.blocks?.length > 0 && <>
           <div className="sec rev"><div className="sttl">// Evolução</div><div className="sline"/></div>
           <div className="erow">
@@ -906,8 +944,6 @@ function ProfilePage({data, onBack}) {
             })}
           </div>
         </>}
-
-        {/* by hour */}
         {byHour.length > 0 && <>
           <div className="sec rev"><div className="sttl">// Horário BRT</div><div className="sline"/></div>
           <div className="hchart rev">
@@ -926,8 +962,6 @@ function ProfilePage({data, onBack}) {
             </div>
           </div>
         </>}
-
-        {/* matches */}
         {matches?.length > 0 && <>
           <div className="sec rev"><div className="sttl">// Partidas Recentes</div><div className="sline"/></div>
           <div className="mlist">
@@ -973,7 +1007,6 @@ function ProfilePage({data, onBack}) {
             })}
           </div>
         </>}
-
       </div>
     </div>
   );
@@ -989,48 +1022,49 @@ function App() {
   const [data,    setData]   = useState(() => {
     try { const d = sessionStorage.getItem("rd"); return d ? JSON.parse(d) : null; } catch { return null; }
   });
-  const [loading, setLoading]= useState(false);
-  const [count,   setCount]  = useState(20);
-  const [error,   setError]  = useState("");
+  const [loading,  setLoading] = useState(false);
+  const [count,    setCount]   = useState(20);
+  const [extError, setExtError]= useState("");  // erro propagado para SearchPage
 
   async function handleSearch(name, tag, region, mode, cnt) {
     setCount(cnt);
     setLoading(true);
-    setError("");
+    setExtError("");
     try {
-      // Passo 1 — inicia o job, retorna imediatamente com dados do banco
       const url = `${API_BASE}/search?name=${encodeURIComponent(name)}&tag=${encodeURIComponent(tag)}&region=${region}&mode=${mode}&matches=${cnt}`;
       const res = await fetch(url);
       const initial = await res.json();
-      if(!res.ok) throw new Error(initial.detail || "Erro desconhecido.");
+
+      // ── Erro da API (4xx / 5xx) ──
+      if(!res.ok) {
+        const msg = initial.detail || initial.error || initial.message || "Erro desconhecido.";
+        throw new Error(msg);
+      }
 
       const jobKey = initial.job_key;
 
-      // Salva dados iniciais (pode estar incompleto, mas mostra algo)
       const saveAndRedirect = (d) => {
         try { sessionStorage.setItem("rd", JSON.stringify(d)); sessionStorage.setItem("rv", "profile"); } catch {}
         window.location.href = "/escolher";
       };
 
-      // Se já tem dados suficientes no banco, vai logo
       if(initial.matches && initial.matches.length >= cnt) {
         saveAndRedirect(initial);
         return;
       }
 
-      // Passo 2 — polling até job terminar
       const poll = async () => {
         const statusUrl = `${API_BASE}/status/${encodeURIComponent(jobKey)}?matches=${cnt}&region=${region}&mode=${mode}`;
-        const sRes = await fetch(statusUrl);
+        const sRes  = await fetch(statusUrl);
         const sData = await sRes.json();
 
         if(sData.status === "done") {
           saveAndRedirect(sData);
         } else if(sData.status === "error") {
-          setError(sData.error || "Erro ao buscar partidas.");
-          setLoading(false);
+          // Erro retornado pelo job de polling
+          const msg = sData.error || sData.detail || "Erro ao buscar partidas.";
+          throw new Error(msg);
         } else {
-          // ainda rodando — checa de novo em 3s
           setTimeout(poll, 3000);
         }
       };
@@ -1038,11 +1072,13 @@ function App() {
       setTimeout(poll, 3000);
 
     } catch(e) {
+      let msg;
       if(e.name === "AbortError") {
-        setError("Tempo esgotado. O servidor está acordando — tente novamente em 30 segundos.");
+        msg = "Tempo esgotado. O servidor está acordando — tente novamente em 30 segundos.";
       } else {
-        setError(e.message);
+        msg = e.message || "Erro desconhecido.";
       }
+      setExtError(msg);
       setLoading(false);
     }
   }
@@ -1050,17 +1086,17 @@ function App() {
   function handleBack() {
     try { sessionStorage.removeItem("rd"); sessionStorage.removeItem("rv"); } catch {}
     setView("search");
+    setExtError("");
   }
 
   if(loading) return <Loader count={count}/>;
 
-  // Se já tem dados salvos, vai direto pro escolher
   if(view === "profile" && data) {
     window.location.replace("/escolher");
     return null;
   }
 
-  return <SearchPage onSearch={handleSearch} initialError={error}/>;
+  return <SearchPage onSearch={handleSearch} externalError={extError}/>;
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
