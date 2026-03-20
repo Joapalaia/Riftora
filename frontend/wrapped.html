@@ -599,36 +599,84 @@ const CHAMP_DATA = {
 // REGION VISUAL CONFIG
 // ════════════════════════════════════════════════════
 const REGION_CONFIG = {
-  "Shadow Isles":  { emoji:"🌑", color:"#4a7a5a", bg:"linear-gradient(135deg,#050f08 0%,#0a2010 40%,#051208 100%)", desc:"A neblina negra te chama. Você pertence às sombras eternas das Ilhas das Sombras." },
-  "The Void":      { emoji:"🌀", color:"#8844cc", bg:"linear-gradient(135deg,#05000f 0%,#150030 40%,#080015 100%)", desc:"O Vazio consome tudo. Sua presença não pode ser compreendida pelos mortais." },
-  "Noxus":         { emoji:"⚔️",  color:"#cc3322", bg:"linear-gradient(135deg,#150000 0%,#2a0808 40%,#100000 100%)", desc:"Força é tudo. O sangue do Império corre nas suas veias — você conquista ou é conquistado." },
-  "Demacia":       { emoji:"🛡️",  color:"#c8a840", bg:"linear-gradient(135deg,#0a0810 0%,#1a1530 40%,#0d0a18 100%)", desc:"Honra e coragem acima de tudo. Você defende os inocentes com vida e espada." },
-  "Ionia":         { emoji:"🌸",  color:"#cc6688", bg:"linear-gradient(135deg,#100510 0%,#200818 40%,#0f0510 100%)", desc:"O equilíbrio é sua essência. Você encontra força no fluxo da natureza e do espírito." },
-  "Freljord":      { emoji:"❄️",  color:"#88c8e8", bg:"linear-gradient(135deg,#000810 0%,#001525 40%,#000a15 100%)", desc:"O frio não te dobra — ele te forja. Você é tão inabalável quanto as montanhas do norte." },
-  "Piltover":      { emoji:"⚙️",  color:"#e8c040", bg:"linear-gradient(135deg,#100800 0%,#201500 40%,#120900 100%)", desc:"O progresso não para. Você vive na fronteira entre o possível e o impossível." },
-  "Zaun":          { emoji:"☢️",  color:"#88cc44", bg:"linear-gradient(135deg,#020800 0%,#041500 40%,#030a00 100%)", desc:"Nas profundezas de Zaun, os fracos sobrevivem e os fortes prosperam. Você é prova disso." },
-  "Shurima":       { emoji:"☀️",  color:"#e8a020", bg:"linear-gradient(135deg,#100800 0%,#201000 40%,#120800 100%)", desc:"O deserto te moldou. Você carrega o peso de um Império perdido e a chama da eternidade." },
-  "Targon":        { emoji:"⭐",  color:"#c0a8ff", bg:"linear-gradient(135deg,#04000f 0%,#08002a 40%,#04000f 100%)", desc:"Os céus são seu domínio. Você foi tocado pelo divino — uma força além da compreensão mortal." },
-  "Bilgewater":    { emoji:"⚓",  color:"#4488aa", bg:"linear-gradient(135deg,#000810 0%,#001020 40%,#000a15 100%)", desc:"Os mares não te assustam. Você navega entre o perigo e a fortuna sem pestanejar." },
-  "Ixtal":         { emoji:"🌿",  color:"#44aa66", bg:"linear-gradient(135deg,#001008 0%,#002010 40%,#001508 100%)", desc:"A selva te pertence. Você é um com a natureza — e a natureza não perdoa os fracos." },
-  "Bandle City":   { emoji:"🌟", color:"#ffcc44", bg:"linear-gradient(135deg,#080800 0%,#151000 40%,#0a0a00 100%)", desc:"Pequeno em tamanho, imensurável em espírito. Sua alegria é sua maior arma." },
-  "Icathia":       { emoji:"💀", color:"#aa8844", bg:"linear-gradient(135deg,#080400 0%,#150800 40%,#0a0500 100%)", desc:"Você carrega o peso de uma civilização perdida. Sua força é antiga e incompreendida." },
+  "Shadow Isles": {
+    desc: "Você aparece, apaga alguém e some. Quando percebem que você estava lá, já era."
+  },
+  "The Void": {
+    desc: "Você não joga. Você consome. Ninguém entende direito o que você faz — e funciona."
+  },
+  "Noxus": {
+    desc: "Você não pede passagem. Você passa por cima mesmo. Respeito se conquista na marra."
+  },
+  "Demacia": {
+    desc: "Você é aquele que aparece no teamfight e todo mundo fica aliviado. Ou com medo. Depende do lado."
+  },
+  "Ionia": {
+    desc: "Você parece calmo. Mas quem já te enfrentou sabe que é melhor não ter te enfrentado."
+  },
+  "Freljord": {
+    desc: "Você leva porrada, leva mais, leva mais um pouco — e ainda tá de pé sorrindo."
+  },
+  "Piltover": {
+    desc: "Enquanto os outros jogam o jogo, você tá tentando hackear o jogo."
+  },
+  "Zaun": {
+    desc: "Todo mundo te subestimou. Uma vez. Não erraram duas."
+  },
+  "Shurima": {
+    desc: "Você tem aquela energia de 'eu sei de algo que você não sabe'. E provavelmente sabe mesmo."
+  },
+  "Targon": {
+    desc: "Você não é desse mundo. Literalmente. E as pessoas sentem isso."
+  },
+  "Bilgewater": {
+    desc: "Sem plano fixo, sem medo de errar. Você improvisa — e de algum jeito sempre dá certo."
+  },
+  "Ixtal": {
+    desc: "Você some na selva e aparece quando menos esperam. A natureza é sua aliada. E ela não perdoa."
+  },
+  "Bandle City": {
+    desc: "Todo mundo te ignorou no draft. Foi o maior erro da vida deles."
+  },
+  "Icathia": {
+    desc: "Você carrega um peso que ninguém vê. E ainda assim chega na frente de todo mundo."
+  },
 };
 
 // ════════════════════════════════════════════════════
 // ARCHETYPE CONFIG
 // ════════════════════════════════════════════════════
 const ARCHETYPE_CONFIG = {
-  "O Espectro das Trevas":   { icon:"👻", desc:"Você assombra seus inimigos. Silencioso, imprevisível e inevitável — como a morte." },
-  "O Caçador Silencioso":    { icon:"🗡️", desc:"Paciente e preciso. Você espera o momento certo e golpeia com precisão cirúrgica." },
-  "O Destruidor do Vazio":   { icon:"🌀", desc:"Caos puro. Você não joga pelo meta — você joga para consumir tudo." },
-  "O Guardião da Luz":       { icon:"✨", desc:"Você brilha no caos. Onde há trevas, você leva luz — e vitória." },
-  "O Cavaleiro de Honra":    { icon:"⚔️", desc:"Leal até a morte. Você entra primeiro e sai por último — e carrega o time nas costas." },
-  "O Guerreiro Implacável":  { icon:"🔥", desc:"Sem recuo. Sem medo. Você vai pra cima de tudo e de todos — e sobrevive." },
-  "O Mestre das Ilusões":    { icon:"🎭", desc:"Ninguém sabe o que você vai fazer — nem você mesmo. Isso é seu maior poder." },
-  "O Explorador Audacioso":  { icon:"🧭", desc:"Curioso e criativo. Você acha soluções onde outros veem paredes." },
-  "O Estrategista Frio":     { icon:"🧊", desc:"Calculado e implacável. Você vence antes mesmo da batalha começar." },
-  "O Guardião Inabalável":   { icon:"🛡️", desc:"Uma rocha. Enquanto você estiver de pé, o time resiste." },
+  "O Espectro das Trevas": {
+    desc: "Você aparece do nada, apaga alguém e some. Quando percebem, já é tarde."
+  },
+  "O Caçador Silencioso": {
+    desc: "Você não corre atrás. Você espera. E quando o momento chega, não erra (bom, as vezes você erra)."
+  },
+  "O Destruidor do Vazio": {
+    desc: "Você não tem um plano. Você é o caos. E funciona de um jeito que ninguém consegue explicar."
+  },
+  "O Guardião da Luz": {
+    desc: "Você é aquele que aparece no momento mais feio da partida e de algum jeito vira tudo."
+  },
+  "O Cavaleiro de Honra": {
+    desc: "Você entra primeiro, sai por último e ainda digita 'gg ez' no chat."
+  },
+  "O Guerreiro Implacável": {
+    desc: "Tudo que jogaram em cima de você só te deixou mais perigoso. Boa sorte pra quem te enfrenta."
+  },
+  "O Mestre das Ilusões": {
+    desc: "Nem seus aliados sabem o que você vai fazer. Seus inimigos então, nem chance."
+  },
+  "O Explorador Audacioso": {
+    desc: "Você tenta coisa que o guia de build nunca recomendou (e ainda funciona)."
+  },
+  "O Estrategista Frio": {
+    desc: "Você já ganhou a partida antes dela começar. Os outros só ainda não perceberam."
+  },
+  "O Guardião Inabalável": {
+    desc: "Você é a razão do time não ter desistido no 20 minutos. Ninguém passa enquanto você tiver de pé."
+  },
 };
 
 // ════════════════════════════════════════════════════
