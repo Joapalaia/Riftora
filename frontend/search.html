@@ -717,7 +717,7 @@ function SearchPage({onSearch, externalError}) {
             <div className="resume-name">{resumeData.name}<span style={{color:'var(--text3)',fontWeight:400}}>#{resumeData.tag}</span></div>
             <div className="resume-sub">Sessão ativa — continuar de onde parou</div>
           </div>
-          <button className="resume-btn" onClick={()=>window.location.href='/escolher'}>Continuar →</button>
+          <button className="resume-btn" onClick={()=>window.location.href='/menu'}>Continuar →</button>
           <button className="resume-dismiss" onClick={()=>{
             sessionStorage.removeItem('rd'); sessionStorage.removeItem('rv'); setShowResume(false);
           }}>✕</button>
@@ -1045,7 +1045,7 @@ function App() {
 
       const saveAndRedirect = (d) => {
         try { sessionStorage.setItem("rd", JSON.stringify(d)); sessionStorage.setItem("rv", "profile"); } catch {}
-        window.location.href = "/escolher";
+        window.location.href = "/menu";
       };
 
       if(initial.matches && initial.matches.length >= cnt) {
@@ -1092,7 +1092,7 @@ function App() {
   if(loading) return <Loader count={count}/>;
 
   if(view === "profile" && data) {
-    window.location.replace("/escolher");
+    window.location.replace("/menu");
     return null;
   }
 

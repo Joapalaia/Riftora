@@ -5,8 +5,8 @@
       "destination": "/search.html"
     },
     {
-      "source": "/escolher",
-      "destination": "/escolher.html"
+      "source": "/menu",
+      "destination": "/menu.html"
     },
     {
       "source": "/maestria",
