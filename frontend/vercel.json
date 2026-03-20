@@ -9,8 +9,8 @@
       "destination": "/menu.html"
     },
     {
-      "source": "/maestria",
-      "destination": "/maestria.html"
+      "source": "/masteries",
+      "destination": "/masteries.html"
     },
     {
       "source": "/stats",
