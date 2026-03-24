@@ -1,12 +1,13 @@
 <div align="center">
 
-<img src="frontend/assets/favicon.ico" width="64" height="64" alt="Riftora Logo"/>
-
 # Riftora — LoL Stats
 
 **Veja as estatísticas do seu Invocador direto no navegador.**
 
-<img width="735" height="641" alt="image" src="https://github.com/user-attachments/assets/692df3af-082b-409e-9607-ad6fe8b38099" />
+<img width="919" height="651" alt="image" src="https://github.com/user-attachments/assets/3cee6a8b-f475-4362-929f-e40cb6065662" />
+
+<img width="917" height="729" alt="image" src="https://github.com/user-attachments/assets/6998c872-cad1-474a-a3f6-e6b692365f2e" />
+
 
 </div>
 
