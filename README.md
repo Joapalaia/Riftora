@@ -2,6 +2,8 @@
 
 # Riftora — LoL Stats
 
+https://riftoralol.vercel.app/
+
 **Veja as estatísticas do seu Invocador direto no navegador.**
 
 <img width="919" height="651" alt="image" src="https://github.com/user-attachments/assets/3cee6a8b-f475-4362-929f-e40cb6065662" />
